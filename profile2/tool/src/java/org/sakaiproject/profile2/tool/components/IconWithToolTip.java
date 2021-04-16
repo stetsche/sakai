@@ -45,9 +45,9 @@ public class IconWithToolTip extends Panel{
 		
 		icon.add(new AttributeModifier("class", new Model(iconClass)));
 		
-		link.add(icon);	                
+		link.add(icon);
 		
-		add(link);	
+		add(link);
 	}
 
 }
