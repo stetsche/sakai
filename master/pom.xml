@@ -44,7 +44,7 @@
     <sakai.httpcore5.version>5.0.3</sakai.httpcore5.version>
     <sakai.ignite.version>2.9.1</sakai.ignite.version>
     <sakai.gridgain.version>8.8.1</sakai.gridgain.version>
-    <sakai.jackson.version>2.12.2</sakai.jackson.version>
+    <sakai.jackson.version>2.12.3</sakai.jackson.version>
     <sakai.jsoup.version>1.12.1</sakai.jsoup.version>
     <sakai.woodstox.version>5.2.1</sakai.woodstox.version>
     <sakai.stax2.version>4.2</sakai.stax2.version>
@@ -74,8 +74,8 @@
     <sakai.log4j.version>1.2.17</sakai.log4j.version>
     <sakai.slf4j.version>1.7.30</sakai.slf4j.version>
     <sakai.poi.version>5.0.0</sakai.poi.version>
-    <sakai.mockito.version>3.4.4</sakai.mockito.version>
-    <sakai.powermock.version>2.0.7</sakai.powermock.version>
+    <sakai.mockito.version>3.9.0</sakai.mockito.version>
+    <sakai.powermock.version>2.0.9</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
     <joda.time.version>2.10.10</joda.time.version>
     <sakai.weld.shaded.version>3.1.3.Final</sakai.weld.shaded.version>
@@ -87,7 +87,7 @@
     <handlebars2.version>2.1.0</handlebars2.version>
     <handlebars4.version>4.0.6</handlebars4.version>
     <hamcrest.all.version>1.3</hamcrest.all.version>
-    <junit.version>4.13.1</junit.version>
+    <junit.version>4.13.2</junit.version>
 
     <!-- Sakai modules that are versioned separately -->
     <!-- lessonbuilder tool pom depends on msgcntr ver prop. Need to add a profile to the LB tool pom to mark change between 10.x master and earlier versions -->
@@ -325,7 +325,7 @@
     <repository>
       <id>gridgain</id>
       <name>Gridgain Systems</name>
-      <url>http://gridgainsystems.com/nexus/content/repositories/external</url>
+      <url>https://gridgainsystems.com/nexus/content/repositories/external</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
@@ -581,7 +581,7 @@
       <dependency>
         <groupId>com.fasterxml</groupId>
         <artifactId>classmate</artifactId>
-        <version>1.5.0</version>
+        <version>1.5.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -975,7 +975,7 @@
       <dependency>
         <groupId>org.mnode.ical4j</groupId>
         <artifactId>ical4j</artifactId>
-        <version>3.0.21</version>
+        <version>3.0.22</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1016,7 +1016,7 @@
       <dependency>
         <groupId>com.sun.mail</groupId>
         <artifactId>jakarta.mail</artifactId>
-        <version>1.6.5</version>
+        <version>1.6.7</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
