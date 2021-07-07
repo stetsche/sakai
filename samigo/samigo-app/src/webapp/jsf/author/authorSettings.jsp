@@ -316,6 +316,7 @@
     <h:panelGroup rendered="#{assessmentSettings.valueMap.metadataAssess_isInstructorEditable==true}">
       <h:outputText escape="false" value="<h3> <a class=\"jqueryui-hideDivision\" href=\"#\"> #{assessmentSettingsMessages.heading_metadata} </a> </h3>" /> 
       <div class="tier2">
+        <!-- ASSESSMENT METADATA -->
         <div class="samigo-subheading">
             <h:outputLabel value="#{assessmentSettingsMessages.assessment_metadata}" /> 
         </div>
@@ -341,21 +342,25 @@
             </div>
         </div>
         
-        
+	<!-- QUESTION METADATA -->
         <div class="samigo-subheading">
             <h:outputLabel value="#{assessmentSettingsMessages.record_metadata}" />
         </div>
-         <div>
+        <div>
          <h:selectBooleanCheckbox id="metadataQuestions" rendered="#{assessmentSettings.valueMap.metadataQuestions_isInstructorEditable==true}"
             value="#{assessmentSettings.valueMap.hasMetaDataForQuestions}"/>
          <h:outputLabel for="metadataQuestions" value="#{assessmentSettingsMessages.metadata_questions}" rendered="#{assessmentSettings.valueMap.metadataQuestions_isInstructorEditable==true}" />
-       </div>
+        </div>
+        <div class="sak-banner-info">
+            <h:outputLabel value="#{assessmentSettingsMessages.metadata_questions_info}"/>
+	</div>
       </div>
     </h:panelGroup>
   </div><!-- This is the end of the sub-accordion -->
 
 </samigo:hideDivision><!-- End the About this Assessment category -->
-
+<!-- SECURITY AND PROCTORING  -->
+<!-- AVAILABILITY AND SUBMISSIONS -->
 <samigo:hideDivision title="#{assessmentSettingsMessages.heading_availability}"> 
   <!-- *** RELEASED TO *** -->
   <div class="form-group row">
