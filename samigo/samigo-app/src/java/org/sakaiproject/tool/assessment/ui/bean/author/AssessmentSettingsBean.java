@@ -368,7 +368,7 @@ public class AssessmentSettingsBean implements Serializable {
         if (accessControl.getHonorPledge() != null) {
           this.honorPledge = accessControl.getHonorPledge();
         } else {
-          this.honorPledge = false;
+          this.honorPledge = true;
         }
         // default to unlimited if control value is null
         if (accessControl.getUnlimitedSubmissions()!=null && !accessControl.getUnlimitedSubmissions()){
