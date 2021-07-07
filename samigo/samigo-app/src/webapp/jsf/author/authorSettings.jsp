@@ -277,6 +277,11 @@
         </div>
     </div>
 
+    <!-- DESCRIPTION AND ATTACHMENTS TITILE  -->
+    <div class="samigo-subheading">
+        <h:outputLabel value="#{assessmentSettingsMessages.assessment_description_and_attachments}"/>
+    </div>
+
     <div class="form-group row">
         <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.assessment_description}" rendered="#{assessmentSettings.valueMap.description_isInstructorEditable==true}"/>
 
@@ -289,6 +294,11 @@
         </div>
     </div>
 
+    <!-- ASSESSMENT ATTACHMENTS -->
+    <div class="form-group row">
+         <%@ include file="/jsf/author/authorSettings_attachment.jsp" %>
+    </div>
+
     <!-- Honor Pledge -->
     <div class="form-group row">
         <h:outputLabel styleClass="col-md-2" for="honor_pledge" value="#{assessmentSettingsMessages.honor_pledge}" rendered="#{assessmentSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
@@ -296,11 +306,6 @@
             <h:selectBooleanCheckbox id="honor_pledge" value="#{assessmentSettings.honorPledge}" rendered="#{assessmentSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
             <h:outputLabel for="honor_pledge" value="#{assessmentSettingsMessages.honor_pledge_add}" rendered="#{assessmentSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
         </div>
-    </div>
-
-    <!-- ASSESSMENT ATTACHMENTS -->
-    <div class="form-group row">
-         <%@ include file="/jsf/author/authorSettings_attachment.jsp" %>
     </div>
 
   </div>
