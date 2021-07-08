@@ -394,6 +394,36 @@
             </h:panelGrid>
         </div>
     </h:panelGroup>
+    <!-- BACKGROUND SETTINGS-->
+    <!-- BACKGROUND COLOR-->
+    <div class="samigo-subheading">
+         <h:outputLabel value="#{assessmentSettingsMessages.background_label}"/>
+    </div>
+    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.bgColor_isInstructorEditable==true}" >
+        <div class="col-md-2">
+           <h:outputLabel value="#{assessmentSettingsMessages.background_label_choose}"/>
+	</div>
+        <div class="col-md-2">
+            <h:selectOneRadio onclick="uncheckOther(this)" id="background_color" value="#{assessmentSettings.bgColorSelect}">
+                <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.background_color}"/>
+            </h:selectOneRadio>
+	</div>
+	<div class="col-md-8">
+	    <samigo:colorPicker value="#{assessmentSettings.bgColor}" size="10" id="pickColor"/>
+	</div>
+    </h:panelGroup>
+    <!-- BACKGROUND IMAGE-->
+    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.bgColor_isInstructorEditable==true}" >
+	<div class="col-md-2"></div>
+	<div class="col-md-2">
+	    <h:selectOneRadio onclick="uncheckOther(this)" id="background_image" value="#{assessmentSettings.bgImageSelect}"  >
+                <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.background_image}"/>
+            </h:selectOneRadio>
+	</div>
+	<div class="col-md-8">
+	    <h:inputText size="80" value="#{assessmentSettings.bgImage}"/>
+	</div>
+    </h:panelGroup>
 </samigo:hideDivision><!-- END the Security and Proctoring category -->
 
 <!-- AVAILABILITY AND SUBMISSIONS -->
@@ -783,22 +813,10 @@
       <h:outputLabel for="markForReview1" value="#{assessmentSettingsMessages.mark_for_review_label}"/>
     </div>
   </h:panelGroup>
- 
-  <!-- *** COLORS AND GRAPHICS	*** -->
-  <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.bgColor_isInstructorEditable==true}" >
-    <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.background_label}" />
-    <div class="col-md-10">
-      <h:selectOneRadio onclick="uncheckOther(this)" id="background_color" value="#{assessmentSettings.bgColorSelect}">
-        <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.background_color}"/>
-      </h:selectOneRadio>
-      <samigo:colorPicker value="#{assessmentSettings.bgColor}" size="10" id="pickColor"/>
-       <h:selectOneRadio onclick="uncheckOther(this)" id="background_image" value="#{assessmentSettings.bgImageSelect}"  >
-          <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.background_image}"/>
-       </h:selectOneRadio>  
-      <h:inputText size="80" value="#{assessmentSettings.bgImage}"/>
-    </div>
-  </h:panelGroup>
-
+  <!-- BACKGROUND INFO BANNER -->
+  <div class="sak-banner-info">
+	  <h:outputLabel value="#{assessmentSettingsMessages.background_info}"/>
+  </div>
 </samigo:hideDivision><!-- END Layout and Appearance Category -->
 
 </div>
