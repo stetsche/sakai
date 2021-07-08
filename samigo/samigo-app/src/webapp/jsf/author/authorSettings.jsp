@@ -359,7 +359,43 @@
   </div><!-- This is the end of the sub-accordion -->
 
 </samigo:hideDivision><!-- End the About this Assessment category -->
-<!-- SECURITY AND PROCTORING  -->
+
+<!-- SECURITY AND PROCTORING -->
+<samigo:hideDivision title="#{assessmentSettingsMessages.heading_security_proctoring}">
+    <div class="samigo-subheading">
+        <h:outputLabel value="#{assessmentSettingsMessages.heading_high_security}"/>
+    </div>
+    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.ipAccessType_isInstructorEditable==true}">
+        <h:outputLabel value="#{assessmentSettingsMessages.high_security_allow_only_specified_ip}" styleClass="col-md-2 form-control-label"/>
+        <%-- no WYSIWYG for IP addresses --%>
+        <div class="col-md-10">
+            <h:inputTextarea value="#{assessmentSettings.ipAddresses}" cols="40" rows="5"/>
+            <h:outputText escape="false" value="<br/>#{assessmentSettingsMessages.ip_note} <br/>#{assessmentSettingsMessages.ip_example}#{assessmentSettingsMessages.ip_ex}<br/>"/>
+        </div>
+    </h:panelGroup>
+
+    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true}">
+        <h:outputLabel value="#{assessmentSettingsMessages.high_security_secondary_id_pw}" styleClass="col-md-2 form-control-label"/>
+        <div class="col-md-10">
+            <h:outputLabel for="password" value="#{assessmentSettingsMessages.high_security_password}"/>
+            <h:inputText id="password" size="20" value="#{assessmentSettings.password}" styleClass="form-control"/>
+        </div>
+    </h:panelGroup>
+
+    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.lockedBrowser_isInstructorEditable==true && assessmentSettings.secureDeliveryAvailable}">
+        <h:outputLabel value="#{assessmentSettingsMessages.require_secure_delivery}" styleClass="col-md-2 form-control-label"/>
+        <div class="col-md-10">
+            <h:selectOneRadio id="secureDeliveryModule" value="#{assessmentSettings.secureDeliveryModule}"  layout="pageDirection" onclick="setBlockDivs();">
+                <f:selectItems value="#{assessmentSettings.secureDeliveryModuleSelections}" />
+            </h:selectOneRadio>
+	    <h:panelGrid border="0" columns="2"  columnClasses="samigo-security" >
+                <h:outputLabel for="secureDeliveryModuleExitPassword" value="#{assessmentSettingsMessages.secure_delivery_exit_pwd}"/>
+                <h:inputText id="secureDeliveryModuleExitPassword" size="20" value="#{assessmentSettings.secureDeliveryModuleExitPassword}" disabled="#{assessmentSettings.secureDeliveryModule == 'SECURE_DELIVERY_NONE_ID'}" maxlength="14"/>
+            </h:panelGrid>
+        </div>
+    </h:panelGroup>
+</samigo:hideDivision><!-- END the Security and Proctoring category -->
+
 <!-- AVAILABILITY AND SUBMISSIONS -->
 <samigo:hideDivision title="#{assessmentSettingsMessages.heading_availability}"> 
   <!-- *** RELEASED TO *** -->
@@ -499,47 +535,9 @@
       </div>
     </h:panelGroup>
 
-<div id="jqueryui-accordion-security"><!-- This is sub-accordion for high security and submission message -->
+<div id="jqueryui-accordion-security"><!-- This is the sub-accordion for submission message -->
 
-  <!-- *** HIGH SECURITY *** -->
-  <h:panelGroup rendered="#{assessmentSettings.valueMap.ipAccessType_isInstructorEditable==true or assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true or publishedSettings.valueMap.lockedBrowser_isInstructorEditable==true}" >
-    <h:outputText escape="false" value="<h3> <a class=\"jqueryui-hideDivision\" href=\"#\"> #{assessmentSettingsMessages.heading_high_security} </a> </h3><div>" />
-    
-    
-    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.ipAccessType_isInstructorEditable==true}">
-        <h:outputLabel value="#{assessmentSettingsMessages.high_security_allow_only_specified_ip}" styleClass="col-md-2 form-control-label"/>
-        <%-- no WYSIWYG for IP addresses --%>
-        <div class="col-md-10">
-            <h:inputTextarea value="#{assessmentSettings.ipAddresses}" cols="40" rows="5"/>
-            <h:outputText escape="false" value="<br/>#{assessmentSettingsMessages.ip_note} <br/>#{assessmentSettingsMessages.ip_example}#{assessmentSettingsMessages.ip_ex}<br/>"/> 
-        </div>
-    </h:panelGroup>
-    
-    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true}">
-        <h:outputLabel value="#{assessmentSettingsMessages.high_security_secondary_id_pw}" styleClass="col-md-2 form-control-label"/>
-        <div class="col-md-10">
-            <h:outputLabel for="password" value="#{assessmentSettingsMessages.high_security_password}"/>
-            <h:inputText id="password" size="20" value="#{assessmentSettings.password}" styleClass="form-control"/>
-        </div>
-    </h:panelGroup>
-
-    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.lockedBrowser_isInstructorEditable==true && assessmentSettings.secureDeliveryAvailable}">
-        <h:outputLabel value="#{assessmentSettingsMessages.require_secure_delivery}" styleClass="col-md-2 form-control-label"/>
-        <div class="col-md-10">
-            <h:selectOneRadio id="secureDeliveryModule" value="#{assessmentSettings.secureDeliveryModule}"  layout="pageDirection" onclick="setBlockDivs();">
-                <f:selectItems value="#{assessmentSettings.secureDeliveryModuleSelections}" />
-            </h:selectOneRadio>
-            <h:panelGrid border="0" columns="2"  columnClasses="samigo-security" >	
-                <h:outputLabel for="secureDeliveryModuleExitPassword" value="#{assessmentSettingsMessages.secure_delivery_exit_pwd}"/>
-                <h:inputText id="secureDeliveryModuleExitPassword" size="20" value="#{assessmentSettings.secureDeliveryModuleExitPassword}" disabled="#{assessmentSettings.secureDeliveryModule == 'SECURE_DELIVERY_NONE_ID'}" maxlength="14"/>      	
-            </h:panelGrid>
-        </div>
-    </h:panelGroup>
-    
-    <f:verbatim></div></f:verbatim>
-  </h:panelGroup>
-
-  <!-- *** SUBMISSION MESSAGE *** -->
+<!-- *** SUBMISSION MESSAGE *** -->
 <h:panelGroup rendered="#{assessmentSettings.valueMap.submissionMessage_isInstructorEditable==true or assessmentSettings.valueMap.finalPageURL_isInstructorEditable==true}" >
    <h:outputText escape="false" value="<h3> <a class=\"jqueryui-hideDivision\" href=\"#\"> #{assessmentSettingsMessages.heading_submission_message} </a> </h3><div>" />
     <h:panelGroup layout="block" styleClass="form-group row" rendered="#{assessmentSettings.valueMap.submissionMessage_isInstructorEditable==true}">
