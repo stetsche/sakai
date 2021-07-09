@@ -377,7 +377,7 @@ public class AssessmentSettingsBean implements Serializable {
         }
         else{
           this.unlimitedSubmissions=AssessmentAccessControlIfc.UNLIMITED_SUBMISSIONS.toString();
-          this.submissionsAllowed="";
+          this.submissionsAllowed="1";
         }
         if (accessControl.getLateHandling() !=null)
           this.lateHandling = accessControl.getLateHandling().toString();
