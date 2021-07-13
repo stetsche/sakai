@@ -486,7 +486,29 @@
           </div>
       </div>
 
-<!-- *** TIMED *** -->
+    <!-- LATE HANDLING -->
+    <h:panelGroup rendered="#{assessmentSettings.valueMap.lateHandling_isInstructorEditable==true}">
+      <div class="row">
+        <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.late_accept}" />
+        <div class="col-md-10">
+        <t:selectOneRadio id="lateHandling" value="#{assessmentSettings.lateHandling}" onclick="checkLastHandling();" layout="spread">
+          <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.no_late}"/>
+          <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.yes_late}"/>
+        </t:selectOneRadio>
+        <ul class="late-handling">
+          <li><t:radio renderLogicalId="true" for="lateHandling" index="0" /></li>
+          <li>
+            <t:radio renderLogicalId="true" for="lateHandling" index="1" />
+            <h:outputText value="&#160;" escape="false" />
+            <h:inputText value="#{assessmentSettings.retractDateString}" size="25" id="retractDate"/>
+          </li>
+        </ul>
+        <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.late_accept_help}" />
+      </div>
+    </div>
+  </h:panelGroup>
+
+    <!-- *** TIMED *** -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.timedAssessment_isInstructorEditable==true}">
      <div class="row">
         <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.assessment_timed}" />
@@ -519,28 +541,6 @@
      </div>
     </h:panelGroup>
 
-    <!-- LATE HANDLING -->
-    <h:panelGroup rendered="#{assessmentSettings.valueMap.lateHandling_isInstructorEditable==true}">
-      <div class="row">
-        <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.late_accept}" />
-        <div class="col-md-10">
-        <t:selectOneRadio id="lateHandling" value="#{assessmentSettings.lateHandling}" onclick="checkLastHandling();" layout="spread">
-          <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.no_late}"/>
-          <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.yes_late}"/>
-        </t:selectOneRadio>
-        <ul class="late-handling">
-          <li><t:radio renderLogicalId="true" for="lateHandling" index="0" /></li>
-          <li>
-            <t:radio renderLogicalId="true" for="lateHandling" index="1" />
-            <h:outputText value="&#160;" escape="false" />
-            <h:inputText value="#{assessmentSettings.retractDateString}" size="25" id="retractDate"/>
-          </li>
-        </ul>
-        <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.late_accept_help}" />
-      </div>
-    </div>
-  </h:panelGroup>
-
   <!-- AUTOMATIC SUBMISSION -->
   <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.automaticSubmission_isInstructorEditable==true}">
     <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.auto_submit}" />
@@ -568,20 +568,6 @@
     </div>
   </h:panelGroup>
 
-    <!-- Display Scores -->
-    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.displayScores_isInstructorEditable==true}">
-      <h:outputLabel styleClass="col-md-2" for="displayScores" value="#{assessmentSettingsMessages.displayScores}" /> 
-      <div class="col-md-10">
-         <t:selectOneRadio id="displayScores" value="#{assessmentSettings.displayScoreDuringAssessments}" layout="spread">
-           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.displayScores_show}"/>
-           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.displayScores_hide}"/>
-         </t:selectOneRadio>
-         <ul class="display-scores">
-           <li><t:radio renderLogicalId="true" for="displayScores" index="0" /></li>
-           <li><t:radio renderLogicalId="true" for="displayScores" index="1" /></li>
-         </ul>
-      </div>
-    </h:panelGroup>
 
 <div id="jqueryui-accordion-security"><!-- This is the sub-accordion for submission message -->
 
@@ -830,7 +816,23 @@
       <h:selectBooleanCheckbox id="markForReview1" value="#{assessmentSettings.isMarkForReview}"/>
       <h:outputLabel for="markForReview1" value="#{assessmentSettingsMessages.mark_for_review_label}"/>
     </div>
+
   </h:panelGroup>
+    <!-- Display Scores -->
+    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.displayScores_isInstructorEditable==true}">
+      <h:outputLabel styleClass="col-md-2" for="displayScores" value="#{assessmentSettingsMessages.displayScores}" /> 
+      <div class="col-md-10">
+         <t:selectOneRadio id="displayScores" value="#{assessmentSettings.displayScoreDuringAssessments}" layout="spread">
+           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.displayScores_show}"/>
+           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.displayScores_hide}"/>
+         </t:selectOneRadio>
+         <ul class="display-scores">
+           <li><t:radio renderLogicalId="true" for="displayScores" index="0" /></li>
+           <li><t:radio renderLogicalId="true" for="displayScores" index="1" /></li>
+         </ul>
+      </div>
+    </h:panelGroup>
+
   <!-- BACKGROUND INFO BANNER -->
   <div class="sak-banner-info">
 	  <h:outputLabel value="#{assessmentSettingsMessages.background_info}"/>
