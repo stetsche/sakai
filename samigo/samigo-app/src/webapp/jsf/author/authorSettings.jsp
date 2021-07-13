@@ -565,35 +565,6 @@
       <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.instructorNotification}" />
     </div>
   </h:panelGroup>
-
-
-<div id="jqueryui-accordion-security"><!-- This is the sub-accordion for submission message -->
-
-<!-- *** SUBMISSION MESSAGE *** -->
-<h:panelGroup rendered="#{assessmentSettings.valueMap.submissionMessage_isInstructorEditable==true or assessmentSettings.valueMap.finalPageURL_isInstructorEditable==true}" >
-   <h:outputText escape="false" value="<h3> <a class=\"jqueryui-hideDivision\" href=\"#\"> #{assessmentSettingsMessages.heading_submission_message} </a> </h3><div>" />
-    <h:panelGroup layout="block" styleClass="form-group row" rendered="#{assessmentSettings.valueMap.submissionMessage_isInstructorEditable==true}">
-        <h:outputLabel value="#{assessmentSettingsMessages.submission_message}" styleClass="col-md-2 form-control-label" />
-        <div class="col-md-10">
-            <h:panelGrid>
-                <samigo:wysiwyg rows="140" value="#{assessmentSettings.submissionMessage}" hasToggle="yes" mode="author">
-                    <f:validateLength maximum="4000"/>
-                </samigo:wysiwyg>
-            </h:panelGrid>
-        </div>
-    </h:panelGroup>
-    <h:panelGroup  layout="block" styleClass="form-group row" rendered="#{assessmentSettings.valueMap.finalPageURL_isInstructorEditable==true}">
-        <h:outputLabel for="finalPageUrl" value="#{assessmentSettingsMessages.submission_final_page_url}"  styleClass="col-md-2 form-control-label"/>
-        <div class="col-md-10">
-            <h:inputText size="80" id="finalPageUrl" value="#{assessmentSettings.finalPageUrl}" styleClass="form-control"/>
-            <h:commandButton value="#{assessmentSettingsMessages.validateURL}" type="button" onclick="javascript:validateUrl();"/>
-        </div>
-    </h:panelGroup>
-   </div>
-</h:panelGroup>
-
-</div><!-- This is the end of the sub-accordion -->
-
 </samigo:hideDivision><!-- END the Availabity and Submissions category -->
 
 <samigo:hideDivision title="#{assessmentSettingsMessages.heading_extended_time}" >
@@ -816,6 +787,7 @@
     </div>
 
   </h:panelGroup>
+
     <!-- Display Scores -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.displayScores_isInstructorEditable==true}">
       <h:outputLabel styleClass="col-md-2" for="displayScores" value="#{assessmentSettingsMessages.displayScores}" /> 
@@ -830,6 +802,32 @@
          </ul>
       </div>
     </h:panelGroup>
+<div id="jqueryui-accordion-security"><!-- This is the sub-accordion for submission message -->
+
+<!-- *** SUBMISSION MESSAGE *** -->
+<h:panelGroup rendered="#{assessmentSettings.valueMap.submissionMessage_isInstructorEditable==true or assessmentSettings.valueMap.finalPageURL_isInstructorEditable==true}" >
+   <h:outputText escape="false" value="<h3> <a class=\"jqueryui-hideDivision\" href=\"#\"> #{assessmentSettingsMessages.heading_submission_message} </a> </h3><div>" />
+    <h:panelGroup layout="block" styleClass="form-group row" rendered="#{assessmentSettings.valueMap.submissionMessage_isInstructorEditable==true}">
+        <h:outputLabel value="#{assessmentSettingsMessages.submission_message}" styleClass="col-md-2 form-control-label" />
+        <div class="col-md-10">
+            <h:panelGrid>
+                <samigo:wysiwyg rows="140" value="#{assessmentSettings.submissionMessage}" hasToggle="yes" mode="author">
+                    <f:validateLength maximum="4000"/>
+                </samigo:wysiwyg>
+            </h:panelGrid>
+        </div>
+    </h:panelGroup>
+    <h:panelGroup  layout="block" styleClass="form-group row" rendered="#{assessmentSettings.valueMap.finalPageURL_isInstructorEditable==true}">
+        <h:outputLabel for="finalPageUrl" value="#{assessmentSettingsMessages.submission_final_page_url}"  styleClass="col-md-2 form-control-label"/>
+        <div class="col-md-10">
+            <h:inputText size="80" id="finalPageUrl" value="#{assessmentSettings.finalPageUrl}" styleClass="form-control"/>
+            <h:commandButton value="#{assessmentSettingsMessages.validateURL}" type="button" onclick="javascript:validateUrl();"/>
+        </div>
+    </h:panelGroup>
+   </div>
+</h:panelGroup>
+
+</div><!-- This is the end of the sub-accordion -->
 
   <!-- BACKGROUND INFO BANNER -->
   <div class="sak-banner-info">
