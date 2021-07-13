@@ -16,7 +16,7 @@ if (field != null) {
        return "Check all"; }
   }
   else {
-// for only one checkbox
+/// for only one checkbox
     if (checkflag == "false") {
   field.checked = true;
   checkflag = "true";
@@ -601,6 +601,64 @@ function setBlockDivs()
    }
    //document.forms[0].elements['assessmentSettingsAction:blockDivs'].value = "_id224";
    document.forms[0].elements['assessmentSettingsAction:blockDivs'].value = blockDivs;
+}
+function checkTimeRadio(){
+  var inputList= document.getElementsByTagName("INPUT");
+  var timedCheckBoxId;
+  var timedHourId;
+  var timedMinuteId;
+  for (i = 0; i <inputList.length; i++)
+  {
+    if(inputList[i].type=='radio')
+    {
+      if(inputList[i].id.indexOf("selTimeAssess")>=0)
+        timedCheckBoxId = inputList[i].id;
+    }
+  }
+  inputList= document.getElementsByTagName("select");
+  for (i = 0; i <inputList.length; i++)
+  {
+    if(inputList[i].id.indexOf("timedHours")>=0)
+      timedHourId =inputList[i].id;
+    if(inputList[i].id.indexOf("timedMinutes")>=0)
+      timedMinuteId =inputList[i].id;
+  }
+  if(document.getElementById(timedCheckBoxId) != null)
+  {
+    if(!document.getElementById(timedCheckBoxId).checked)
+    {
+      if(document.getElementById(timedHourId) != null)
+      {
+        for(i=0; i<document.getElementById(timedHourId).options.length; i++)
+        {
+          if(i==0)
+            document.getElementById(timedHourId).options[i].selected = true;
+          else
+            document.getElementById(timedHourId).options[i].selected = false;
+        }
+        document.getElementById(timedHourId).disabled = true;
+      }
+      if(document.getElementById(timedMinuteId) != null)
+      {
+        for(i=0; i<document.getElementById(timedMinuteId).options.length; i++)
+        {
+          if(i==0)
+            document.getElementById(timedMinuteId).options[i].selected = true;
+          else
+            document.getElementById(timedMinuteId).options[i].selected = false;
+        }
+        document.getElementById(timedMinuteId).disabled = true;
+      }
+    }
+    else
+    { // SAM-2121: now the "Timed Assessment" box is checked"
+      // I wish we didn't have to submit this form now, but I could not get it to work properly without submitting.
+      // SAM-2262: fixed
+      document.getElementById(timedHourId).disabled = false;
+      document.getElementById(timedMinuteId).disabled = false;
+      //document.forms[0].submit();
+    }
+  }
 }
 
 function checkUncheckTimeBox(){

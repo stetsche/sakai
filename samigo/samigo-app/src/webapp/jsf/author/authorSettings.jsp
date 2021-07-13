@@ -176,7 +176,7 @@
           }
           showHideReleaseGroups();
           initTimedCheckBox();
-          checkUncheckTimeBox();
+          checkTimeRadio();
           checkLastHandling();
 
           <!--Initialize bootstrap multiselect-->
@@ -351,9 +351,7 @@
             value="#{assessmentSettings.valueMap.hasMetaDataForQuestions}"/>
          <h:outputLabel for="metadataQuestions" value="#{assessmentSettingsMessages.metadata_questions}" rendered="#{assessmentSettings.valueMap.metadataQuestions_isInstructorEditable==true}" />
         </div>
-        <div class="sak-banner-info">
-            <h:outputLabel value="#{assessmentSettingsMessages.metadata_questions_info}"/>
-	</div>
+        <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.metadata_questions_info}}" />
       </div>
     </h:panelGroup>
   </div><!-- This is the end of the sub-accordion -->
@@ -370,7 +368,8 @@
         <%-- no WYSIWYG for IP addresses --%>
         <div class="col-md-10">
             <h:inputTextarea value="#{assessmentSettings.ipAddresses}" cols="40" rows="5"/>
-            <h:outputText escape="false" value="<br/>#{assessmentSettingsMessages.ip_note} <br/>#{assessmentSettingsMessages.ip_example}#{assessmentSettingsMessages.ip_ex}<br/>"/>
+            <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.ip_note}"/>
+            <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.ip_example} #{assessmentSettingsMessages.ip_ex}"/>
         </div>
     </h:panelGroup>
 
@@ -435,9 +434,9 @@
           <h:selectOneMenu id="releaseTo" value="#{assessmentSettings.firstTargetSelected}" onclick="setBlockDivs();lockdownAnonyGrading(this.value);lockdownGradebook(this.value);" onchange="showHideReleaseGroups();">
               <f:selectItems value="#{assessmentSettings.publishingTargets}" />
           </h:selectOneMenu>
+          <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.assessment_type_info}" />
        </div>
   </div>
-
   <div id="groupDiv" class="groupTable">
     <h:selectManyListbox id="groupsForSite" value="#{assessmentSettings.groupsAuthorized}">
       <f:selectItems value="#{assessmentSettings.groupsForSite}" />
@@ -470,6 +469,9 @@
   </h:panelGroup>
       
   <!-- *** DELIVERY DATES *** -->
+  <div class="samigo-subheading">
+        <h:outputLabel value="#{assessmentSettingsMessages.availability_title}"/>
+  </div>
       <div class="form-group row">
           <h:outputLabel styleClass="col-md-2" for="startDate" value="#{assessmentSettingsMessages.assessment_available}"/>
           <div class="col-md-10">
@@ -481,25 +483,40 @@
           <div class="col-md-10">
               <h:inputText value="#{assessmentSettings.dueDateString}" size="25" id="endDate"/>
               <h:outputText value="&#160;" escape="false" />
-
-    <!-- *** TIMED *** -->
-      <h:panelGroup rendered="#{assessmentSettings.valueMap.timedAssessment_isInstructorEditable==true}" >
-        <h:outputText value="#{assessmentSettingsMessages.has_time_limit} " />
-        <h:selectBooleanCheckbox id="selTimeAssess" onclick="checkUncheckTimeBox();setBlockDivs();" value="#{assessmentSettings.valueMap.hasTimeAssessment}" />
-        <h:outputText value="&#160;" escape="false" />
-        <h:selectOneMenu id="timedHours" value="#{assessmentSettings.timedHours}" >
-          <f:selectItems value="#{assessmentSettings.hours}" />
-        </h:selectOneMenu>
-        <h:outputText value="&#160;" escape="false" />
-        <h:outputText value="#{assessmentSettingsMessages.timed_hours} " />
-        <h:selectOneMenu id="timedMinutes" value="#{assessmentSettings.timedMinutes}" >
-          <f:selectItems value="#{assessmentSettings.mins}" />
-        </h:selectOneMenu>
-        <h:outputText value="&#160;" escape="false" />
-        <h:outputText value="#{assessmentSettingsMessages.timed_minutes} " />
-        </h:panelGroup>
           </div>
       </div>
+
+<!-- *** TIMED *** -->
+    <h:panelGroup rendered="#{assessmentSettings.valueMap.timedAssessment_isInstructorEditable==true}">
+     <div class="row">
+        <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.assessment_timed}" />
+          <div class="col-md-10">
+          <t:selectOneRadio id="selTimeAssess" value="#{assessmentSettings.valueMap.timedAssessment}" onclick="checkTimeRadio();setBlockDivs();" layout="spread" >
+            <f:selectItem itemValue="false" itemLabel="#{assessmentSettingsMessages.assessment_not_timed}"/>
+            <f:selectItem itemValue="true" itemLabel="#{assessmentSettingsMessages.assessment_is_timed}"/>
+          </t:selectOneRadio>
+          <ul class="selTimeAssess">
+            <li>
+              <t:radio renderLogicalId="true" for="selTimeAssess" index="0" />
+            </li>
+            <li>
+              <t:radio renderLogicalId="true" for="selTimeAssess" index="1" />
+              <h:outputText value="&#160;" escape="false" />
+              <h:selectOneMenu id="timedHours" value="#{assessmentSettings.timedHours}" >
+                <f:selectItems value="#{assessmentSettings.hours}" />
+              </h:selectOneMenu>
+              <h:outputText value="&#160;" escape="false" />
+              <h:outputText value="#{assessmentSettingsMessages.timed_hours} " />
+              <h:selectOneMenu id="timedMinutes" value="#{assessmentSettings.timedMinutes}" >
+                <f:selectItems value="#{assessmentSettings.mins}" />
+              </h:selectOneMenu>
+              <h:outputText value="&#160;" escape="false" />
+              <h:outputText value="#{assessmentSettingsMessages.timed_minutes} " />
+            </li>
+          </ul>
+          </div>
+     </div>
+    </h:panelGroup>
 
     <!-- LATE HANDLING -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.lateHandling_isInstructorEditable==true}">
