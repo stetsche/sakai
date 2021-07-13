@@ -176,7 +176,7 @@
           }
           showHideReleaseGroups();
           initTimedCheckBox();
-          checkTimeRadio();
+          checkTimedRadio();
           checkLastHandling();
 
           <!--Initialize bootstrap multiselect-->
@@ -491,7 +491,7 @@
      <div class="row">
         <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.assessment_timed}" />
           <div class="col-md-10">
-          <t:selectOneRadio id="selTimeAssess" value="#{assessmentSettings.valueMap.timedAssessment}" onclick="checkTimeRadio();setBlockDivs();" layout="spread" >
+          <t:selectOneRadio id="selTimeAssess" value="#{assessmentSettings.valueMap.timedAssessment}" onclick="checkTimedRadio();setBlockDivs();" layout="spread" >
             <f:selectItem itemValue="false" itemLabel="#{assessmentSettingsMessages.assessment_not_timed}"/>
             <f:selectItem itemValue="true" itemLabel="#{assessmentSettingsMessages.assessment_is_timed}"/>
           </t:selectOneRadio>
