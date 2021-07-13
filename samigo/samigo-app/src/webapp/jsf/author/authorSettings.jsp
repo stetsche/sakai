@@ -514,6 +514,7 @@
               <h:outputText value="#{assessmentSettingsMessages.timed_minutes} " />
             </li>
           </ul>
+          <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.assessment_timed_info}" />
           </div>
      </div>
     </h:panelGroup>
