@@ -526,12 +526,12 @@
                 <f:selectItems value="#{assessmentSettings.hours}" />
               </h:selectOneMenu>
               <h:outputText value="&#160;" escape="false" />
-              <h:outputText value="#{assessmentSettingsMessages.timed_hours} " />
+              <h:outputLabel value="#{assessmentSettingsMessages.timed_hours} " />
               <h:selectOneMenu id="timedMinutes" value="#{assessmentSettings.timedMinutes}" >
                 <f:selectItems value="#{assessmentSettings.mins}" />
               </h:selectOneMenu>
               <h:outputText value="&#160;" escape="false" />
-              <h:outputText value="#{assessmentSettingsMessages.timed_minutes} " />
+              <h:outputLabel value="#{assessmentSettingsMessages.timed_minutes} " />
             </li>
           </ul>
           <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.assessment_timed_info}" />
