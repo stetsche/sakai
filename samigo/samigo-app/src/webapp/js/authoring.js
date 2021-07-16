@@ -416,27 +416,28 @@ function applyMenuListener(pulldown, feedbackContainerID, noFeedbackMsgID) {
 //consolidate common used functions here for assessment settings
 //improve feedback UI, get rid of page reload bugid:5574 -Qu 10/31/2013
 
-// If we select "No Feedback will be displayed to the student"
-// it will disable and uncheck feedback as well as blank out text, otherwise,	
+// If we select "No, do not display any feedback to the student"
+// it will uncheck feedback as well as blank out text, otherwise,
 // if a different radio button is selected, we reenable feedback checkboxes & text.
-function disableAllFeedbackCheck(feedbackType)
-{
+function disableAllFeedbackCheck(feedbackType) {
     var noFeedback = 3;
 
-    if (feedbackType == noFeedback){
-     	$("#assessmentSettingsAction\\:feedbackComponentOption input").prop("disabled", true);
-		$(".respChoice input").prop({disabled:true, checked:false});
-	}
-    else
-	{
-    	$("#assessmentSettingsAction\\:feedbackComponentOption input").prop("disabled", false);
-    	if ($("input[name=assessmentSettingsAction\\:feedbackComponentOption]:checked").val() == 1) {
-    		$(".respChoice input").prop({disabled:true, checked:false});
-    	} else {
-    		$(".respChoice input").prop("disabled", false);
-    	}
-	}
+    if (feedbackType == noFeedback) {
+        $("#assessmentSettingsAction\\:feedbackComponentOption input").prop("disabled", true);
+        $(".respChoice input").prop({checked:false});
+        $('input[id*=feedbackComponentOption][value=1]')[0].checked = true;
+    }
+    else {
+        $("#assessmentSettingsAction\\:feedbackComponentOption input").prop("disabled", false);
+        if ($("input[name=assessmentSettingsAction\\:feedbackComponentOption]:checked").val() == 1) {
+                $(".respChoice input").prop({checked:false});
+        }
+        else {
+                $(".respChoice input").prop("disabled", false);
+        }
+    }
     disableFeedbackDateCheck(feedbackType);
+    disableOtherFeedbackComponentOption();
 }
 
 // Display the date selectors when the feedback is shown by date.
@@ -521,13 +522,15 @@ function checkNoFeedbackOnLoad(){
 	disableFeedbackDateCheck(feedbackType);
 }
 
-function disableOtherFeedbackComponentOption(field)
+function disableOtherFeedbackComponentOption()
 {
-	var fieldValue = field.getAttribute("value");
-	if(fieldValue ==1 )
-		$(".respChoice input").prop({disabled:true, checked:false});
-	else
-		$(".respChoice input").prop("disabled", false);
+	var fieldValue = $("input[id*=feedbackComponentOption]:checked")[0].value;
+	if(fieldValue == "1" ){
+		$(".respChoice")[0].style.display = "none";
+	}
+	else{
+		$(".respChoice")[0].style.display = "block";
+	}
 }
 
 function validateUrl(){
