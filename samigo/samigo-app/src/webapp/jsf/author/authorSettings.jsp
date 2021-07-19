@@ -374,9 +374,8 @@
     </h:panelGroup>
 
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true}">
-        <h:outputLabel value="#{assessmentSettingsMessages.high_security_secondary_id_pw}" styleClass="col-md-2 form-control-label"/>
+        <h:outputLabel for="password" value="#{assessmentSettingsMessages.high_security_password}" styleClass="col-md-2 form-control-label"/>
         <div class="col-md-10">
-            <h:outputLabel for="password" value="#{assessmentSettingsMessages.high_security_password}"/>
             <h:inputText id="password" size="20" value="#{assessmentSettings.password}" styleClass="form-control"/>
         </div>
     </h:panelGroup>
@@ -402,24 +401,24 @@
         <div class="col-md-2">
            <h:outputLabel value="#{assessmentSettingsMessages.background_label_choose}"/>
 	</div>
-        <div class="col-md-2">
+        <div class="col-md-3">
             <h:selectOneRadio onclick="uncheckOther(this)" id="background_color" value="#{assessmentSettings.bgColorSelect}">
                 <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.background_color}"/>
             </h:selectOneRadio>
 	</div>
-	<div class="col-md-8">
+	<div class="col-md-7">
 	    <samigo:colorPicker value="#{assessmentSettings.bgColor}" size="10" id="pickColor"/>
 	</div>
     </h:panelGroup>
     <!-- BACKGROUND IMAGE-->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.bgColor_isInstructorEditable==true}" >
 	<div class="col-md-2"></div>
-	<div class="col-md-2">
+	<div class="col-md-3">
 	    <h:selectOneRadio onclick="uncheckOther(this)" id="background_image" value="#{assessmentSettings.bgImageSelect}"  >
                 <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.background_image}"/>
             </h:selectOneRadio>
 	</div>
-	<div class="col-md-8">
+	<div class="col-md-7">
 	    <h:inputText size="80" value="#{assessmentSettings.bgImage}"/>
 	</div>
     </h:panelGroup>
