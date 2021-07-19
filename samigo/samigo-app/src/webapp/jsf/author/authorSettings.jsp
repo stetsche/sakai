@@ -746,9 +746,7 @@
           <li><t:radio renderLogicalId="true" for="itemNavigation" index="0" /></li>
           <li><t:radio renderLogicalId="true" for="itemNavigation" index="1" /></li>
         </ul>
-        <div class="info-text help-block small">
-          <h:outputText id="linear_access_warning" value="#{assessmentSettingsMessages.linear_access_warning} "/>
-        </div>
+        <h:outputLabel id="linear_access_warning" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.linear_access_warning} "/>
       </div>
     </h:panelGroup>
 
