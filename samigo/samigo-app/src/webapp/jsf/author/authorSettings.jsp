@@ -73,29 +73,20 @@
           // This is a sub-accordion inside of the Availability and Submission Panel
           $("#jqueryui-accordion-security").accordion({ heightStyle: "content",collapsible: true,active: false });
 
-          checkNav = function() {
-              QuesFormatRadios = ["assessmentSettingsAction\\:assessmentFormat\\:0", "assessmentSettingsAction\\:assessmentFormat\\:1", "assessmentSettingsAction\\:assessmentFormat\\:2"];
-
+	checkNav = function() {
               enabled = true;
               if ($("#assessmentSettingsAction\\:itemNavigation\\:0").is(":checked")) {
                   enabled = false;
               }
 
               if (enabled) {
-			$('#assessmentSettingsAction\\:linear_access_warning').hide();
-			$('#assessmentSettingsAction\\:markForReview1').removeAttr("disabled").parent().removeClass("placeholder");
-			QuesFormatRadios.forEach( function(v, i, a) {
-                      		$('label[for="' + v + '"]').removeClass("placeholder");
-                      		$("#" + v).removeAttr("disabled");
-                  	});
+                        $('#assessmentSettingsAction\\:linear_access_warning').hide();
+                        $('#assessmentSettingsAction\\:markForReview1').parent().show().parent().prev().show();
+                        $('#assessmentSettingsAction\\:assessmentFormat\\:0').parents("ul").show().parent().prev().show();
               } else {
-			$('#assessmentSettingsAction\\:linear_access_warning').show();
-			$('#assessmentSettingsAction\\:markForReview1').attr("disabled", true).prop("checked", false).parent().addClass("placeholder");
-			QuesFormatRadios.forEach( function(v, i, a) {
-                      		$('#assessmentSettingsAction\\:assessmentFormat\\:0').click();
-                      		$('label[for="' + v + '"]').addClass("placeholder");
-                      		$("#" + v).attr("disabled", true);
-                  	});
+                        $('#assessmentSettingsAction\\:linear_access_warning').show();
+                        $('#assessmentSettingsAction\\:markForReview1').prop("checked", false).parent().hide().prev().hide();
+                        $('#assessmentSettingsAction\\:assessmentFormat\\:0').parents("ul").hide().parent().prev().hide();
               }
           };
 
@@ -767,8 +758,18 @@
       </div>
     </h:panelGroup>
 
-    <!-- NUMBERING -->
-    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.displayNumbering_isInstructorEditable==true}">
+  <!-- *** MARK FOR REVIEW *** -->
+  <!-- *** (disabled for linear assessment) *** -->
+  <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.markForReview_isInstructorEditable==true}">
+    <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.mark_for_review}" />
+    <div class="col-md-10">
+      <h:selectBooleanCheckbox id="markForReview1" value="#{assessmentSettings.isMarkForReview}"/>
+      <h:outputLabel for="markForReview1" value="#{assessmentSettingsMessages.mark_for_review_label}"/>
+    </div>
+
+  </h:panelGroup>
+  <!-- NUMBERING -->
+  <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.displayNumbering_isInstructorEditable==true}">
       <h:outputLabel styleClass="col-md-2" for="itemNumbering" value="#{assessmentSettingsMessages.numbering}" />
       <div class="col-md-10">
          <t:selectOneRadio id="itemNumbering" value="#{assessmentSettings.itemNumbering}" layout="spread">
@@ -783,18 +784,7 @@
     </h:panelGroup>
   </h:panelGroup>
 
-  <!-- *** MARK FOR REVIEW *** -->
-  <!-- *** (disabled for linear assessment) *** -->
-  <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.markForReview_isInstructorEditable==true}">
-    <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.mark_for_review}" />
-    <div class="col-md-10">
-      <h:selectBooleanCheckbox id="markForReview1" value="#{assessmentSettings.isMarkForReview}"/>
-      <h:outputLabel for="markForReview1" value="#{assessmentSettingsMessages.mark_for_review_label}"/>
-    </div>
-
-  </h:panelGroup>
-
-    <!-- Display Scores -->
+   <!-- Display Scores -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.displayScores_isInstructorEditable==true}">
       <h:outputLabel styleClass="col-md-2" for="displayScores" value="#{assessmentSettingsMessages.displayScores}" /> 
       <div class="col-md-10">
