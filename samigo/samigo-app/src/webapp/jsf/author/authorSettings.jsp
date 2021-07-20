@@ -81,12 +81,12 @@
 
               if (enabled) {
                         $('#assessmentSettingsAction\\:linear_access_warning').hide();
-                        $('#assessmentSettingsAction\\:markForReview1').parent().show().parent().prev().show();
-                        $('#assessmentSettingsAction\\:assessmentFormat\\:0').parents("ul").show().parent().prev().show();
+                        $('#assessmentSettingsAction\\:markForReview1').closest(".row").show();
+                        $('#assessmentSettingsAction\\:assessmentFormat\\:0').closest(".row").show();
               } else {
                         $('#assessmentSettingsAction\\:linear_access_warning').show();
-                        $('#assessmentSettingsAction\\:markForReview1').prop("checked", false).parent().hide().prev().hide();
-                        $('#assessmentSettingsAction\\:assessmentFormat\\:0').parents("ul").hide().parent().prev().hide();
+                        $('#assessmentSettingsAction\\:markForReview1').prop("checked", false).closest(".row").hide();
+                        $('#assessmentSettingsAction\\:assessmentFormat\\:0').closest(".row").hide();
               }
           };
 
