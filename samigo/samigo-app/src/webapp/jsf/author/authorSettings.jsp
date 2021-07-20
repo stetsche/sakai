@@ -427,7 +427,7 @@
           <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.assessment_type_info}" />
        </div>
   </div>
-  <div id="groupDiv" class="groupTable">
+  <div id="groupDiv" class="groupTable form-group row col-md-offset-2 col-md-10">
     <h:selectManyListbox id="groupsForSite" value="#{assessmentSettings.groupsAuthorized}">
       <f:selectItems value="#{assessmentSettings.groupsForSite}" />
     </h:selectManyListbox>
