@@ -536,6 +536,7 @@
     <div class="col-md-10">
       <h:selectBooleanCheckbox id="automaticSubmission" value="#{assessmentSettings.autoSubmit}" />
       <h:outputLabel for="automaticSubmission" value="#{assessmentSettingsMessages.auto_submit_help}" />
+      <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.auto_submit_info}" />
     </div>
   </h:panelGroup>
 
