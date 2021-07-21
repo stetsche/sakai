@@ -169,7 +169,6 @@
           initTimedCheckBox();
           checkTimedRadio();
           checkLastHandling();
-          disableOtherFeedbackComponentOption();
 
           <!--Initialize bootstrap multiselect-->
           $("#assessmentSettingsAction\\:groupsForSite").attr("multiple", "multiple");
