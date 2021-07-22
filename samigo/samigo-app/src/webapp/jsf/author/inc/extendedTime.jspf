@@ -56,6 +56,9 @@
                     <h:outputLabel value="#{assessmentSettingsMessages.timed_minutes} " />
                 </h:panelGroup>
         </h:panelGroup>
+	<h:panelGroup styleClass="form-group row col-md-12" layout="block">
+                <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.assessment_timed_info} #{assessmentSettingsMessages.assessment_timed_info_extra}" />
+        </h:panelGroup>
         <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.lateHandling_isInstructorEditable==true}">
                 <h:outputLabel styleClass="col-md-2" for="newEntry-retract_date" value="#{assessmentSettingsMessages.late_accept_until}"/>
                 <h:panelGroup styleClass="col-md-4" layout="block">
