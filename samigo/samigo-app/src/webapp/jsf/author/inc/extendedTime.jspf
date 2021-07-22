@@ -1,6 +1,8 @@
 <!-- Extended Time -->
+<h:panelGroup styleClass="samigo-subheading" layout="block">
+    <h:outputLabel value="#{assessmentSettingsMessages.extendedTimeNew}" />
+</h:panelGroup>
 <h:panelGroup styleClass="row" layout="block">
-    <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.extendedTimeNew}" />
     <h:panelGroup styleClass="col-md-10" layout="block">
         <h:panelGroup styleClass="form-group row" layout="block">
                 <h:panelGroup styleClass="col-md-2" layout="block">
@@ -78,8 +80,10 @@
     </h:panelGroup>
 </h:panelGroup>
 
+<h:panelGroup styleClass="samigo-subheading" rendered="#{not empty assessmentSettings.extendedTimes}" layout="block">
+    <h:outputLabel value="#{assessmentSettingsMessages.extendedTimeExisting}" />
+</h:panelGroup>
 <h:panelGroup styleClass="row" layout="block" rendered="#{not empty assessmentSettings.extendedTimes}">
-    <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.extendedTimeExisting}" />
     <h:panelGroup styleClass="col-md-10 table-responsive" layout="block">
         <t:dataTable
                      id="extendedTimeTable"
