@@ -65,7 +65,7 @@
                     <h:inputText id="newEntry-retract_date" size="25" value="#{assessmentSettings.extendedTimeRetractString}"/>
                 </h:panelGroup>
         </h:panelGroup>
-        <h:panelGroup styleClass="form-group row" layout="block">
+        <h:panelGroup styleClass="form-group row col-md-12" layout="block">
                 <h:panelGroup rendered="#{not assessmentSettings.editingExtendedTime}">
                     <h:commandButton value="#{assessmentSettingsMessages.extendedTimeAdd}" id="extendedTimeAdd" action="#{assessmentSettings.addExtendedTime}" />
                     <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.extendedTimeInstruction}" />
