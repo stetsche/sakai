@@ -799,11 +799,12 @@
          </ul>
       </div>
     </h:panelGroup>
-<div id="jqueryui-accordion-security"><!-- This is the sub-accordion for submission message -->
 
 <!-- *** SUBMISSION MESSAGE *** -->
 <h:panelGroup rendered="#{assessmentSettings.valueMap.submissionMessage_isInstructorEditable==true or assessmentSettings.valueMap.finalPageURL_isInstructorEditable==true}" >
-   <h:outputText escape="false" value="<h3> <a class=\"jqueryui-hideDivision\" href=\"#\"> #{assessmentSettingsMessages.heading_submission_message} </a> </h3><div>" />
+<div class="samigo-subheading">
+   <h:outputLabel value="#{assessmentSettingsMessages.heading_submission_message}"/>
+</div>
     <h:panelGroup layout="block" styleClass="form-group row" rendered="#{assessmentSettings.valueMap.submissionMessage_isInstructorEditable==true}">
         <h:outputLabel value="#{assessmentSettingsMessages.submission_message}" styleClass="col-md-2 form-control-label" />
         <div class="col-md-10">
