@@ -513,6 +513,7 @@
               </h:selectOneMenu>
               <h:outputText value="&#160;" escape="false" />
               <h:outputLabel value="#{assessmentSettingsMessages.timed_hours} " />
+              <h:outputText value="&#160;" escape="false" />
               <h:selectOneMenu id="timedMinutes" value="#{assessmentSettings.timedMinutes}" >
                 <f:selectItems value="#{assessmentSettings.mins}" />
               </h:selectOneMenu>
