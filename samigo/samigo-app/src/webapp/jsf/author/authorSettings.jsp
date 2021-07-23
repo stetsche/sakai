@@ -42,9 +42,7 @@
       <script>includeWebjarLibrary('momentjs');</script>
       <script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
       <script src="/samigo-app/js/authoring.js"></script>
-
       <script>includeWebjarLibrary('bootstrap-multiselect');</script>
-
       <script>
         $(document).ready(function() {
           // set up the accordion for settings
@@ -194,7 +192,21 @@
               allSelectedText: allSelectedText,
               nSelectedText: nSelectedText
           });
-        });
+
+	//Set accessiblity attributes
+	/*
+	* This will set an aria-describedbiy attribute to every setting with a descriptive label when
+        * the lablels id equals [the id of the option] + [whatever helpBlockDetectionString is]
+	*/
+	var helpBlockDetectString = "HelpBlock"
+	var helpBlocks = $("[id*=" + helpBlockDetectString +"]");
+	for(i = 0; i < helpBlocks.length; i++) {
+		var helpBlockId = helpBlocks[i].id;
+		var settingId = helpBlockId.substring(0,helpBlockId.indexOf(helpBlockDetectString));
+		var settingQuerry = "#" + settingId.replace(/:/g, "\\:");
+		$(settingQuerry).attr("aria-describredby", helpBlockId);
+	}
+      });
       </script>
 
       </head>
