@@ -637,6 +637,12 @@ function initTimedRadio(){
 	}
 }
 
+//Sets default values for time exceptions (User/Group
+function setExceptionDefault() {
+	defaultButton = $('[id*="extendedEnableUser"]');
+	defaultButton.first().prop('checked', 'checked');
+}
+
 function lockdownAnonyGrading(value) {
 	if (value == 'Anonymous Users') {
 		$('#assessmentSettingsAction\\:anonymousGrading').prop('checked', 'checked');

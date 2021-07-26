@@ -162,7 +162,8 @@
           checkTimedRadio();
           checkLastHandling();
           initTimedRadio();
-          setAccessibilityAttributes()
+          setAccessibilityAttributes();
+          setExceptionDefault();
 
           <!--Initialize bootstrap multiselect-->
           $("#assessmentSettingsAction\\:groupsForSite").attr("multiple", "multiple");
