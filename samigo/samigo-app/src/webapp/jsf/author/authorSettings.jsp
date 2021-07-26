@@ -159,7 +159,6 @@
               lockdownGradebook(releaseToVal);
           }
           showHideReleaseGroups();
-          initTimedCheckBox();
           checkTimedRadio();
           checkLastHandling();
 
@@ -203,8 +202,8 @@
 	for(i = 0; i < helpBlocks.length; i++) {
 		var helpBlockId = helpBlocks[i].id;
 		var settingId = helpBlockId.substring(0,helpBlockId.indexOf(helpBlockDetectString));
-		var settingQuerry = "#" + settingId.replace(/:/g, "\\:");
-		$(settingQuerry).attr("aria-describredby", helpBlockId);
+		var settingQuerry = "[id*=" + settingId.replace(/:/g, "\\:") + "]";
+		$(settingQuerry).first().attr("aria-describredby", helpBlockId);
 	}
       });
       </script>
@@ -350,7 +349,7 @@
             value="#{assessmentSettings.valueMap.hasMetaDataForQuestions}"/>
          <h:outputLabel for="metadataQuestions" value="#{assessmentSettingsMessages.metadata_questions}" rendered="#{assessmentSettings.valueMap.metadataQuestions_isInstructorEditable==true}" />
         </div>
-        <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.metadata_questions_info}}" />
+        <h:outputLabel id="metadataQuestionsHelpBlock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.metadata_questions_info}}" />
       </div>
     </h:panelGroup>
   </div><!-- This is the end of the sub-accordion -->
@@ -432,7 +431,7 @@
           <h:selectOneMenu id="releaseTo" value="#{assessmentSettings.firstTargetSelected}" onclick="setBlockDivs();lockdownAnonyGrading(this.value);lockdownGradebook(this.value);" onchange="showHideReleaseGroups();">
               <f:selectItems value="#{assessmentSettings.publishingTargets}" />
           </h:selectOneMenu>
-          <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.assessment_type_info}" />
+          <h:outputLabel id="releaseToHelpBlock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.assessment_type_info}" />
        </div>
   </div>
   <div id="groupDiv" class="groupTable form-group row col-md-offset-2 col-md-10">
@@ -499,7 +498,7 @@
             <h:inputText value="#{assessmentSettings.retractDateString}" size="25" id="retractDate"/>
           </li>
         </ul>
-        <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.late_accept_help}" />
+        <h:outputLabel id="lateHandlingHelpBlock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.late_accept_help}" />
       </div>
     </div>
   </h:panelGroup>
@@ -533,7 +532,7 @@
               <h:outputLabel value="#{assessmentSettingsMessages.timed_minutes} " />
             </li>
           </ul>
-          <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.assessment_timed_info}" />
+          <h:outputLabel id="selTimeAssessHelpBlock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.assessment_timed_info}" />
           </div>
      </div>
     </h:panelGroup>
@@ -544,7 +543,7 @@
     <div class="col-md-10">
       <h:selectBooleanCheckbox id="automaticSubmission" value="#{assessmentSettings.autoSubmit}" />
       <h:outputLabel for="automaticSubmission" value="#{assessmentSettingsMessages.auto_submit_help}" />
-      <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.auto_submit_info}" />
+      <h:outputLabel id="automaticSubmissionHelpBlock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.auto_submit_info}" />
     </div>
   </h:panelGroup>
 
@@ -562,7 +561,7 @@
         <li><t:radio renderLogicalId="true" for="notificationEmailChoices" index="1" /></li>
         <li><t:radio renderLogicalId="true" for="notificationEmailChoices" index="2" /></li>
       </ul>
-      <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.instructorNotification}" />
+      <h:outputLabel id="notificationEmailChoicesHelpBlock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.instructorNotification}" />
     </div>
   </h:panelGroup>
 </samigo:hideDivision><!-- END the Availabity and Submissions category -->
@@ -747,7 +746,7 @@
           <li><t:radio renderLogicalId="true" for="itemNavigation" index="0" /></li>
           <li><t:radio renderLogicalId="true" for="itemNavigation" index="1" /></li>
         </ul>
-        <h:outputLabel id="linear_access_warning" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.linear_access_warning} "/>
+        <h:outputLabel id="itemNavigationHelpBlock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.linear_access_warning} "/>
       </div>
     </h:panelGroup>
 
