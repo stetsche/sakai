@@ -161,6 +161,7 @@
           showHideReleaseGroups();
           checkTimedRadio();
           checkLastHandling();
+          initTimedRadio();
 
           <!--Initialize bootstrap multiselect-->
           $("#assessmentSettingsAction\\:groupsForSite").attr("multiple", "multiple");

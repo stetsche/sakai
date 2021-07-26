@@ -627,13 +627,14 @@ function checkTimedRadio(){
         }
 }
 
-function initTimedCheckBox(){
-		var timedHours = document.getElementById("assessmentSettingsAction\:timedHours");
-		var timedHoursVal = timedHours.options[timedHours.selectedIndex].value;
-		var timedMinutes = document.getElementById("assessmentSettingsAction\:timedMinutes");
-		var timedMinutesVal = timedMinutes.options[timedMinutes.selectedIndex].value;
-		
-		if((timedHoursVal != "0") || (timedMinutesVal != "0")) document.getElementById("assessmentSettingsAction\:selTimeAssess").checked=true;
+function initTimedRadio(){
+	timedSettings = $('[id*="selTimeAssess"]')
+	defaultValue = false ? 1 : 0;
+	//If no option is selected
+	if(timedSettings.filter(':checked').length == 0) {
+		//Select default value
+		timedSettings.slice(defaultValue, defaultValue + 1).prop('checked', 'checked');
+	}
 }
 
 function lockdownAnonyGrading(value) {
