@@ -830,15 +830,15 @@
             <h:commandButton value="#{assessmentSettingsMessages.validateURL}" type="button" onclick="javascript:validateUrl();"/>
         </div>
     </h:panelGroup>
-   </div>
+
+    <!-- BACKGROUND INFO BANNER -->
+    <div class="sak-banner-info">
+	  <h:outputLabel value="#{assessmentSettingsMessages.background_info}"/>
+    </div>
+</div>
 </h:panelGroup>
 
 </div><!-- This is the end of the sub-accordion -->
-
-  <!-- BACKGROUND INFO BANNER -->
-  <div class="sak-banner-info">
-	  <h:outputLabel value="#{assessmentSettingsMessages.background_info}"/>
-  </div>
 </samigo:hideDivision><!-- END Layout and Appearance Category -->
 
 </div>
