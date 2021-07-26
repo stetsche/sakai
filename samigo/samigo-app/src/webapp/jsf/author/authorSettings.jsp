@@ -162,6 +162,7 @@
           checkTimedRadio();
           checkLastHandling();
           initTimedRadio();
+          setAccessibilityAttributes()
 
           <!--Initialize bootstrap multiselect-->
           $("#assessmentSettingsAction\\:groupsForSite").attr("multiple", "multiple");
@@ -192,20 +193,6 @@
               allSelectedText: allSelectedText,
               nSelectedText: nSelectedText
           });
-
-	//Set accessiblity attributes
-	/*
-	* This will set an aria-describedbiy attribute to every setting with a descriptive label when
-        * the lablels id equals [the id of the option] + [whatever helpBlockDetectionString is]
-	*/
-	var helpBlockDetectString = "HelpBlock"
-	var helpBlocks = $("[id*=" + helpBlockDetectString +"]");
-	for(i = 0; i < helpBlocks.length; i++) {
-		var helpBlockId = helpBlocks[i].id;
-		var settingId = helpBlockId.substring(0,helpBlockId.indexOf(helpBlockDetectString));
-		var settingQuerry = "[id*=" + settingId.replace(/:/g, "\\:") + "]";
-		$(settingQuerry).first().attr("aria-describredby", helpBlockId);
-	}
       });
       </script>
 

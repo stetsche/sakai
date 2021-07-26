@@ -804,3 +804,17 @@ function collapseAccordion(iframId){
     $("div#jqueryui-accordion > h3.ui-accordion-header").removeClass("ui-accordion-header-active ui-state-active");
 }
 
+/*
+* This will set an aria-describedbiy attribute to every setting with a descriptive label when
+* the lablels id equals [the id of the option] + [whatever helpBlockDetectionString is]
+*/
+function setAccessibilityAttributes() {
+	var helpBlockDetectString = "HelpBlock";
+	var helpBlocks = $("[id*=" + helpBlockDetectString +"]");
+	for(i = 0; i < helpBlocks.length; i++) {
+		var helpBlockId = helpBlocks[i].id;
+		var settingId = helpBlockId.substring(0,helpBlockId.indexOf(helpBlockDetectString));
+		var settingQuerry = "[id*=" + settingId.replace(/:/g, "\\:") + "]";
+		$(settingQuerry).first().attr("aria-describredby", helpBlockId);
+	}
+}
