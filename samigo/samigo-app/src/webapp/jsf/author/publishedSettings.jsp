@@ -850,7 +850,6 @@
 </div><!-- This is the end of the sub-accordion -->
 </samigo:hideDivision><!-- END Layout and Appearance Category -->
 
-</div>
  <p class="act">
 
   <!-- Save button -->
@@ -871,6 +870,7 @@
 </p>
 </h:form>
 <!-- end content -->
+</div>
 </div>
       </body>
     </html>
