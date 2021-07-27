@@ -20,7 +20,7 @@
 --%>
 -->
 <!-- ASSESSMENT ATTACHMENTS -->
-<h:outputLabel value="#{assessmentSettingsMessages.attachments}" />
+<h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.attachments}" />
   <br/>
   <h:panelGroup rendered="#{publishedSettings.hasAttachment}">
     <h:dataTable value="#{publishedSettings.attachmentList}" var="attach">
