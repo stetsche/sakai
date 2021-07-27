@@ -23,6 +23,17 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 **********************************************************************************/
+ ________________________________________ 
+/ Hey there! This file has a twin called \
+| publishedSettings.jsp                  |
+| It might be fair to apply your changes |
+\ there too!                             /
+ ---------------------------------------- 
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
 -->
 
 	<%
