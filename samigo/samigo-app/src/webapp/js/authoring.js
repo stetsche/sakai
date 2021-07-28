@@ -338,39 +338,9 @@ $( document ).ready( function() {
             $("input", this).click();
         }
     });
-
-    // Setup extended time radios
     $('input[name="assessmentSettingsAction\\:userOrGroup"]').change(function () {
-        var $t = $(this);
-        var $thisSelect;
-        var $otherSelect;
-
-        if($t.attr('id') === 'assessmentSettingsAction:extendedEnableUser') {
-            $thisSelect = $('#assessmentSettingsAction\\:newEntry-user');
-            $otherSelect = $('#assessmentSettingsAction\\:newEntry-group');
-        } else {
-            $thisSelect = $('#assessmentSettingsAction\\:newEntry-group');
-            $otherSelect = $('#assessmentSettingsAction\\:newEntry-user');
-        }
-
-        $thisSelect.prop('disabled', false);
-        $otherSelect.prop('disabled', true);
-        $otherSelect.val('');
+        checkUserOrGroupRadio();
     });
-
-    if($('#assessmentSettingsAction\\:newEntry-user').val() === '') {
-        $('#assessmentSettingsAction\\:newEntry-user').prop('disabled', 'disabled');
-        $('#assessmentSettingsAction\\:extendedEnableUser').prop('checked', false);
-    } else {
-        $('#assessmentSettingsAction\\:extendedEnableUser').prop('checked', true);
-    }
-
-    if($('#assessmentSettingsAction\\:newEntry-group').val() === '') {
-        $('#assessmentSettingsAction\\:newEntry-group').prop('disabled', 'disabled');
-        $('#assessmentSettingsAction\\:extendedEnableGroup').prop('checked', false);
-    } else {
-        $('#assessmentSettingsAction\\:extendedEnableGroup').prop('checked', true);
-    }
 });
 
 function validationWarningSetDefault(element, value) {
@@ -641,6 +611,7 @@ function initTimedRadio(){
 function setExceptionDefault() {
 	defaultButton = $('[id*="extendedEnableUser"]');
 	defaultButton.first().prop('checked', 'checked');
+        checkUserOrGroupRadio();
 }
 
 function lockdownAnonyGrading(value) {
@@ -686,6 +657,21 @@ function checkLastHandling(){
 	}else{
 		$(retractDate).prop( "disabled", false );
 		$(retractDate).next().show();
+	}
+}
+
+function checkUserOrGroupRadio() {
+	var checkedSettingId = $('input[id*="extendedEnable"]:checked').attr('id');
+
+	if(checkedSettingId.indexOf('User') > -1) {
+		//User is selected -> disable group selection
+		$('select[name*="newEntry-group"]').prop('disabled', 'disabled');
+		$('select[name*="newEntry-user"]').prop('disabled', '');
+	}
+	else if(checkedSettingId.indexOf('Group') > -1) {
+		//Group is selected -> disable user selection
+		$('select[name*="newEntry-user"]').prop('disabled', 'disabled');
+		$('select[name*="newEntry-group"]').prop('disabled', '');
 	}
 }
 
