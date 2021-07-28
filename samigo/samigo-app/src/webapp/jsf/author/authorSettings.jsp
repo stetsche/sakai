@@ -244,7 +244,7 @@
 <samigo:hideDivision title="#{assessmentSettingsMessages.heading_about}" >
 
 <!-- *** ASSESSMENT INTRODUCTION *** -->
-  <div class="tier2" id="assessment-intro">
+  <div id="assessment-intro">
       
     <!-- *** GENERAL TEMPLATE INFORMATION *** -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.templateInfo_isInstructorEditable==true and !assessmentSettings.noTemplate and template.showAssessmentTypes}" >
@@ -308,16 +308,13 @@
 
   </div>
 
-<div id="jqueryui-accordion-metadata"><!-- This is sub-accordion for metadata -->
-
     <!-- *** META *** -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.metadataAssess_isInstructorEditable==true}">
-      <h:outputText escape="false" value="<h3> <a class=\"jqueryui-hideDivision\" href=\"#\"> #{assessmentSettingsMessages.heading_metadata} </a> </h3>" /> 
-      <div class="tier2">
-        <!-- ASSESSMENT METADATA -->
         <div class="samigo-subheading">
             <h:outputLabel value="#{assessmentSettingsMessages.assessment_metadata}" /> 
         </div>
+        <!-- ASSESSMENT METADATA -->
+        <h:outputLabel value="#{assessmentSettingsMessages.assessment_metadata}" /> 
         
         <div class="form-group row">
             <h:outputLabel for="keywords" value="#{assessmentSettingsMessages.metadata_keywords}"  styleClass="col-md-2 form-control-label"/>
@@ -341,18 +338,14 @@
         </div>
         
 	<!-- QUESTION METADATA -->
-        <div class="samigo-subheading">
-            <h:outputLabel value="#{assessmentSettingsMessages.record_metadata}" />
-        </div>
+        <h:outputLabel value="#{assessmentSettingsMessages.record_metadata}" />
         <div>
          <h:selectBooleanCheckbox id="metadataQuestions" rendered="#{assessmentSettings.valueMap.metadataQuestions_isInstructorEditable==true}"
             value="#{assessmentSettings.valueMap.hasMetaDataForQuestions}"/>
          <h:outputLabel for="metadataQuestions" value="#{assessmentSettingsMessages.metadata_questions}" rendered="#{assessmentSettings.valueMap.metadataQuestions_isInstructorEditable==true}" />
         </div>
         <h:outputLabel id="metadataQuestionsHelpBlock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.metadata_questions_info}}" />
-      </div>
     </h:panelGroup>
-  </div><!-- This is the end of the sub-accordion -->
 
 </samigo:hideDivision><!-- End the About this Assessment category -->
 
