@@ -175,6 +175,7 @@
               lockdownGradebook(releaseToVal);
           }
           showHideReleaseGroups();
+          showHideSurveyHelp();
           checkTimedRadio();
           checkLastHandling();
           initTimedRadio();
@@ -434,7 +435,7 @@
           <h:selectOneMenu id="releaseTo" disabled="true" value="#{publishedSettings.firstTargetSelected}">
               <f:selectItems value="#{publishedSettings.publishingTargets}" />
           </h:selectOneMenu>
-          <h:outputLabel id="releaseToHelpBlock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.assessment_type_info}" />
+          <h:outputLabel id="releaseToHelp" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.assessment_type_info}" />
        </div>
   </div>
   <div id="groupDiv" class="groupTable form-group row col-md-offset-2 col-md-10">

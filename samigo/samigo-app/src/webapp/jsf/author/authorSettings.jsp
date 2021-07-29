@@ -170,6 +170,7 @@
               lockdownGradebook(releaseToVal);
           }
           showHideReleaseGroups();
+          showHideSurveyHelp();
           checkTimedRadio();
           checkLastHandling();
           initTimedRadio();
@@ -421,10 +422,10 @@
   <div class="form-group row">
       <h:outputLabel for="releaseTo" styleClass="col-md-2" value="#{assessmentSettingsMessages.released_to} " />
       <div class="col-md-10">
-          <h:selectOneMenu id="releaseTo" value="#{assessmentSettings.firstTargetSelected}" onclick="setBlockDivs();lockdownAnonyGrading(this.value);lockdownGradebook(this.value);" onchange="showHideReleaseGroups();">
+          <h:selectOneMenu id="releaseTo" value="#{assessmentSettings.firstTargetSelected}" onclick="setBlockDivs();lockdownAnonyGrading(this.value);lockdownGradebook(this.value);" onchange="showHideReleaseGroups();showHideSurveyHelp();">
               <f:selectItems value="#{assessmentSettings.publishingTargets}" />
           </h:selectOneMenu>
-          <h:outputLabel id="releaseToHelpBlock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.assessment_type_info}" />
+          <h:outputLabel id="releaseToHelp" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.assessment_type_info}" />
        </div>
   </div>
   <div id="groupDiv" class="groupTable form-group row col-md-offset-2 col-md-10">
