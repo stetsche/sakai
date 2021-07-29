@@ -670,16 +670,17 @@ function show_multiple_text(show_multiple_link){
 
 function checkLastHandling(){
 	var isDisabled=$('input[id*="lateHandling"]:checked').val();
-	var retractDate = $('input[id*="retractDate"]:visible');
+	var retractDate = $('input[id*="retractDate"]');
+	var deadlineLabel = $('[id*="lateHandlingDeadlineLabel"]');
 	//$('input[id*="retractDate"]:visible').prop( "disabled", isDisabled);
 	//$('input[id*="retractDate"]:visible').next().show;
 	
 	if(isDisabled==2){
-		$(retractDate).prop( "disabled", true );
-		$(retractDate).next().hide();
+		retractDate.hide().next().hide();
+		deadlineLabel.hide();
 	}else{
-		$(retractDate).prop( "disabled", false );
-		$(retractDate).next().show();
+		retractDate.show().next().show();
+		deadlineLabel.show();
 	}
 }
 

@@ -497,6 +497,7 @@
           <li><t:radio renderLogicalId="true" for="lateHandling" index="0" /></li>
           <li>
             <t:radio renderLogicalId="true" for="lateHandling" index="1" />
+            <h:outputLabel id="lateHandlingDeadlineLabel" value="#{assessmentSettingsMessages.yes_late_deadline}" />
             <h:outputText value="&#160;" escape="false" />
             <h:inputText value="#{publishedSettings.retractDateString}" size="25" id="retractDate"/>
           </li>
