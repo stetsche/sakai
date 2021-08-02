@@ -312,7 +312,7 @@
     <!-- *** META *** -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.metadataAssess_isInstructorEditable==true}">
         <div class="samigo-subheading">
-            <h:outputLabel value="#{assessmentSettingsMessages.assessment_metadata}" /> 
+            <h:outputLabel value="#{assessmentSettingsMessages.heading_metadata}" /> 
         </div>
         <!-- ASSESSMENT METADATA -->
         <h:outputLabel value="#{assessmentSettingsMessages.assessment_metadata}" /> 
