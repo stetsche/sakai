@@ -79,16 +79,16 @@
 
 	checkNav = function() {
               enabled = true;
-              if ($("#assessmentSettingsAction\\:itemNavigation\\:0").is(":checked")) {
+              if ($("#assessmentSettingsAction\\:itemNavigation\\:1").is(":checked")) {
                   enabled = false;
               }
 
               if (enabled) {
-                        $('#assessmentSettingsAction\\:linear_access_warning').hide();
+                        $('#assessmentSettingsAction\\:itemNavigationHelpBlock').hide();
                         $('#assessmentSettingsAction\\:markForReview1').closest(".row").show();
                         $('#assessmentSettingsAction\\:assessmentFormat\\:0').closest(".row").show();
               } else {
-                        $('#assessmentSettingsAction\\:linear_access_warning').show();
+                        $('#assessmentSettingsAction\\:itemNavigationHelpBlock').show();
                         $('#assessmentSettingsAction\\:markForReview1').prop("checked", false).closest(".row").hide();
                         $('#assessmentSettingsAction\\:assessmentFormat\\:0').closest(".row").hide();
               }
@@ -325,7 +325,7 @@
         <h:outputLabel value="#{assessmentSettingsMessages.heading_metadata}" /> 
       </div>
         <!-- ASSESSMENT METADATA -->
-        <h:outputLabel value="#{assessmentSettingsMessages.assessment_metadata}" /> 
+        <h:outputLabel value="#{assessmentSettingsMessages.assessment_metadata}" />
         
         <div class="form-group row">
             <h:outputLabel for="keywords" value="#{assessmentSettingsMessages.metadata_keywords}"  styleClass="col-md-2 form-control-label"/>
@@ -744,8 +744,8 @@
       <h:outputLabel styleClass="col-md-2" for="itemNavigation" value="#{assessmentSettingsMessages.navigation}" />
       <div class="col-md-10">
         <t:selectOneRadio id="itemNavigation" value="#{publishedSettings.itemNavigation}" layout="spread" onclick="setBlockDivs();updateItemNavigation(true);">
-          <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.linear_access}"/>
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.random_access}"/>
+          <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.linear_access}"/>
         </t:selectOneRadio>
         <ul class="layout-navigation">
           <li><t:radio renderLogicalId="true" for="itemNavigation" index="0" /></li>
