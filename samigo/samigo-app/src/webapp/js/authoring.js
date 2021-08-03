@@ -820,12 +820,17 @@ function collapseAccordion(iframId){
 * the lablels id equals [the id of the option] + [whatever helpBlockDetectionString is]
 */
 function setAccessibilityAttributes() {
-	var helpBlockDetectString = "HelpBlock";
+//	var helpBlockDetectString = "HelpBlock";
 	var helpBlocks = $("[id*=" + helpBlockDetectString +"]");
 	for(i = 0; i < helpBlocks.length; i++) {
 		var helpBlockId = helpBlocks[i].id;
+		//removes helpBlockDetectString resulting in the id of the setting
 		var settingId = helpBlockId.substring(0,helpBlockId.indexOf(helpBlockDetectString));
-		var settingQuerry = "[id*=" + settingId.replace(/:/g, "\\:") + "]";
-		$(settingQuerry).first().attr("aria-describredby", helpBlockId);
+		//querries elements with that exact id
+		var settingQuerryIdent = "#" + settingId.replace(/:/g, "\\:");
+		//querries elements with appending :0, :1, ...
+		var settingQuerryOption = "[id*=" + settingId.replace(/:/g, "\\:") + "\\:]";
+		//sets aria-describredby attribute
+		$(settingQuerryIdent + ", " + settingQuerryOption).first().attr("aria-describredby", helpBlockId);
 	}
 }
