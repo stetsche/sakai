@@ -181,7 +181,7 @@
           initTimedRadio();
           setAccessibilityAttributes();
           setExceptionDefault();
-
+          setSubmissionLimit();
           <!--Initialize bootstrap multiselect-->
           $("#assessmentSettingsAction\\:groupsForSite").attr("multiple", "multiple");
 

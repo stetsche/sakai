@@ -634,7 +634,16 @@ function initTimedRadio(){
 	}
 }
 
-//Sets default values for time exceptions (User/Group
+//This is just needed for the published settings
+//In unpublished settings the default is set in the AssessmentSettingsBean
+function setSubmissionLimit() {
+	var textField = $('[id*="submissions_Allowed"]')
+	if(textField.val() == "") {
+		textField.val("1");
+	}
+}
+
+//Sets default values for time exceptions (User/Group)
 function setExceptionDefault() {
 	defaultButton = $('[id*="extendedEnableUser"]');
 	defaultButton.first().prop('checked', 'checked');
