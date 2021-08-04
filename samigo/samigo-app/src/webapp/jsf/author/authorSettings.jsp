@@ -513,18 +513,19 @@
             </li>
             <li>
               <t:radio renderLogicalId="true" for="selTimeAssess" index="1" />
+              <h:outputLabel id="isTimedTimeLimitLabel" value="#{assessmentSettingsMessages.assessment_is_timed_limit} " />
               <h:outputText value="&#160;" escape="false" />
               <h:selectOneMenu id="timedHours" value="#{assessmentSettings.timedHours}" >
                 <f:selectItems value="#{assessmentSettings.hours}" />
               </h:selectOneMenu>
               <h:outputText value="&#160;" escape="false" />
-              <h:outputLabel value="#{assessmentSettingsMessages.timed_hours} " />
+              <h:outputLabel id="timedHoursLabel"  value="#{assessmentSettingsMessages.timed_hours} " />
               <h:outputText value="&#160;" escape="false" />
               <h:selectOneMenu id="timedMinutes" value="#{assessmentSettings.timedMinutes}" >
                 <f:selectItems value="#{assessmentSettings.mins}" />
               </h:selectOneMenu>
               <h:outputText value="&#160;" escape="false" />
-              <h:outputLabel value="#{assessmentSettingsMessages.timed_minutes} " />
+              <h:outputLabel id="timedMinutesLabel" value="#{assessmentSettingsMessages.timed_minutes} " />
             </li>
           </ul>
           <h:outputLabel id="selTimeAssessHelpBlock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.assessment_timed_info}" />

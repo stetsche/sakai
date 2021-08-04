@@ -617,23 +617,40 @@ function setBlockDivs()
 }
 function checkTimedRadio(){
         var timelimitEnabled=$('input[id*="selTimeAssess"]:checked').val();
-        var hourSelect=$('select[id*="timedHours"]')[0];
-        var minuteSelect=$('select[id*="timedMinutes"]')[0];
+        var hourSelect=$('select[id*="timedHours"]');
+        var minuteSelect=$('select[id*="timedMinutes"]');
+        var hourLabel = $('[id*="timedHoursLabel"]');
+        var minuteLabel = $('[id*="timedMinutesLabel"]');
+        var firstLabel = $('label[for*="selTimeAssess:1"]');
+        var secondLabel = $('label[id*="isTimedTimeLimitLabel"]');
+        var dot = ".";
 
         if(timelimitEnabled == 'true') {
                 //timelimit enabled
-                //enable hour and min boxes
-                hourSelect.disabled = false;
-                minuteSelect.disabled = false;
+                hourSelect.show();
+                minuteSelect.show();
+                hourLabel.show();
+                minuteLabel.show();
+                secondLabel.show();
+                if(firstLabel.text().indexOf(dot) == -1) {
+                    firstLabel.text(firstLabel.text() + dot);
+                    firstLabel.after('<span id="timedSpace"> </span>');
+                }
         }
-        else if(timelimitEnabled == 'false'){
+        else if(timelimitEnabled == 'false') {
                 //timelimit disabled
+                hourSelect.hide();
+                minuteSelect.hide();
+                hourLabel.hide();
+                minuteLabel.hide();
+                secondLabel.hide();
+                if(firstLabel.text().indexOf(dot) > -1) {
+                    firstLabel.text(firstLabel.text().substring(0, firstLabel.text().indexOf(dot)));
+                    $("#timedSpace").remove();
+                }
                 //set hour and min to 0
-                hourSelect.options.selectedIndex = 0;
-                minuteSelect.options.selectedIndex = 0;
-                //disable hour and min boxes
-                hourSelect.disabled = true;
-                minuteSelect.disabled = true;
+                hourSelect[0].options.selectedIndex = 0;
+                minuteSelect[0].options.selectedIndex = 0;
         }
 }
 
@@ -682,15 +699,25 @@ function checkLastHandling(){
 	var isDisabled=$('input[id*="lateHandling"]:checked').val();
 	var retractDate = $('input[id*="retractDate"]');
 	var deadlineLabel = $('[id*="lateHandlingDeadlineLabel"]');
+	var firstLabel = $('label[for*="lateHandling:1"]');
+	var dot = ".";
 	//$('input[id*="retractDate"]:visible').prop( "disabled", isDisabled);
 	//$('input[id*="retractDate"]:visible').next().show;
 	
 	if(isDisabled==2){
 		retractDate.hide().next().hide();
 		deadlineLabel.hide();
+		if(firstLabel.text().indexOf(dot) > -1) {
+			firstLabel.text(firstLabel.text().substring(0, firstLabel.text().indexOf(dot)));
+			$("#lateSpace").remove();
+		}
 	}else{
 		retractDate.show().next().show();
 		deadlineLabel.show();
+		if(firstLabel.text().indexOf(dot) == -1) {
+			firstLabel.text(firstLabel.text() + dot);
+			firstLabel.after('<span id="lateSpace"> </span>');
+		}
 	}
 }
 
