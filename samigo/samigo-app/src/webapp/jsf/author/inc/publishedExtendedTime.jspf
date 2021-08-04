@@ -153,12 +153,12 @@
                     <f:setPropertyActionListener target="#{publishedSettings.transitoryExtendedTime}" value="#{entry}" />
                 </h:commandButton>
             </h:column>
-            <h:column headerClass="extendedTime-delete" rendered="#{assessmentSettings.extendedTimesSize > 0}">
+            <h:column headerClass="extendedTime-delete" rendered="#{publishedSettings.extendedTimesSize > 0}">
                 <f:facet name="header">
                     <h:outputText value="#{assessmentSettingsMessages.header_extendedTime_delete}" />
                 </f:facet>
-                <h:commandButton value="#{assessmentSettingsMessages.header_extendedTime_delete}" action="#{assessmentSettings.deleteExtendedTime}"  >
-                    <f:setPropertyActionListener target="#{assessmentSettings.transitoryExtendedTime}" value="#{entry}" />
+                <h:commandButton value="#{assessmentSettingsMessages.header_extendedTime_delete}" action="#{publishedSettings.deleteExtendedTime}"  >
+                    <f:setPropertyActionListener target="#{publishedSettings.transitoryExtendedTime}" value="#{entry}" />
                 </h:commandButton>
             </h:column>
         </t:dataTable>
