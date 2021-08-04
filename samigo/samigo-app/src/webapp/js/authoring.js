@@ -847,7 +847,7 @@ function collapseAccordion(iframId){
 * the lablels id equals [the id of the option] + [whatever helpBlockDetectionString is]
 */
 function setAccessibilityAttributes() {
-//	var helpBlockDetectString = "HelpBlock";
+	var helpBlockDetectString = "HelpBlock";
 	var helpBlocks = $("[id*=" + helpBlockDetectString +"]");
 	for(i = 0; i < helpBlocks.length; i++) {
 		var helpBlockId = helpBlocks[i].id;
