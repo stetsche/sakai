@@ -49,7 +49,6 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{assessmentSettingsMessages.sakai_assessment_manager} #{assessmentSettingsMessages.dash} #{assessmentSettingsMessages.settings}" /></title>
       <script src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
-      <script src="/samigo-app/jsf/widget/colorpicker/colorpicker.js"></script>
       <script>includeWebjarLibrary('momentjs');</script>
       <script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
       <script src="/samigo-app/js/authoring.js"></script>
@@ -379,36 +378,6 @@
                 <h:inputText id="secureDeliveryModuleExitPassword" size="20" value="#{publishedSettings.secureDeliveryModuleExitPassword}" disabled="#{publishedSettings.secureDeliveryModule == 'SECURE_DELIVERY_NONE_ID'}" maxlength="14"/>
             </h:panelGrid>
         </div>
-    </h:panelGroup>
-    <!-- BACKGROUND SETTINGS-->
-    <!-- BACKGROUND COLOR-->
-    <div class="samigo-subheading">
-         <h:outputLabel value="#{assessmentSettingsMessages.background_label}"/>
-    </div>
-    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.bgColor_isInstructorEditable==true}" >
-        <div class="col-md-2">
-           <h:outputLabel value="#{assessmentSettingsMessages.background_label_choose}"/>
-	</div>
-        <div class="col-md-3">
-            <h:selectOneRadio onclick="uncheckOther(this)" id="background_color" value="#{publishedSettings.bgColorSelect}">
-                <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.background_color}"/>
-            </h:selectOneRadio>
-	</div>
-	<div class="col-md-7">
-	    <samigo:colorPicker value="#{publishedSettings.bgColor}" size="10" id="pickColor"/>
-	</div>
-    </h:panelGroup>
-    <!-- BACKGROUND IMAGE-->
-    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.bgColor_isInstructorEditable==true}" >
-	<div class="col-md-2"></div>
-	<div class="col-md-3">
-	    <h:selectOneRadio onclick="uncheckOther(this)" id="background_image" value="#{publishedSettings.bgImageSelect}"  >
-                <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.background_image}"/>
-            </h:selectOneRadio>
-	</div>
-	<div class="col-md-7">
-	    <h:inputText size="80" value="#{publishedSettings.bgImage}"/>
-	</div>
     </h:panelGroup>
 </samigo:hideDivision><!-- END the Security and Proctoring category -->
 
