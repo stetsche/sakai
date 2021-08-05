@@ -262,20 +262,6 @@
         </div>
     </div>
 
-    <div class="form-group row">
-        <h:outputLabel styleClass="col-md-2" for="creator" value="#{assessmentSettingsMessages.assessment_creator}" rendered="#{assessmentSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
-        <div class="col-md-10">
-            <h:outputText id="creator" value="#{assessmentSettings.creator}" rendered="#{assessmentSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
-        </div>
-    </div>
-
-    <div class="form-group row hidden">
-        <h:outputLabel styleClass="col-md-2" for="assessment_author" rendered="#{assessmentSettings.valueMap.assessmentAuthor_isInstructorEditable==true}" value="#{assessmentSettingsMessages.assessment_authors}"/>
-        <div class="col-md-10">
-            <h:inputText styleClass="form-control" id="assessment_author" value="#{assessmentSettings.authors}" rendered="#{assessmentSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
-        </div>
-    </div>
-
     <!-- DESCRIPTION AND ATTACHMENTS TITILE  -->
     <div class="samigo-subheading">
         <h:outputLabel value="#{assessmentSettingsMessages.assessment_description_and_attachments}"/>
