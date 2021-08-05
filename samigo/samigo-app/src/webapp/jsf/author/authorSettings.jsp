@@ -698,6 +698,7 @@
                 <h:panelGroup styleClass="form-inline" layout="block">
                     <h:selectBooleanCheckbox value="#{assessmentSettings.showGraderComments}" id="feedbackCheckbox6"/>
                     <h:outputLabel for="feedbackCheckbox6" value="#{assessmentSettingsMessages.graders_comments}" />
+                    <h:outputLabel id="feedbackCheckbox6HelpBlock" styleClass="help-block info-text small" value="#{assessmentSettingsMessages.graders_comments_info} "/>
                 </h:panelGroup>
                 <h:panelGroup styleClass="form-inline" layout="block">
                     <h:outputLabel  value="#{assessmentSettingsMessages.feedback_subheading_scores}" />
