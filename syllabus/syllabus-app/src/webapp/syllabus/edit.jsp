@@ -47,18 +47,13 @@
  				<h:outputText value="*" styleClass="reqStarInline"/>
  				<h:outputText value="#{msgs.newSyllabusForm2}"/>
  			</sakai:doc_section>
- 
- 			<h:panelGrid columns="2" styleClass="jsfFormTable">
- 				<h:panelGroup styleClass="shorttext required">
- 					<h:outputText value="*" styleClass="reqStar"/>
- 					
+
  					<h:outputLabel for="title">
  						<h:outputText value="#{msgs.syllabus_title}"/>
+	 					<h:outputText value="*" styleClass="reqStar"/>
  					</h:outputLabel>
  					<h:inputText value="#{SyllabusTool.syllabusDataTitle}" id="title"/>
- 				</h:panelGroup>
- 			</h:panelGrid>
- 
+
  			<div class="longtext">
  				<label for="" style="float:none;display:block">
  					<h:outputText value="#{msgs.syllabus_content}"/>

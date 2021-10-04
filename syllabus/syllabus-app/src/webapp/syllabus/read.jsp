@@ -49,153 +49,157 @@
 	});
  </script>
 			<h:form id="readview">
-			<%@ include file="mainMenu.jsp" %>
-			<h:outputText value="#{SyllabusTool.alertMessage}" styleClass="sak-banner-error" rendered="#{SyllabusTool.alertMessage != null}" />
-		  	<sakai:tool_bar_message value="#{msgs.editNotice}" /> 
-				<sakai:doc_section>
-					<h:outputText value="#{msgs.newSyllabusForm1}"/>
-					<h:outputText value="*" styleClass="reqStarInline"/>
-					<h:outputText value="#{msgs.newSyllabusForm2}"/>
-				</sakai:doc_section>
+				<%@ include file="mainMenu.jsp" %>
+				<h:outputText value="#{SyllabusTool.alertMessage}" styleClass="sak-banner-error" rendered="#{SyllabusTool.alertMessage != null}" />
 
-			<h:panelGrid columns="1" styleClass="jsfFormTable">
-				<h:panelGroup styleClass="shorttext required">
-					<h:outputText value="*" styleClass="reqStar"/>
-					<h:outputLabel for="title">
+				<div class="page-header">
+					<h1><h:outputText value="#{msgs.editNotice}"/></h1>
+				</div>
+
+				<h:panelGroup styleClass="form-group">
+					<h:outputLabel for="title" styleClass="col-sm-2 col-lg-1">
 						<h:outputText value="#{msgs.syllabus_title}"/>
+						<h:outputText value=" *" styleClass="highlight"/>
 					</h:outputLabel>
-					<h:inputText value="#{SyllabusTool.syllabusDataTitle}" id="title"/>
+					<div class="col-sm-10 col-lg-11">
+						<h:inputText styleClass="form-control" value="#{SyllabusTool.syllabusDataTitle}" id="title"/>
+					</div>
 				</h:panelGroup>
-			</h:panelGrid>
 
-			<p class="longtext">
-				<label for="" style="float:none;display:block"> <%-- outputLabel needed here instead but there is no target to id --%>
-					<h:outputText value="#{msgs.syllabus_content}"/>
-				</label>
-				<sakai:inputRichText textareaOnly="#{SyllabusTool.mobileSession}" rows="20" cols="120" id="syllabus_compose_read" value="#{SyllabusTool.syllabusDataAsset}" />
-			</p>	
-			<div class="checkbox">
-				<h:selectOneRadio value="#{SyllabusTool.syllabusDataView}"  layout="pageDirection" title="#{msgs.publicPrivate}">
-					<f:selectItem itemValue="no" itemLabel="#{msgs.noPrivate}"/>
-					<f:selectItem itemValue="yes" itemLabel="#{msgs.yesPublic}"/>
-				</h:selectOneRadio>
-			</div>
-			<h4>
-				<h:outputText value="#{msgs.attachment}"/>
-			</h4>	
-					
-					<sakai:button_bar>
-<%-- (gsilver) cannot pass a needed title atribute to this next item --%>					
-						<h:commandButton
-							action="#{SyllabusTool.processAddAttachRedirect}" 
-							value="#{msgs.add_attach}"/>
-					</sakai:button_bar>							
-	
-					<h:dataTable value="#{SyllabusTool.allAttachments}" var="eachAttach" summary="#{msgs.edit_att_list_summary}" styleClass="table table-striped table-bordered table-hover">
-					  <h:column rendered="#{!empty SyllabusTool.allAttachments}">
-							<f:facet name="header">
-								<h:outputText value="#{msgs.attachmentTitle}" />
-							</f:facet>
-							<f:verbatim><h5></f:verbatim>
-							<sakai:contentTypeMap fileType="#{eachAttach.type}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
-							<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />
-							<h:outputText value="#{eachAttach.name}"/>
-							<f:verbatim></h5></f:verbatim>
-							<f:verbatim><div class="itemAction"></f:verbatim>
+				<h:panelGroup styleClass="form-group col-xs-12">
+					<h:outputLabel for="cke_readview:syllabus_compose_read_inputRichText" >
+						<h:outputText value="#{msgs.syllabus_content}"/>
+					</h:outputLabel>
+					<sakai:inputRichText textareaOnly="#{SyllabusTool.mobileSession}" rows="20" cols="120" id="syllabus_compose_read" value="#{SyllabusTool.syllabusDataAsset}" />
+				</h:panelGroup>
 
-							<h:commandLink action="#{SyllabusTool.processDeleteAttach}" title="#{msgs.removeAttachmentLink} #{eachAttach.name}">
-								<h:outputText value="#{msgs.mainEditHeaderRemove}"/>
-								<f:param value="#{eachAttach.syllabusAttachId}" name="syllabus_current_attach"/>
-							</h:commandLink>
-							<f:verbatim></div></f:verbatim>
-						</h:column>
-					  <h:column rendered="#{!empty SyllabusTool.allAttachments}">
-							<f:facet name="header">
-								<h:outputText value="#{msgs.size}" />
-							</f:facet>
-							<h:outputText value="#{eachAttach.size}"/>
-						</h:column>
-					  <h:column rendered="#{!empty SyllabusTool.allAttachments}">
-							<f:facet name="header">
-		  			    <h:outputText value="#{msgs.type}" />
-							</f:facet>
-							<h:outputText value="#{eachAttach.type}"/>
-						</h:column>
-					  <h:column rendered="#{!empty SyllabusTool.allAttachments}">
-							<f:facet name="header">
-								<h:outputText value="#{msgs.created_by}" />
-							</f:facet>
-							<h:outputText value="#{eachAttach.createdBy}"/>
-						</h:column>
-					  <h:column rendered="#{!empty SyllabusTool.allAttachments}">
-							<f:facet name="header">
-								<h:outputText value="#{msgs.last_modified}" />
-							</f:facet>
-							<h:outputText value="#{eachAttach.lastModifiedBy}"/>
-						</h:column>
-					</h:dataTable>
-					
-					<!-- Date -->
-					<h4>
-						<h:outputText value="#{msgs.dateheader}"/>
-					</h4>
-					<h:panelGrid columns="1" styleClass="jsfFormTable">
-						<h:panelGroup styleClass="shorttext">
-							<h:outputLabel for="dataStartDate">
-								<h:outputText value="#{msgs.startdatetitle}"/>
-							</h:outputLabel>
-							<h:inputText styleClass="datInputStart" value="#{SyllabusTool.syllabusDataStartDate}" id="dataStartDate"/>
-						</h:panelGroup>
-						<h:panelGroup styleClass="shorttext">
-							<h:outputLabel for="dataEndDate">
-								<h:outputText value="#{msgs.enddatetitle}"/>
-							</h:outputLabel>
-							<h:inputText styleClass="datInputEnd" value="#{SyllabusTool.syllabusDataEndDate}" id="dataEndDate"/>
-						</h:panelGroup>
-						<h:panelGroup styleClass="shorttext" rendered="#{SyllabusTool.calendarExistsForSite}">
-							<h:selectBooleanCheckbox id="linkCalendar" value="#{SyllabusTool.syllabusDataLinkCalendar}" />
-							<h:outputLabel for="linkCalendar">
-								<h:outputText value="#{msgs.linkcalendartitle}"/>
-							</h:outputLabel>
-						</h:panelGroup>
-					</h:panelGrid>
+				<h:panelGroup styleClass="form-group col-xs-12">
+				<div class="checkbox">
+					<h:selectOneRadio value="#{SyllabusTool.syllabusDataView}"  layout="pageDirection" title="#{msgs.publicPrivate}">
+						<f:selectItem itemValue="no" itemLabel="#{msgs.noPrivate}"/>
+						<f:selectItem itemValue="yes" itemLabel="#{msgs.yesPublic}"/>
+					</h:selectOneRadio>
+				</div>
+				</h:panelGroup>
 
-					<h4>
-						<h:outputText value="#{msgs.notificationheader}"/>
-					</h4>
-					<h:panelGrid columns="1" styleClass="jsfFormTable">
-						<h:panelGroup styleClass="shorttext">
-							<h:outputLabel for="list1">
-								<h:outputText value="#{msgs.email_notify}"/>
-							</h:outputLabel>
-							<h:selectOneListbox size = "1"  id = "list1" value="#{SyllabusTool.syllabusDataEmailNotification}">
-								<f:selectItem itemLabel="#{msgs.notifyNone}" itemValue="none"/>
-								<f:selectItem itemLabel="#{msgs.notifyHigh}" itemValue="high"/>
-								<f:selectItem itemLabel="#{msgs.notifyLow}" itemValue="low"/>
-							</h:selectOneListbox>
-							</h:panelGroup>
-						</h:panelGrid>
+				<h2 class="col-xs-12">
+					<h:outputText value="#{msgs.attachment}"/>
+				</h2>
+				<h:panelGroup styleClass="form-group col-xs-12">
+				<h:dataTable value="#{SyllabusTool.allAttachments}" var="eachAttach" summary="#{msgs.edit_att_list_summary}" styleClass="table table-striped table-bordered table-hover">
+					<h:column rendered="#{!empty SyllabusTool.allAttachments}">
+						<f:facet name="header">
+							<h:outputText value="#{msgs.attachmentTitle}" />
+						</f:facet>
+						<f:verbatim><h5></f:verbatim>
+						<sakai:contentTypeMap fileType="#{eachAttach.type}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>
+						<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />
+						<h:outputText value="#{eachAttach.name}"/>
+						<f:verbatim></h5></f:verbatim>
+						<f:verbatim><div class="itemAction"></f:verbatim>
+
+						<h:commandLink action="#{SyllabusTool.processDeleteAttach}" title="#{msgs.removeAttachmentLink} #{eachAttach.name}">
+							<h:outputText value="#{msgs.mainEditHeaderRemove}"/>
+							<f:param value="#{eachAttach.syllabusAttachId}" name="syllabus_current_attach"/>
+						</h:commandLink>
+						<f:verbatim></div></f:verbatim>
+					</h:column>
+					<h:column rendered="#{!empty SyllabusTool.allAttachments}">
+						<f:facet name="header">
+							<h:outputText value="#{msgs.size}" />
+						</f:facet>
+						<h:outputText value="#{eachAttach.size}"/>
+					</h:column>
+					<h:column rendered="#{!empty SyllabusTool.allAttachments}">
+						<f:facet name="header">
+						<h:outputText value="#{msgs.type}" />
+						</f:facet>
+						<h:outputText value="#{eachAttach.type}"/>
+					</h:column>
+					<h:column rendered="#{!empty SyllabusTool.allAttachments}">
+						<f:facet name="header">
+							<h:outputText value="#{msgs.created_by}" />
+						</f:facet>
+						<h:outputText value="#{eachAttach.createdBy}"/>
+					</h:column>
+					<h:column rendered="#{!empty SyllabusTool.allAttachments}">
+						<f:facet name="header">
+							<h:outputText value="#{msgs.last_modified}" />
+						</f:facet>
+						<h:outputText value="#{eachAttach.lastModifiedBy}"/>
+					</h:column>
+				</h:dataTable>
 
 				<sakai:button_bar>
-					<h:commandButton
-						action="#{SyllabusTool.processReadPost}"
-						styleClass="active"
-						value="#{msgs.bar_publish}"
-						accesskey="s" />
-					<h:commandButton
-						action="#{SyllabusTool.processReadPreview}"
-						value="#{msgs.bar_preview}" 
-						accesskey="v"	/>
-					<h:commandButton
-						action="#{SyllabusTool.processReadSave}"
-						value="#{msgs.bar_save_draft}" 
-						accesskey="d" />
-					<h:commandButton
-						action="#{SyllabusTool.processReadCancel}"
-						value="#{msgs.cancel}" 
-						accesskey="x" />
+					<h:commandButton action="#{SyllabusTool.processAddAttachRedirect}" value="#{msgs.add_attach}"/>
 				</sakai:button_bar>
+				</h:panelGroup>
 
+				<!-- Date -->
+				<h2 class="col-xs-12">
+					<h:outputText value="#{msgs.dateheader}"/>
+				</h2>
+				<h:panelGroup styleClass="form-group">
+						<h:outputLabel for="dataStartDate" styleClass="col-sm-2 col-lg-1">
+							<h:outputText value="#{msgs.startdatetitle}"/>
+						</h:outputLabel>
+						<div class="col-sm-10 col-lg-11">
+							<h:inputText styleClass="datInputStart" value="#{SyllabusTool.syllabusDataStartDate}" id="dataStartDate"/>
+						</div>
+				</h:panelGroup>
+				<h:panelGroup styleClass="form-group">
+						<h:outputLabel for="dataEndDate" styleClass="col-sm-2 col-lg-1">
+							<h:outputText value="#{msgs.enddatetitle}"/>
+						</h:outputLabel>
+						<div class="col-sm-10 col-lg-11">
+							<h:inputText styleClass="datInputEnd" value="#{SyllabusTool.syllabusDataEndDate}" id="dataEndDate"/>
+						</div>
+				</h:panelGroup>
+				<h:panelGroup styleClass="form-group col-xs-12" rendered="#{SyllabusTool.calendarExistsForSite}">
+					<div class="col-sm-offset-2 col-lg-offset-1 checkbox">
+						<h:outputLabel for="linkCalendar">
+						<h:selectBooleanCheckbox id="linkCalendar" value="#{SyllabusTool.syllabusDataLinkCalendar}" />
+							<h:outputText value="#{msgs.linkcalendartitle}"/>
+						</h:outputLabel>
+					</div>
+				</h:panelGroup>
+
+				<h2 class="col-xs-12">
+					<h:outputText value="#{msgs.notificationheader}"/>
+				</h2>
+				<h:panelGroup styleClass="form-group">
+					<h:outputLabel for="list1" styleClass="col-sm-2 col-lg-1">
+						<h:outputText value="#{msgs.email_notify}"/>
+					</h:outputLabel>
+					<div class="col-sm-10 col-lg-11">
+						<h:selectOneListbox size = "1"  id = "list1" value="#{SyllabusTool.syllabusDataEmailNotification}" styleClass="form-control">
+							<f:selectItem itemLabel="#{msgs.notifyNone}" itemValue="none"/>
+							<f:selectItem itemLabel="#{msgs.notifyHigh}" itemValue="high"/>
+							<f:selectItem itemLabel="#{msgs.notifyLow}" itemValue="low"/>
+						</h:selectOneListbox>
+					</div>
+				</h:panelGroup>
+				<div class="col-xs-12">
+					<sakai:button_bar>
+						<h:commandButton
+							action="#{SyllabusTool.processReadPost}"
+							styleClass="active"
+							value="#{msgs.bar_publish}"
+							accesskey="s" />
+						<h:commandButton
+							action="#{SyllabusTool.processReadPreview}"
+							value="#{msgs.bar_preview}" 
+							accesskey="v"	/>
+						<h:commandButton
+							action="#{SyllabusTool.processReadSave}"
+							value="#{msgs.bar_save_draft}" 
+							accesskey="d" />
+						<h:commandButton
+							action="#{SyllabusTool.processReadCancel}"
+							value="#{msgs.cancel}" 
+							accesskey="x" />
+					</sakai:button_bar>
+				</div>
 			</h:form>
 		</sakai:view_content>
 	</sakai:view_container>

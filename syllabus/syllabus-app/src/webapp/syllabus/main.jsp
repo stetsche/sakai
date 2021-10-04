@@ -130,159 +130,164 @@
 	<h:form id="syllabus">
 		<input type="hidden" id="siteId" value="<h:outputText value="#{SyllabusTool.siteId}"/>">
 		<%@ include file="mainMenu.jsp" %>
-		<br/>
-		<%@ include file="mainControls.jsp" %>
-			<syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
-					<h:panelGroup layout="block" styleClass="instruction" rendered="#{SyllabusTool.editAble == 'true'}">
-						<h:outputText value="#{msgs.reorderInstruction}" />
-						<h:panelGroup styleClass="sr-only">
-							<h:outputText value="#{msgs.reorderInstruction_sr}" />
-						</h:panelGroup>
-					</h:panelGroup>
+
+		<div class="page-header">
+			<h1><h:outputText value="#{msgs.main}" /></h1>
+		</div>
+
+		<syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
+			<%@ include file="mainControls.jsp" %>
+			<h:panelGroup layout="block" styleClass="sak-banner-info" rendered="#{SyllabusTool.editAble == 'true'}">
+				<h:outputText value="#{msgs.reorderInstruction}" />
+				<h:panelGroup styleClass="sr-only">
+					<h:outputText value="#{msgs.reorderInstruction_sr}" />
+				</h:panelGroup>
+			</h:panelGroup>
+			<f:verbatim>
+				<div>
+					<span id="successInfo" class="sak-banner-success popupMessage" style="display:none; float: left;"></span>
+					<span id="warningInfo" class="sak-banner-warn popupMessage" style="display:none; float: left;"></span>
+				</div>
+
+				<span id="lastMoveArray" class="hidden"></span>
+				<span id="lastMoveArrayInit" class="hidden"></span>
+				<span id="lastItemMoved" class="hidden"></span>
+
+				<div id="accordion">
+			</f:verbatim>
+			<t:dataList value="#{SyllabusTool.entries}" var="eachEntry" layout="simple" styleClass="accordion-items-container" id="reorder-list">
+				<f:verbatim><div class="reorder-element"><div class="group" syllabusItem="</f:verbatim>
+				<h:outputText value="#{eachEntry.entry.syllabusId}"/>
+				<f:verbatim>"><h3></f:verbatim>
+				<f:subview id="actionIcons" rendered="#{SyllabusTool.editAble == 'true'}">
 					<f:verbatim>
-						<div>
-							<span id="successInfo" class="sak-banner-success popupMessage" style="display:none; float: left;"></span>
-							<span id="warningInfo" class="sak-banner-warn popupMessage" style="display:none; float: left;"></span>
-						</div>
-
-						<span id="lastMoveArray" class="hidden"></span>
-						<span id="lastMoveArrayInit" class="hidden"></span>
-						<span id="lastItemMoved" class="hidden"></span>
-
-						<div id="accordion">
+					<span class="fa fa-arrows handleIcon" alt="</f:verbatim><h:outputText value="#{msgs.dragToReorder}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.dragToReorder}"/><f:verbatim>"></span>
+					<span class="edit-actions">
+						<span class="fa fa-eye actionIcon publish publishOn" alt="</f:verbatim><h:outputText value="#{msgs.clickToUnpublish}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.clickToUnpublish}"/><f:verbatim>" style="</f:verbatim><h:outputText value="#{eachEntry.status == eachEntry.draftStatus ? 'display:none' : ''}"/><f:verbatim>"></span>
+						<span class="fa fa-eye-slash actionIcon publish publishOff" alt="</f:verbatim><h:outputText value="#{msgs.clickToPublish}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.clickToPublish}"/><f:verbatim>" style="</f:verbatim><h:outputText value="#{eachEntry.status == eachEntry.draftStatus ? '' : 'display:none'}"/><f:verbatim>"></span>
+						<span class="fa fa-calendar-check-o actionIcon linkCal linkCalOn" alt="</f:verbatim><h:outputText value="#{msgs.clickToRemoveCal}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.clickToRemoveCal}"/><f:verbatim>" style="</f:verbatim><h:outputText value="#{(eachEntry.entry.linkCalendar && SyllabusTool.calendarExistsForSite) ? '' : 'display:none'}"/><f:verbatim>"></span>
+						<span class="fa fa-calendar-times-o actionIcon linkCal linkCalOff" alt="</f:verbatim><h:outputText value="#{msgs.clickToAddCal}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.clickToAddCal}"/><f:verbatim>" style="</f:verbatim><h:outputText value="#{(eachEntry.entry.linkCalendar  && SyllabusTool.calendarExistsForSite) ? 'display:none' : ''}"/><f:verbatim>"></span>
+						<span class="fa fa-globe actionIcon linkWorld linkWorldOn" alt="</f:verbatim><h:outputText value="#{msgs.clickToHideWorld}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.clickToHideWorld}"/><f:verbatim>" style="</f:verbatim><h:outputText value="#{eachEntry.entry.view == 'yes' ? '' : 'display:none'}"/><f:verbatim>"></span>
+						<span class="fa fa-lock actionIcon linkWorld linkWorldOff" alt="</f:verbatim><h:outputText value="#{msgs.clickToAddWorld}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.clickToAddWorld}"/><f:verbatim>" style="</f:verbatim><h:outputText value="#{eachEntry.entry.view == 'no' ? '' : 'display:none'}"/><f:verbatim>"></span>
+						<span class="fa fa-trash actionImage delete" onclick="showConfirmDeleteHelper(this, event);" title="</f:verbatim><h:outputText value="#{msgs.clickToDelete}"/><f:verbatim>"></span>
+					</span>
 					</f:verbatim>
-					<t:dataList value="#{SyllabusTool.entries}" var="eachEntry" layout="simple" styleClass="accordion-items-container" id="reorder-list">
-						<f:verbatim><div class="reorder-element"><div class="group" syllabusItem="</f:verbatim>
-						<h:outputText value="#{eachEntry.entry.syllabusId}"/>
-						<f:verbatim>"><h3></f:verbatim>
-						<f:subview id="actionIcons" rendered="#{SyllabusTool.editAble == 'true'}">
-						    <f:verbatim>
-							<span class="fa fa-arrows handleIcon" alt="</f:verbatim><h:outputText value="#{msgs.dragToReorder}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.dragToReorder}"/><f:verbatim>"></span>
-							<span class="edit-actions">
-							  <span class="fa fa-eye actionIcon publish publishOn" alt="</f:verbatim><h:outputText value="#{msgs.clickToUnpublish}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.clickToUnpublish}"/><f:verbatim>" style="</f:verbatim><h:outputText value="#{eachEntry.status == eachEntry.draftStatus ? 'display:none' : ''}"/><f:verbatim>"></span>
-							  <span class="fa fa-eye-slash actionIcon publish publishOff" alt="</f:verbatim><h:outputText value="#{msgs.clickToPublish}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.clickToPublish}"/><f:verbatim>" style="</f:verbatim><h:outputText value="#{eachEntry.status == eachEntry.draftStatus ? '' : 'display:none'}"/><f:verbatim>"></span>
-							  <span class="fa fa-calendar-check-o actionIcon linkCal linkCalOn" alt="</f:verbatim><h:outputText value="#{msgs.clickToRemoveCal}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.clickToRemoveCal}"/><f:verbatim>" style="</f:verbatim><h:outputText value="#{(eachEntry.entry.linkCalendar && SyllabusTool.calendarExistsForSite) ? '' : 'display:none'}"/><f:verbatim>"></span>
-							  <span class="fa fa-calendar-times-o actionIcon linkCal linkCalOff" alt="</f:verbatim><h:outputText value="#{msgs.clickToAddCal}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.clickToAddCal}"/><f:verbatim>" style="</f:verbatim><h:outputText value="#{(eachEntry.entry.linkCalendar  && SyllabusTool.calendarExistsForSite) ? 'display:none' : ''}"/><f:verbatim>"></span>
-							  <span class="fa fa-globe actionIcon linkWorld linkWorldOn" alt="</f:verbatim><h:outputText value="#{msgs.clickToHideWorld}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.clickToHideWorld}"/><f:verbatim>" style="</f:verbatim><h:outputText value="#{eachEntry.entry.view == 'yes' ? '' : 'display:none'}"/><f:verbatim>"></span>
-							  <span class="fa fa-lock actionIcon linkWorld linkWorldOff" alt="</f:verbatim><h:outputText value="#{msgs.clickToAddWorld}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.clickToAddWorld}"/><f:verbatim>" style="</f:verbatim><h:outputText value="#{eachEntry.entry.view == 'no' ? '' : 'display:none'}"/><f:verbatim>"></span>
-							  <span class="fa fa-trash actionImage delete" onclick="showConfirmDeleteHelper(this, event);" title="</f:verbatim><h:outputText value="#{msgs.clickToDelete}"/><f:verbatim>"></span>
-							</span>
-						    </f:verbatim>
-						</f:subview>
-						<f:verbatim><a href="javascript:void(0)" </f:verbatim>
-							<f:subview id="draftclass" rendered="#{eachEntry.status == eachEntry.draftStatus}">
-								<f:verbatim>class="draft"</f:verbatim>
+				</f:subview>
+				<f:verbatim><a href="javascript:void(0)" </f:verbatim>
+					<f:subview id="draftclass" rendered="#{eachEntry.status == eachEntry.draftStatus}">
+						<f:verbatim>class="draft"</f:verbatim>
+					</f:subview>
+					<f:verbatim>></f:verbatim>
+					<h:outputText styleClass="draftTitlePrefix" rendered="#{eachEntry.status == eachEntry.draftStatus}" value="#{msgs.draftTitlePrefix}" />
+					<h:outputText styleClass="syllabusItemTitle" value="#{eachEntry.entry.title}" />
+					<f:subview id="dateStudent" rendered="#{!SyllabusTool.editAble && (eachEntry.entry.startDate != null || eachEntry.entry.endDate != null)}">
+						<f:verbatim><span style="float: right; padding-right: 1em; padding-left: 1em"></f:verbatim>
+							<h:outputText value="#{eachEntry.entry.startDate}">
+								<f:convertDateTime type="date" pattern="EEE MMM dd, yyyy hh:mm a"/>
+							</h:outputText>
+							<h:outputText value=" - " rendered="#{eachEntry.entry.startDate != null && eachEntry.entry.endDate != null}"/>
+							<h:outputText value="#{eachEntry.entry.endDate}" rendered="#{!eachEntry.startAndEndDatesSameDay}">
+								<f:convertDateTime type="date" pattern="EEE MMM dd, yyyy hh:mm a"/>
+							</h:outputText>
+							<h:outputText value="#{eachEntry.entry.endDate}" rendered="#{eachEntry.startAndEndDatesSameDay}">
+								<f:convertDateTime type="date" pattern="hh:mm a"/>
+							</h:outputText>
+						<f:verbatim></span></f:verbatim>
+					</f:subview>
+					<f:subview id="dateInstructor" rendered="#{SyllabusTool.editAble == 'true'}">
+						<f:verbatim><span style="float: right; padding-right:1em; padding-left:1em"></f:verbatim>
+							<h:outputText styleClass="" value="#{eachEntry.entry.startDate}">
+								<f:convertDateTime type="date" pattern="yyyy/MM/dd h:mm a"/>
+							</h:outputText>
+							<h:outputText styleClass="" value="#{eachEntry.entry.endDate}">
+								<f:convertDateTime type="date" pattern="yyyy/MM/dd h:mm a"/>
+							</h:outputText>
+						<f:verbatim></span></f:verbatim>
+					</f:subview>
+				<f:verbatim>
+					</a>
+					</h3>
+				</f:verbatim>
+				<f:verbatim><div></f:verbatim>
+					<f:verbatim><div class="" data-tpl='<textarea cols="120" id="textAreaWysiwyg" style="display:none"></textarea><img id="loading" style="margin: 2em;" src="images/loading.gif"/>'></f:verbatim>
+					<h:outputText value="#{eachEntry.entry.asset}" escape="false"/>
+					<f:verbatim></div></f:verbatim>
+					
+					<%/* view/add attachments */%>
+					<h:dataTable value="#{eachEntry.attachmentList}" var="eachAttach" styleClass="indnt1">
+						<h:column>
+							<f:facet name="header">
+								<h:outputText value="" />
+							</f:facet>
+							<sakai:contentTypeMap fileType="#{eachAttach.type}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
+							<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />	
+							<h:outputLink styleClass="attachment" value="#{eachAttach.url}" target="_blank" title="#{msgs.openLinkNewWindow}">
+								<h:outputText value=" "/><h:outputText value="#{eachAttach.name}"/>
+							</h:outputLink>
+							<f:subview id="removeItem" rendered="#{SyllabusTool.editAble == 'true'}">
+								<f:verbatim>
+								&nbsp;
+									<a attachmentId='</f:verbatim><h:outputText value="#{eachAttach.syllabusAttachId}"/><f:verbatim>' 
+										href="javascript:void(0)" onclick="showConfirmDeleteAttachmentHelper(this, event);" title="</f:verbatim><h:outputText value="#{msgs.clickToRemoveAttachment}"/><f:verbatim>">
+										<span class="fa fa-trash" alt="</f:verbatim><h:outputText value="#{msgs.clickToRemoveAttachment}"/><f:verbatim>"></span>
+									</a>
+								</f:verbatim>
 							</f:subview>
-							<f:verbatim>></f:verbatim>
-							<h:outputText styleClass="draftTitlePrefix" rendered="#{eachEntry.status == eachEntry.draftStatus}" value="#{msgs.draftTitlePrefix}" />
-							<h:outputText styleClass="syllabusItemTitle" value="#{eachEntry.entry.title}" />
-							<f:subview id="dateStudent" rendered="#{!SyllabusTool.editAble && (eachEntry.entry.startDate != null || eachEntry.entry.endDate != null)}">
-								<f:verbatim><span style="float: right; padding-right: 1em; padding-left: 1em"></f:verbatim>
-									<h:outputText value="#{eachEntry.entry.startDate}">
-										<f:convertDateTime type="date" pattern="EEE MMM dd, yyyy hh:mm a"/>
-									</h:outputText>
-									<h:outputText value=" - " rendered="#{eachEntry.entry.startDate != null && eachEntry.entry.endDate != null}"/>
-									<h:outputText value="#{eachEntry.entry.endDate}" rendered="#{!eachEntry.startAndEndDatesSameDay}">
-								  		<f:convertDateTime type="date" pattern="EEE MMM dd, yyyy hh:mm a"/>
-									</h:outputText>
-									&nbsp;|&nbsp;<h:outputText value="#{eachEntry.entry.endDate}" rendered="#{eachEntry.startAndEndDatesSameDay}">
-								  		<f:convertDateTime type="date" pattern="hh:mm a"/>
-									</h:outputText>
-								<f:verbatim></span></f:verbatim>
-							</f:subview>
-							<f:subview id="dateInstructor" rendered="#{SyllabusTool.editAble == 'true'}">
-								<f:verbatim><span style="float: right; padding-right:1em; padding-left:1em"></f:verbatim>
-									<h:outputText styleClass="" value="#{eachEntry.entry.startDate}">
-										<f:convertDateTime type="date" pattern="yyyy/MM/dd h:mm a"/>
-									</h:outputText>
-									&nbsp;|&nbsp;<h:outputText styleClass="" value="#{eachEntry.entry.endDate}">
-								  		<f:convertDateTime type="date" pattern="yyyy/MM/dd h:mm a"/>
-									</h:outputText>
-								<f:verbatim></span></f:verbatim>
-							</f:subview>
+						</h:column>
+					</h:dataTable>
+					<f:subview id="instructorAddAttach" rendered="#{SyllabusTool.editAble == 'true'}">
 						<f:verbatim>
-							</a>
-							</h3>
+							<br/>
 						</f:verbatim>
-						<f:verbatim><div></f:verbatim>
-							<f:verbatim><div class="" data-tpl='<textarea cols="120" id="textAreaWysiwyg" style="display:none"></textarea><img id="loading" style="margin: 2em;" src="images/loading.gif"/>'></f:verbatim>
-							<h:outputText value="#{eachEntry.entry.asset}" escape="false"/>
-							<f:verbatim></div></f:verbatim>
-							
-							<%/* view/add attachments */%>
-							<h:dataTable value="#{eachEntry.attachmentList}" var="eachAttach" styleClass="indnt1">
-								<h:column>
-									<f:facet name="header">
-										<h:outputText value="" />
-									</f:facet>
-									<sakai:contentTypeMap fileType="#{eachAttach.type}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
-									<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />	
-									<h:outputLink styleClass="attachment" value="#{eachAttach.url}" target="_blank" title="#{msgs.openLinkNewWindow}">
-										<h:outputText value=" "/><h:outputText value="#{eachAttach.name}"/>
-									</h:outputLink>
-									<f:subview id="removeItem" rendered="#{SyllabusTool.editAble == 'true'}">
-										<f:verbatim>
-										&nbsp;
-											<a attachmentId='</f:verbatim><h:outputText value="#{eachAttach.syllabusAttachId}"/><f:verbatim>' 
-												href="javascript:void(0)" onclick="showConfirmDeleteAttachmentHelper(this, event);" title="</f:verbatim><h:outputText value="#{msgs.clickToRemoveAttachment}"/><f:verbatim>">
-												<span class="fa fa-trash" alt="</f:verbatim><h:outputText value="#{msgs.clickToRemoveAttachment}"/><f:verbatim>"></span>
-											</a>
-										</f:verbatim>
-									</f:subview>
-								</h:column>
-							</h:dataTable>
-							<f:subview id="instructorAddAttach" rendered="#{SyllabusTool.editAble == 'true'}">
-								<f:verbatim>
-									<br/>
-								</f:verbatim>
-								<h:commandLink action="#{SyllabusTool.processAddAttachRedirect}">
-									<f:verbatim>
-										<span class="fa fa-plus" alt=""></span>
-									</f:verbatim>
-									<h:outputText value="#{msgs.add_attach}"/>
-									<f:param name="itemId" value="#{eachEntry.entry.syllabusId}"></f:param>
-								</h:commandLink>
-								<f:verbatim>
-									<br/>
-								</f:verbatim>
-							</f:subview>
-						<f:verbatim></div></div></div></f:verbatim>
-					</t:dataList>
-				<h:outputText value="#{msgs.syllabus_noEntry}" styleClass="instruction" rendered="#{SyllabusTool.displayNoEntryMsg}"/>
-			</syllabus:syllabus_if>				
-			<syllabus:syllabus_ifnot test="#{SyllabusTool.syllabusItem.redirectURL}">
-				<br/>
+						<h:commandLink action="#{SyllabusTool.processAddAttachRedirect}">
+							<f:verbatim>
+								<span class="fa fa-plus" alt=""></span>
+							</f:verbatim>
+							<h:outputText value="#{msgs.add_attach}"/>
+							<f:param name="itemId" value="#{eachEntry.entry.syllabusId}"></f:param>
+						</h:commandLink>
+						<f:verbatim>
+							<br/>
+						</f:verbatim>
+					</f:subview>
+				<f:verbatim></div></div></div></f:verbatim>
+			</t:dataList>
+			<h:outputText value="#{msgs.syllabus_noEntry}" styleClass="instruction" rendered="#{SyllabusTool.displayNoEntryMsg}"/>
+		</syllabus:syllabus_if>
+		<syllabus:syllabus_ifnot test="#{SyllabusTool.syllabusItem.redirectURL}">
+			<h:panelGroup styleClass="sak-banner-info">
 				<h:outputText escape="false" value="#{msgs.redirect_explanation} " />
 				<h:outputLink target="_blank" rel="noopener" title="#{msgs.openLinkNewWindow}" value="#{SyllabusTool.syllabusItem.redirectURL}">
 					<h:outputText escape="false" value="#{SyllabusTool.syllabusItem.redirectURL}" />
 				</h:outputLink>
-			</syllabus:syllabus_ifnot>
-			<f:verbatim>
-				<div id="confirmDelete" style="display:none">
-			</f:verbatim>
-			<h:outputText value="#{msgs.confirmDelete}"/>
-			<f:verbatim>
-					<span id="deleteTitle"></span>
-					<span id="deleteId" sylte="display:none"></span>
-					<p class="act">
-						<input type="button" name="deleteItem" value="</f:verbatim><h:outputText value="#{msgs.delConfRemoved}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.delConfRemoved}"/><f:verbatim>" onlclick="">
-						<input type="button" name="cancelDelete" value="</f:verbatim><h:outputText value="#{msgs.cancel}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.cancel}"/><f:verbatim>" onlclick="">
-					</p>
-				</div>
+			</h:panelGroup>
+		</syllabus:syllabus_ifnot>
+		<f:verbatim>
+			<div id="confirmDelete" style="display:none">
 		</f:verbatim>
-        <f:verbatim><div style="padding-top: 600px" frameborder="0"></div></f:verbatim>
+		<h:outputText value="#{msgs.confirmDelete}"/>
+		<f:verbatim>
+				<span id="deleteTitle"></span>
+				<span id="deleteId" sylte="display:none"></span>
+				<p class="act">
+					<input type="button" name="deleteItem" value="</f:verbatim><h:outputText value="#{msgs.delConfRemoved}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.delConfRemoved}"/><f:verbatim>" onlclick="">
+					<input type="button" name="cancelDelete" value="</f:verbatim><h:outputText value="#{msgs.cancel}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.cancel}"/><f:verbatim>" onlclick="">
+				</p>
+			</div>
+		</f:verbatim>
+		<f:verbatim><div style="padding-top: 600px" frameborder="0"></div></f:verbatim>
 		</h:form>
-		
+
 		<!-- This section is used for internationalization for JS files
 			This method is b/c of SAK-25424.  The original method was to use 
 			saved: "<h:outputText value="#{msgs.saved}"/>"
 			but that doesn't work for accent characters, hence this messages table below
 		 -->
-	
+
 		<f:verbatim>
 			<span id="messages" style="display:none">
 				<span id="syllabus_title"></f:verbatim><h:outputText value="#{msgs.syllabus_title}"/><f:verbatim></span>
-                <span id="syllabus_content"></f:verbatim><h:outputText value="#{msgs.syllabus_content}"/><f:verbatim></span>
+				<span id="syllabus_content"></f:verbatim><h:outputText value="#{msgs.syllabus_content}"/><f:verbatim></span>
 				<span id="clickToAddTitle"></f:verbatim><h:outputText value="#{msgs.clickToAddTitle}"/><f:verbatim></span>
 				<span id="startdatetitle"></f:verbatim><h:outputText value="#{msgs.startdatetitle}"/><f:verbatim></span>
 				<span id="enddatetitle"></f:verbatim><h:outputText value="#{msgs.enddatetitle}"/><f:verbatim></span>

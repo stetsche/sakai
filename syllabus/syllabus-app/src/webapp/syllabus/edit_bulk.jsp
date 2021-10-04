@@ -60,6 +60,7 @@
 			});
 			
 			//radio options:
+				/*
 			$('.radioByDate input:radio').change(
 				function(){
 					$('.radioByItems input:radio').each(function(i){
@@ -71,8 +72,8 @@
 					$('.radioByDate').each(function(i){
 						$(this).addClass("radioOptionSelected");
 					});
-					$('.bulkAddByItemsPanel').slideUp();
-					$('.bulkAddByDatePanel').slideDown();
+					$('.bulkAddByItemsPanel').hide();
+					$('.bulkAddByDatePanel').show();
 					resizeFrame('grow');
 				}
 			);
@@ -87,11 +88,11 @@
 					$('.radioByItems').each(function(i){
 						$(this).addClass("radioOptionSelected");
 					});
-					$('.bulkAddByItemsPanel').slideDown();
-					$('.bulkAddByDatePanel').slideUp();
-					resizeFrame('shrink');
+					$('.bulkAddByItemsPanel').show();
+					$('.bulkAddByDatePanel').hide();
 				}
 			);
+			$('.bulkAddByItemsPanel').hide();
 			if($('.radioByDate input:radio').is(':checked')){
 				//date option is selected... we need to setup the UI
 				//this can happen if a user gets a warning message when
@@ -99,7 +100,7 @@
 				$('.radioByDate input:radio').each(function(){
 					$('.radioByItems input:radio').each(function(i){
 						this.checked = false;
-					});
+					});i
 					$('.radioOption').each(function(i){
 						$(this).removeClass("radioOptionSelected");
 					});
@@ -108,131 +109,155 @@
 					});
 					$('.bulkAddByItemsPanel').hide();
 					$('.bulkAddByDatePanel').show();
-					resizeFrame('grow');
 				});
-			}
+			}*/
 		});
-		//this function needs jquery 1.1.2 or later - it resizes the parent iframe without bringing the scroll to the top
-		function resizeFrame(updown){
-		    var clientH;
-		    if (top.location != self.location) {
-		        var frame = parent.document.getElementById(window.name);
-		    }
-		    if (frame) {
-		        if (updown == 'shrink') {
-		            clientH = document.body.clientHeight - 200;
-		        }
-		        else {
-		            clientH = document.body.clientHeight + 200;
-		        }
-		        $(frame).height(clientH);
-		    }
-		    else {
-		        throw ("resizeFrame did not get the frame (using name=" + window.name + ")");
-		    }
-		}
+
 	</script>
-			<h:form id="syllabusEdit">
+			<h:form id="syllabusEdit" styleClass="form-horizontal">
 				<%@ include file="mainMenu.jsp" %>
 				<h:outputText value="#{SyllabusTool.alertMessage}" styleClass="sak-banner-error" rendered="#{SyllabusTool.alertMessage != null}" />
-				<sakai:tool_bar_message value="#{msgs.add_sylla_bulk}" /> 
-				<sakai:doc_section>
+
+				<div class="page-header">
+					<h1><h:outputText value="#{msgs.add_sylla_bulk}"/></h1>
+				</div>
+
+				<div class="sak-banner-info">
 					<h:outputText value="#{msgs.newSyllabusBulkForm}"/>
-				</sakai:doc_section>
-				<h:panelGrid columns="1" styleClass="jsfFormTable">
-					<h:panelGroup styleClass="shorttext">
-						<h:outputLabel for="title">
-							<h:outputText value="*" styleClass="reqStar"/>
+				</div>
+					<h:panelGroup layout="block" styleClass="form-group">
+						<h:outputLabel for="title" styleClass="control-label col-sm-2 col-lg-1">
 							<h:outputText value="#{msgs.syllabus_title}"/>
 						</h:outputLabel>
-						<h:inputText value="#{SyllabusTool.bulkEntry.title}" id="title"/>
+						<div class="col-sm-10 col-lg-11">
+							<h:inputText styleClass="form-control" value="#{SyllabusTool.bulkEntry.title}" id="title"/>
+						</div>
 					</h:panelGroup>
-					<h:panelGroup>
-						<h:selectOneRadio id="radioByItems" value="#{SyllabusTool.bulkEntry.addByItems}" styleClass="radioByItems radioOption radioOptionSelected">
-							<f:selectItem id="byItems" itemLabel="#{msgs.bulkAddByItems}" itemValue="1" />
-						</h:selectOneRadio>
+					<h:panelGroup layout="block" styleClass="form-group">
+						<h:panelGroup layout="block" styleClass="col-sm-offset-2 col-lg-offset-">
+							<h:selectOneRadio id="radioByItems" value="#{SyllabusTool.bulkEntry.addByItems}" styleClass="radioByItems radioOption radioOptionSelected">
+								<f:selectItem id="byItems" itemLabel="#{msgs.bulkAddByItems}" itemValue="1" />
+							</h:selectOneRadio>
+							<h:selectOneRadio id="radioByDate" value="#{SyllabusTool.bulkEntry.addByDate}" styleClass="radioByDate radioOption ">
+								<f:selectItem id="byDate" itemLabel="#{msgs.bulkAddByDate}" itemValue="1" />
+							</h:selectOneRadio>
+						</h:panelGroup>
 					</h:panelGroup>
-					
+
 					<!-- Add X Bulk Entries -->
-					<h:panelGrid columns="1" styleClass="jsfFormTable indnt1 bulkAddByItemsPanel">
-						<h:panelGroup styleClass="shorttext">
-							<h:outputLabel for="numOfItems">
-								<h:outputText value="*" styleClass="reqStar"/>
+					<h:panelGroup layout="block" styleClass="bulkAddByItemsPanel">
+						<h:panelGroup layout="block" styleClass="form-group">
+							<h:outputLabel for="numOfItems" styleClass="control-label col-sm-2 col-lg-1">
 								<h:outputText value="#{msgs.numberOfItems}"/>
 							</h:outputLabel>
-							<h:inputText value="#{SyllabusTool.bulkEntry.bulkItems}" id="numOfItems" size="3" maxlength="3"/>
+							<div class="col-sm-10 col-lg-11">
+								<h:inputText value="#{SyllabusTool.bulkEntry.bulkItems}" styleClass="form-control" id="numOfItems" size="3" maxlength="3"/>
+							</div>
 						</h:panelGroup>
-					</h:panelGrid>
-					<h:panelGroup>
-						<h:selectOneRadio id="radioByDate" value="#{SyllabusTool.bulkEntry.addByDate}" styleClass="radioByDate radioOption ">
-							<f:selectItem id="byDate" itemLabel="#{msgs.bulkAddByDate}" itemValue="1" />
-						</h:selectOneRadio>
 					</h:panelGroup>
+
 					<!-- Add Bulk Entries by date -->
-					<h:panelGrid columns="1" styleClass="jsfFormTable indnt1 bulkAddByDatePanel" style="display: none">
-						<h:panelGroup styleClass="shorttext">
-							<h:outputLabel for="dataStartDate">
-								<h:outputText value="*" styleClass="reqStar"/>
+					<h:panelGroup layout="block" styleClass="bulkAddByDatePanel">
+						<h:panelGroup layout="block" styleClass="form-group">
+							<h:outputLabel for="dataStartDate" styleClass="control-label col-sm-2 col-lg-1">
 								<h:outputText value="#{msgs.startdatetitle}"/>
 							</h:outputLabel>
-							<h:inputText styleClass="datInputStart" value="#{SyllabusTool.bulkEntry.startDateString}" id="dataStartDate"/>
+							<div class="col-sm-10 col-lg-11">
+								<h:inputText styleClass="datInputStart" value="#{SyllabusTool.bulkEntry.startDateString}" id="dataStartDate"/>
+							</div>
 						</h:panelGroup>
-						<h:panelGroup styleClass="shorttext">
-							<h:outputLabel for="dataEndDate">
-								<h:outputText value="*" styleClass="reqStar"/>
+						<h:panelGroup layout="block" styleClass="form-group">
+							<h:outputLabel for="dataEndDate" styleClass="control-label col-sm-2 col-lg-1">
 								<h:outputText value="#{msgs.enddatetitle}"/>
 							</h:outputLabel>
-							<h:inputText styleClass="datInputEnd" value="#{SyllabusTool.bulkEntry.endDateString}" id="dataEndDate"/>
+							<div class="col-sm-10 col-lg-11">
+								<h:inputText styleClass="datInputEnd" value="#{SyllabusTool.bulkEntry.endDateString}" id="dataEndDate"/>
+							</div>
 						</h:panelGroup>
-						<h:panelGroup styleClass="shorttext">
-							<h:outputLabel for="dataStartTime">
-								<h:outputText value="*" styleClass="reqStar"/>
+						<h:panelGroup layout="block" styleClass="form-group">
+							<h:outputLabel for="dataStartTime" styleClass="control-label col-sm-2 col-lg-1">
 								<h:outputText value="#{msgs.starttimetitle}"/>
 							</h:outputLabel>
-							<h:inputText styleClass="timeInput timeInputStart" value="#{SyllabusTool.bulkEntry.startTimeString}" id="dataStartTime"/>
-							<f:verbatim><span class="fa fa-calendar-times-o" onclick="$('.timeInputStart').focus();"></span></f:verbatim>
+							<div class="col-sm-10 col-lg-11">
+								<h:inputText styleClass="timeInput timeInputStart" value="#{SyllabusTool.bulkEntry.startTimeString}" id="dataStartTime"/>
+								<f:verbatim><span class="fa fa-calendar-times-o" onclick="$('.timeInputStart').focus();"></span></f:verbatim>
+							</div>
 						</h:panelGroup>
-						<h:panelGroup styleClass="shorttext">
-							<h:outputLabel for="dataEndTime">
+						
+						<h:panelGroup layout="block" styleClass="form-group">
+							<h:outputLabel for="dataEndTime" styleClass="control-label col-sm-2 col-lg-1">
 								<h:outputText value="#{msgs.endtimetitle}"/>
 							</h:outputLabel>
-							<h:inputText styleClass="timeInput timeInputEnd" value="#{SyllabusTool.bulkEntry.endTimeString}" id="dataEndTime"/>
-							<f:verbatim><span class="fa fa-calendar-times-o" onclick="$('.timeInputEnd').focus();"></span></f:verbatim>
+							<div class="col-sm-10 col-lg-11">
+								<h:inputText styleClass="timeInput timeInputEnd" value="#{SyllabusTool.bulkEntry.endTimeString}" id="dataEndTime"/>
+								<f:verbatim><span class="fa fa-calendar-times-o" onclick="$('.timeInputEnd').focus();"></span></f:verbatim>
+							</div>
 						</h:panelGroup>
-						<h:panelGroup styleClass="shorttext" rendered="#{SyllabusTool.calendarExistsForSite}">
-							<h:selectBooleanCheckbox id="linkCalendar" value="#{SyllabusTool.bulkEntry.linkCalendar}" />
-							<h:outputLabel for="linkCalendar">
-								<h:outputText value="#{msgs.linkcalendartitle}"/>
-							</h:outputLabel>
+
+						<h:panelGroup layout="block" styleClass="form-group" rendered="#{SyllabusTool.calendarExistsForSite}">
+							<div class="checkbox col-sm-offset-2 col-sm-10 col-lg-offset-1 col-lg-11">
+								<h:outputLabel for="linkCalendar">
+									<h:selectBooleanCheckbox id="linkCalendar" value="#{SyllabusTool.bulkEntry.linkCalendar}" />
+									<h:outputText value="#{msgs.linkcalendartitle}"/>
+								</h:outputLabel>
+							</div>
 						</h:panelGroup>
-						<h:panelGroup styleClass="shorttext">
-							<h:selectBooleanCheckbox id="monday" value="#{SyllabusTool.bulkEntry.monday}" />
-							<h:outputText value="#{msgs.monday}"/>
-							<h:outputText value=" | "/>
-							<h:selectBooleanCheckbox id="tuesday" value="#{SyllabusTool.bulkEntry.tuesday}" />
-							<h:outputText value="#{msgs.tuesday}"/>
-							<h:outputText value=" | "/>
-							<h:selectBooleanCheckbox id="wednesday" value="#{SyllabusTool.bulkEntry.wednesday}" />
-							<h:outputText value="#{msgs.wednesday}"/>
-							<h:outputText value=" | "/>
-							<h:selectBooleanCheckbox id="thursday" value="#{SyllabusTool.bulkEntry.thursday}" />
-							<h:outputText value="#{msgs.thursday}"/>
-							<h:outputText value=" | "/>
-							<h:selectBooleanCheckbox id="friday" value="#{SyllabusTool.bulkEntry.friday}" />
-							<h:outputText value="#{msgs.friday}"/>
-							<h:outputText value=" | "/>
-							<h:selectBooleanCheckbox id="saturday" value="#{SyllabusTool.bulkEntry.saturday}" />
-							<h:outputText value="#{msgs.saturday}"/>
-							<h:outputText value=" | "/>
-							<h:selectBooleanCheckbox id="sunday" value="#{SyllabusTool.bulkEntry.sunday}" />
-							<h:outputText value="#{msgs.sunday}"/>
-							<h:outputLabel for="monday">
-								<h:outputText value="*" styleClass="reqStar"/>
-								<h:outputText value="#{msgs.classMeetingDays}"/>
-							</h:outputLabel>
+						<h:panelGroup layout="block" styleClass="form-group">
+							<fieldset>
+								<legend class="col-sm-2 col-lg-1 control-label">
+								<h:outputLabel for="monday">
+									<h:outputText value="#{msgs.classMeetingDays}"/>
+								</h:outputLabel>
+								</legend>
+								<ul class="col-sm-10 col-lg-11">
+									<li class="checkbox">
+										<h:outputLabel>
+											<h:selectBooleanCheckbox id="monday" value="#{SyllabusTool.bulkEntry.monday}" />
+										<h:outputText value="#{msgs.monday}"/>
+										</h:outputLabel>
+									</li>
+									<li class="checkbox">
+										<h:outputLabel>
+											<h:selectBooleanCheckbox id="tuesday" value="#{SyllabusTool.bulkEntry.tuesday}" />
+											<h:outputText value="#{msgs.tuesday}"/>
+										</h:outputLabel>
+									</li>
+									<li class="checkbox">
+										<h:outputLabel>
+											<h:selectBooleanCheckbox id="wednesday" value="#{SyllabusTool.bulkEntry.wednesday}" />
+											<h:outputText value="#{msgs.wednesday}"/>
+										</h:outputLabel>
+									</li>
+									<li class="checkbox">
+										<h:outputLabel>
+											<h:selectBooleanCheckbox id="thursday" value="#{SyllabusTool.bulkEntry.thursday}" />
+											<h:outputText value="#{msgs.thursday}"/>
+										</h:outputLabel>
+									</li>
+									<li class="checkbox">
+										<h:outputLabel>
+											<h:selectBooleanCheckbox id="friday" value="#{SyllabusTool.bulkEntry.friday}" />
+											<h:outputText value="#{msgs.friday}"/>
+										</h:outputLabel>
+									</li>
+									<li class="checkbox">
+										<h:outputLabel>
+											<h:selectBooleanCheckbox id="saturday" value="#{SyllabusTool.bulkEntry.saturday}" />
+											<h:outputText value="#{msgs.saturday}"/>
+										</h:outputLabel>
+									</li>
+									<li class="checkbox">
+										<h:outputLabel>
+											<h:selectBooleanCheckbox id="sunday" value="#{SyllabusTool.bulkEntry.sunday}" />
+											<h:outputText value="#{msgs.sunday}"/>
+										</h:outputLabel>
+										
+									</li>
+								</ul>
+							</fieldset>
 						</h:panelGroup>
-					</h:panelGrid>
-				</h:panelGrid>
+					</h:panelGroup>
+						
 				<sakai:button_bar>
 					<h:commandButton
 						action="#{SyllabusTool.processEditBulkPost}"

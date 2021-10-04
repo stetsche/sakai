@@ -164,6 +164,14 @@ $icon-font-path: if($bootstrap-sass-asset-helper, "bootstrap/", "../" + $skin-na
   }
 }
 
+//Override the text-align: right for horizontal forms
+.form-horizontal {
+  @media (min-width: 768px) {
+    .control-label {
+      text-align: left;
+    }
+  }
+}
 
 //== Buttons
 //
