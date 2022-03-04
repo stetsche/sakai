@@ -1,0 +1,75 @@
+{
+  "name": "meetings-ui",
+  "version": "1.0.0",
+  "private": true,
+  "description": "",
+  "author": "",
+  "homepage": "http://stetsche.github.io/meetings-ui",
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build --dest ../webapp/",
+    "lint": "vue-cli-service lint",
+    "build-storybook": "build-storybook",
+    "storybook": "start-storybook -p 6006 -s ./public",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "predeploy": "npm run build-storybook && cp ./public ./storybook-static"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "bootstrap": "^5.0.0-beta3",
+    "core-js": "^3.6.5",
+    "dayjs": "^1.10.7",
+    "uuid": "^8.3.2",
+    "vue": "^2.6.14",
+    "vue-router": "^3.5.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.15.8",
+    "@storybook/addon-a11y": "^6.4.9",
+    "@storybook/addon-actions": "^6.3.12",
+    "@storybook/addon-essentials": "^6.4.13",
+    "@storybook/addon-links": "^6.3.12",
+    "@storybook/vue": "^6.4.13",
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "babel-eslint": "^10.1.0",
+    "babel-loader": "^8.2.2",
+    "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^6.2.2",
+    "gh-pages": "^3.2.3",
+    "sass": "^1.43.2",
+    "vue-loader": "^15.9.8",
+    "vue-template-compiler": "^2.6.11"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {}
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ],
+  "_id": "meetings-ui@1.0.0",
+  "bugs": {
+    "url": "https://github.com/stetsche/meetings-ui/issues"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stetsche/meetings-ui.git"
+  }
+}

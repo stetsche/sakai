@@ -1,0 +1,113 @@
+{
+  "baseAccordion": [
+    {
+      "id": 1,
+      "title": "My first Accordion Item",
+      "content": "This is just some random content for the first Accordion Item"
+    },
+    {
+      "id": 2,
+      "title": "My second Accordion Item",
+      "content": "This is just some random content for the second Accordion Item"
+    },
+    {
+      "id": 3,
+      "title": "My third Accordion Item",
+      "content": "This is just some random content for the third Accordion Item"
+    },
+    {
+      "id": 4,
+      "title": "My fourth Accordion Item",
+      "content": "This is just some random content for the fourth Accordion Item"
+    }
+  ],
+  "groupedAccordion": [
+    {
+      "id": 1,
+      "title": "This is a <sakai-accordion-item>",
+      "content": "This accordion Items are wrapped by an <sakai-accordion>, which will connect all the items"
+    },
+    {
+      "id": 2,
+      "title": "My second Accordion Item",
+      "content": "This is just some random content for the second Accordion Item"
+    },
+    {
+      "id": 3,
+      "title": "My third Accordion Item",
+      "content": "This is just some random content for the third Accordion Item"
+    },
+    {
+      "id": 4,
+      "title": "My fourth Accordion Item",
+      "content": "This is just some random content for the fourth Accordion Item"
+    }
+  ],
+  "independentAccordion": [
+    {
+      "id": 1,
+      "title": "Those <sakai-accordion-item> components are independent",
+      "content": "Set the prop independent will make items stay open, when anotherone is opened"
+    },
+    {
+      "id": 2,
+      "title": "and this is how it works",
+      "content": "<sakai-accodrion independent='true'>"
+    },
+    {
+      "id": 3,
+      "title": "My third Accordion Item",
+      "content": "This is just some random content for the third Accordion Item"
+    },
+    {
+      "id": 4,
+      "title": "My fourth Accordion Item",
+      "content": "This is just some random content for the fourth Accordion Item"
+    }
+  ],
+  "flushAccordion": [
+    {
+      "id": 1,
+      "title": "Here you can see an accordion with the flush prop",
+      "content": "The difference are the removed radius at the corners"
+    },
+    {
+      "id": 2,
+      "title": "That menans it is flush with the parent element",
+      "content": "Use it like that on the accordion component: <sakai-accordion> <sakai-accordion-item flush='true'></sakai-accordion>"
+    },
+    {
+      "id": 3,
+      "title": "My third Accordion Item",
+      "content": "This is just some random content for the third Accordion Item"
+    },
+    {
+      "id": 4,
+      "title": "My fourth Accordion Item",
+      "content": "This is just some random content for the fourth Accordion Item"
+    }
+  ],
+  "accordionItems": [
+    {
+      "id": 1,
+      "title": "I am open by default",
+      "content": "Add the open='true' prop, and the accordion item will be open by default.",
+      "open": true
+    },
+    {
+      "id": 2,
+      "title": "Im independent",
+      "content": "The <sakai-accordion-item> can also be used without a wrapping <sakai-accordion>. But note that other items wont collapse automatically and the flush prop is not available"
+    },
+    {
+      "id": 3,
+      "title": "My third Accordion Item",
+      "content": "This is just some random content for the third Accordion Item"
+    },
+    {
+      "id": 4,
+      "title": "My fourth Accordion Item",
+      "content": "This is just some random content for the fourth Accordion Item"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+  <div th:fragment="main (active)">
+    <ul class="navIntraTool">
+      <li class="firstToolBarItem"><span th:class="${active == 'index' ? 'current' : ''}"><a href="#" th:href="@{/index}" th:text="#{menu_main}">Main</a></span></li>
+    </ul>
+  </div>
+</body>
+</html>

@@ -1,0 +1,339 @@
+{
+  "meetingList": [
+    {
+      "id": 1,
+      "title": "Basic Class",
+      "description": "This is a description, that describes the purpose and the intention of this meeting verry well. For risks and side effects, ask your doctor or pharmacist.",
+      "contextTitle": "Lesson 23: name here",
+      "live": false,
+      "startDate": "2021-12-24T16:30:00+01:00",
+      "endDate": "2021-12-24T18:00:00+01:00",
+      "participants": [],
+      "actions": [
+        {
+          "label": "Presentation",
+          "icon": "presentation",
+          "disabled": false,
+          "href": "https:edf.global"
+        },
+        {
+          "label": "Attachments",
+          "icon": "attachment",
+          "disabled": false,
+          "href": "https:edf.global"
+        }
+      ],
+      "menuitems": [
+        { "id": 0, "action": "edit" },
+        { "id": 1, "action": "delete" }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Study Group",
+      "description": "This is a description, that describes the purpose and the intention of this meeting verry well. For risks and side effects, ask your doctor or pharmacist.",
+      "contextTitle": "Lesson 23: name here",
+      "live": false,
+      "startDate": "2021-12-24T16:00:00+01:00",
+      "endDate": "2021-12-24T17:00:00+01:00",
+      "participants": [],
+      "actions": [
+        {
+          "label": "Presentation",
+          "icon": "presentation",
+          "disabled": false,
+          "href": "https:edf.global"
+        },
+        {
+          "label": "Attachments",
+          "icon": "attachment",
+          "disabled": false,
+          "href": "https:edf.global"
+        }
+      ],
+      "menuitems": [
+        { "id": 0, "action": "edit" },
+        { "id": 1, "action": "delete" }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Study Group",
+      "description": "This is a description, that describes the purpose and the intention of this meeting verry well. For risks and side effects, ask your doctor or pharmacist.",
+      "contextTitle": "Lesson 23: name here",
+      "live": false,
+      "startDate": "2021-12-24T09:30:00+01:00",
+      "endDate": "2021-12-24T11:00:00+01:00",
+      "participants": [],
+      "actions": [
+        {
+          "label": "Presentation",
+          "icon": "presentation",
+          "disabled": false,
+          "href": "https:edf.global"
+        },
+        {
+          "label": "Attachments",
+          "icon": "attachment",
+          "disabled": false,
+          "href": "https:edf.global"
+        }
+      ],
+      "menuitems": [
+        { "id": 0, "action": "edit" },
+        { "id": 1, "action": "delete" }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Study Group",
+      "description": "This is a description, that describes the purpose and the intention of this meeting verry well. For risks and side effects, ask your doctor or pharmacist.",
+      "contextTitle": "Lesson 23: name here",
+      "live": false,
+      "startDate": "2021-11-01T09:30:00+01:00",
+      "endDate": "2021-11-01T11:00:00+01:00",
+      "participants": [],
+      "actions": [
+        {
+          "label": "Presentation",
+          "icon": "presentation",
+          "disabled": false,
+          "href": "https:edf.global"
+        },
+        {
+          "label": "Play Recording",
+          "icon": "play",
+          "disabled": false,
+          "href": "https:edf.global"
+        }
+      ],
+      "menuitems": [
+        { "id": 0, "action": "edit" },
+        { "id": 1, "action": "delete" }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Study Group",
+      "description": "This is a description, that describes the purpose and the intention of this meeting verry well. For risks and side effects, ask your doctor or pharmacist.",
+      "contextTitle": "Lesson 23: name here",
+      "live": false,
+      "startDate": "2021-11-11T20:00:00+01:00",
+      "endDate": "2021-11-11T21:00:00+01:00",
+      "participants": [],
+      "actions": [
+        {
+          "label": "Presentation",
+          "icon": "presentation",
+          "disabled": false,
+          "href": "https:edf.global"
+        },
+        {
+          "label": "Attachments",
+          "icon": "attachment",
+          "disabled": false,
+          "href": "https:edf.global"
+        }
+      ],
+      "menuitems": [
+        { "id": 0, "action": "edit" },
+        { "id": 1, "action": "delete" }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Study Group",
+      "description": "This is a description, that describes the purpose and the intention of this meeting verry well. For risks and side effects, ask your doctor or pharmacist.",
+      "contextTitle": "Lesson 23: name here",
+      "live": true,
+      "startDate": "2020-01-26T14:00:00+01:00",
+      "endDate": "2022-01-26T17:00:00+01:00",
+      "participants": [
+        {
+          "userid": "454db719-443a-400f-b4d4-4dfada8091c0",
+          "name": "Victor van Dijk"
+        },
+        {
+          "userid": "67aefef6-32df-8fe7-87fe-90721ar79def",
+          "name": "Aufderhar Jamisonk"
+        },
+        {
+          "userid": "9072hbs3-sb23-sfef-f93r-9q678g7g3qrh",
+          "name": "Bailey Ruthe"
+        },
+        {
+          "userid": "454db719-443a-400f-b4d4-4dfada8091c0",
+          "name": "Victor van Dijk"
+        },
+        {
+          "userid": "67aefef6-32df-8fe7-87fe-90721ar79def",
+          "name": "Aufderhar Jamisonk"
+        },
+        {
+          "userid": "9072hbs3-sb23-sfef-f93r-9q678g7g3qrh",
+          "name": "Bailey Ruthe"
+        }
+      ],
+      "actions": [
+        {
+          "label": "Presentation",
+          "icon": "presentation",
+          "disabled": false,
+          "href": "https:edf.global"
+        },
+        {
+          "label": "Attachments",
+          "icon": "attachment",
+          "disabled": false,
+          "href": "https:edf.global"
+        },
+        {
+          "label": "Chat",
+          "icon": "chat",
+          "disabled": false,
+          "href": "https:edf.global"
+        }
+      ],
+      "menuitems": [
+        { "id": 0, "action": "edit" },
+        { "id": 1, "action": "delete" }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Study Group",
+      "description": "This is a description, that describes the purpose and the intention of this meeting verry well. For risks and side effects, ask your doctor or pharmacist.",
+      "contextTitle": "Lesson 23: name here",
+      "live": true,
+      "startDate": "2020-01-26T14:00:00+01:00",
+      "endDate": "2020-01-26T17:00:00+01:00",
+      "participants": [
+        {
+          "userid": "9072hbs3-sb23-sfef-f93r-9q678g7g3qrh",
+          "name": "Bailey Ruthe"
+        },
+        {
+          "userid": "454db719-443a-400f-b4d4-4dfada8091c0",
+          "name": "Victor van Dijk"
+        },
+        {
+          "userid": "67aefef6-32df-8fe7-87fe-90721ar79def",
+          "name": "Aufderhar Jamisonk"
+        },
+        {
+          "userid": "9072hbs3-sb23-sfef-f93r-9q678g7g3qrh",
+          "name": "Bailey Ruthe"
+        }
+      ],
+      "actions": [
+        {
+          "label": "Presentation",
+          "icon": "presentation",
+          "disabled": false,
+          "href": "https:edf.global"
+        },
+        {
+          "label": "Attachments",
+          "icon": "attachment",
+          "disabled": false,
+          "href": "https:edf.global"
+        },
+        {
+          "label": "Chat",
+          "icon": "chat",
+          "disabled": false,
+          "href": "https:edf.global"
+        }
+      ],
+      "menuitems": [
+        { "id": 0, "action": "edit" },
+        { "id": 1, "action": "delete" }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Study Group",
+      "description": "This is a description, that describes the purpose and the intention of this meeting verry well. For risks and side effects, ask your doctor or pharmacist.",
+      "contextTitle": "Lesson 23: name here",
+      "live": false,
+      "startDate": "2021-11-01T11:30:00+01:00",
+      "endDate": "2021-11-01T12:00:00+01:00",
+      "participants": [],
+      "actions": [
+        {
+          "label": "Presentation",
+          "icon": "presentation",
+          "disabled": false,
+          "href": "https:edf.global"
+        },
+        {
+          "label": "Play Recording",
+          "icon": "play",
+          "disabled": false,
+          "href": "https:edf.global"
+        }
+      ],
+      "menuitems": [
+        { "id": 0, "action": "edit" },
+        { "id": 1, "action": "delete" }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Testing Group",
+      "description": "This is a description, that describes the purpose and the intention of this meeting verry well. For risks and side effects, ask your doctor or pharmacist.",
+      "contextTitle": "Accessibility: Round One",
+      "live": false,
+      "startDate": "2022-01-29T11:30:00+01:00",
+      "endDate": "2022-01-29T12:00:00+01:00",
+      "participants": [],
+      "actions": [
+        {
+          "label": "Presentation",
+          "icon": "presentation",
+          "disabled": false,
+          "href": "https:edf.global"
+        },
+        {
+          "label": "Play Recording",
+          "icon": "play",
+          "disabled": false,
+          "href": "https:edf.global"
+        }
+      ],
+      "menuitems": [
+        { "id": 0, "action": "edit" },
+        { "id": 1, "action": "delete" }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Testing Group",
+      "description": "This is a description, that describes the purpose and the intention of this meeting verry well. For risks and side effects, ask your doctor or pharmacist.",
+      "contextTitle": "Accessibility: Round One",
+      "live": false,
+      "startDate": "2022-01-30T11:30:00+01:00",
+      "endDate": "2022-01-30T12:00:00+01:00",
+      "participants": [],
+      "actions": [
+        {
+          "label": "Presentation",
+          "icon": "presentation",
+          "disabled": false,
+          "href": "https:edf.global"
+        },
+        {
+          "label": "Play Recording",
+          "icon": "play",
+          "disabled": false,
+          "href": "https:edf.global"
+        }
+      ],
+      "menuitems": [
+        { "id": 0, "action": "edit" },
+        { "id": 1, "action": "delete" }
+      ]
+    }
+
+  ]
+}
