@@ -51,7 +51,7 @@ export default {
           id: 0,
           icon: "error",
           string: "emty",
-          route: "/meetings-ui",
+          route: "/",
         },
       ],
     },
@@ -107,7 +107,3 @@ export default {
   },
 };
 </script>
-
-<style>
-@import "../assets/sakai-colors.css";
-</style>

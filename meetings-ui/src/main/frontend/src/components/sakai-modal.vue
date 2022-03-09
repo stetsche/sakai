@@ -59,7 +59,8 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+#meetings-tool {
 .modal-content {
   background-color: var(--sakai-background-color-1);
 }
@@ -68,5 +69,6 @@ export default {
 }
 .modal-footer {
   border-top: none !important;
+}
 }
 </style>

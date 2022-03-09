@@ -29,7 +29,8 @@
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
+#meetings-tool {
 .accordion-item {
   border-color: var(--sakai-border-color);
 }
@@ -64,7 +65,7 @@
   font-size: inherit;
   text-rendering: auto;
   -webkit-font-smoothing: antialiased;
-}
+}}
 </style>
 
 <script>
@@ -104,7 +105,7 @@ export default {
       return undefined;
     },
     independent: function () {
-      if (!(this.$parent.$vnode.componentOptions.tag == "sakai-accordion")) {
+      if (/*!(this.$parent.$vnode.componentOptions.tag == "sakai-accordion")*/true) {
         return true;
       } else {
         return this.$parent.$props.independent;

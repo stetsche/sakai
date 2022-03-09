@@ -104,7 +104,8 @@
 }
 </style>
 
-<style scoped>
+<style scoped lang="scss">
+#meetings-tool {
 .card {
   border: 1px solid var(--sakai-border-color);
   border-radius: 6px;
@@ -118,9 +119,6 @@
   background-color: var(--sakai-background-color-1);
   border-radius: 0 0 0px 6px;
 }
-</style>
-
-<style scoped>
 .card-menu {
   position: absolute;
   right: 0.5rem;
@@ -134,6 +132,7 @@ h2 {
 
 .contextTitle {
   text-transform: uppercase;
+}
 }
 </style>
 

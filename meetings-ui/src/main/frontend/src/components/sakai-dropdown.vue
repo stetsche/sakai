@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import "/node_modules/bootstrap/js/src/dropdown.js";
+//import "/node_modules/bootstrap/js/src/dropdown.js";
 import SakaiIcon from "./sakai-icon.vue";
 export default {
   components: {
@@ -41,7 +41,7 @@ export default {
           id: 0,
           icon: "error",
           string: "emty",
-          route: "/meetings-ui",
+          route: "/",
         },
       ],
     },
@@ -92,8 +92,8 @@ export default {
 };
 </script>
 
-<style scoped>
-@import "../assets/sakai-colors.css";
+<style scoped lang="scss">
+#meetings-tool {
 .icon-wrap {
   width: 16.5px;
   margin-right: 6px;
@@ -136,5 +136,6 @@ export default {
   .divider:last-child {
     border-bottom: none;
   }
+}
 }
 </style>

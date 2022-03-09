@@ -148,37 +148,29 @@ export default {
       this.$emit("select", this.selectedParticipants);
     },
     selectAll(value) {
-      this.$set(
-        this,
-        "ourParticipants",
-        [...this.ourParticipants].map((participant) => {
-          participant.selected = value;
-          return participant;
-        })
-      );
+      this.ourParticipants = ourParticipants.map((participant) => {
+        participant.selected = value;
+        return participant;
+      });
     },
     newParticipants: function () {
-      this.$set(
-        this,
-        "ourParticipants",
-        [...this.participants].map((participant) => {
+        this.ourParticipants = [...this.participants].map((participant) => {
           participant.selected = false;
           participant.role = "attendee";
           return participant;
-        })
-      );
+        });
     },
     updateSelection(index) {
       let updated = [...this.ourParticipants];
       updated[index].selected = !updated[index].selected;
       this.ourParticipants = updated;
-      this.$set(this, "ourParticipants", updated);
+      this.ourParticipants = updated;
     },
     updateRole(index, role) {
       let updated = [...this.ourParticipants];
       updated[index].role = role;
       this.ourParticipants = updated;
-      this.$set(this, "ourParticipants", updated);
+      this.ourParticipants = updated;
     },
   },
   mounted() {
@@ -187,7 +179,8 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+#meetings-tool {
 .wrapper {
   width: 100%;
 }
@@ -195,5 +188,6 @@ export default {
   padding-right: 1rem;
   overflow-y: overlay;
   max-height: 40rem;
+}
 }
 </style>

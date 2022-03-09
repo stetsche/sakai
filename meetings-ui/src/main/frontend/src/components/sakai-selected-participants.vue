@@ -42,7 +42,8 @@
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
+#meetings-tool {
 .wrapper {
   background-color: var(--sakai-background-color-2);
   border-radius: 1rem;
@@ -53,6 +54,7 @@
 }
 .chevron {
   transition: transform 0.2s ease-in-out;
+}
 }
 </style>
 

@@ -68,8 +68,8 @@ export default {
 };
 </script>
 
-<style scoped>
-@import "../assets/sakai-colors.css";
+<style scoped lang="scss">
+#meetings-tool {
 .btn {
   background-color: var(--button-background);
   color: var(--button-text-color);
@@ -139,5 +139,6 @@ export default {
 }
 .link:active {
   color: var(--link-active-color) !important;
+}
 }
 </style>

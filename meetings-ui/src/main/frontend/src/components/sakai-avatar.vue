@@ -102,9 +102,7 @@ export default {
       return style;
     },
     imageUrl: function () {
-      //var url = "https://" + window.location.host;
-      //url += "/meetings-ui/direct/profile/";
-      var url = "http://" + window.location.host;
+      var url = window.location.protocol + "//" + window.location.host;
       url += "/direct/profile/";
       url += this.userId + "/image";
       url += this.offical

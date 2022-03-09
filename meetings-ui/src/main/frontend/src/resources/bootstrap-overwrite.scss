@@ -1,0 +1,21 @@
+/*This is here, to "unset" some Bootstrap 3 rules that come along*/
+
+#meetings-tool {
+    .dropdown-menu .divider {
+        height: unset;
+        margin: unset;
+        overflow: unset;
+        background-color: unset;
+    }
+
+    [class^="col-"] {
+        float: unset;
+    }
+
+}
+/* Since B5 is based havyly on the rem unit,
+   which is defined by the root font size,
+   we need to overwrite 10px */
+html {
+   font-size: 16px !important;
+};

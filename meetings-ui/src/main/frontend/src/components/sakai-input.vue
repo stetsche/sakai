@@ -94,7 +94,6 @@ export default {
 </script>
 
 <style>
-@import "../assets/sakai-colors.css";
 .sakai-wrapper {
   position: relative;
   display: flex;

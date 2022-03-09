@@ -8,14 +8,16 @@
   </div>
 </template>
 
-<style scoped>
-.sakai-icon {
-  display: inline-block;
+<style scoped lang="scss">
+#meetings-tool {
+  .sakai-icon {
+    display: inline-block;
+  }
 }
 </style>
 
 <script>
-import icons from "../assets/icons.js";
+import icons from "../resources/icons.js";
 
 export default {
   props: {

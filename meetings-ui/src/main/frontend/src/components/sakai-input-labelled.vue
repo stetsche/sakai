@@ -65,7 +65,6 @@ export default {
 </script>
 
 <style>
-@import "../assets/sakai-colors.css";
 .sakai-area {
   resize: auto;
   background: var(--sakai-background-color-1);
