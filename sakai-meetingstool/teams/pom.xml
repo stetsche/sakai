@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject.meetings</groupId>
+        <artifactId>sakai-meetingstool</artifactId>
+        <version>23-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    
+     <properties>
+        <java.version>1.8</java.version>
+        <slf4j.version>1.7.33</slf4j.version>
+    </properties>
+
+    <groupId>org.sakaiproject.meetings</groupId>
+    <artifactId>sakai-meetingstool-teams</artifactId>
+	<packaging>jar</packaging>
+
+    <dependencies>
+    	<dependency>
+		    <groupId>org.springframework</groupId>
+		    <artifactId>spring-context</artifactId>
+		</dependency>
+    	<dependency>
+            <groupId>org.sakaiproject.meetings</groupId>
+            <artifactId>sakai-meetingstool-api</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>msal4j</artifactId>
+            <version>1.10.1</version>
+        </dependency>
+        <dependency>
+		    <groupId>com.azure</groupId>
+		    <artifactId>azure-identity</artifactId>
+		    <version>1.2.4</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.microsoft.graph</groupId>
+		    <artifactId>microsoft-graph</artifactId>
+		    <version>5.15.0</version>
+		</dependency>
+        <dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20090211</version>
+		</dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.metaprops</include>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/main/java</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+</project>
