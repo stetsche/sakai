@@ -1,14 +1,28 @@
 <template>
   <div>
     <label class="mb-1" :for="inputId">{{ title }}</label>
-    <textarea v-if="textarea" :id="inputId" class="sakai-area" rows="10" />
+    <textarea
+      v-if="textarea"
+      :id="inputId"
+      class="sakai-area"
+      rows="10"
+      v-model="value"
+      @input="$emit('update:value', $event.target.value)"
+    />
     <SakaiSelect
       v-else-if="select"
       :items="items"
-      :value="value"
       :id="inputId"
+      v-model:value="value"
+      @change="$emit('update:value', $event.target.value)"
     />
-    <SakaiInput v-else :id="inputId" :type="type" :value="value">
+    <SakaiInput
+      v-else
+      :id="inputId"
+      :type="type"
+      v-model:value="value"
+      @input="$emit('update:value', $event.target.value)"
+    >
       <template #prepend>
         <slot name="prepend" />
       </template>
@@ -54,8 +68,8 @@ export default {
       default: "text",
     },
     value: {
-      type: [String, Boolean, Number],
-      default: undefined,
+      type: [String, Boolean, Number, Array],
+      default: "",
     },
   },
   created: function () {

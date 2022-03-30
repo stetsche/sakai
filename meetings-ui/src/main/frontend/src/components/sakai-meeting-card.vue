@@ -89,6 +89,7 @@
           v-if="currentStatus != status.over"
           :disabled="!live"
           :primary="true"
+		  @click="joinMeeting"
           text="Join Meeting"
         >
         </sakai-button>
@@ -173,10 +174,12 @@ export default {
     };
   },
   props: {
+	id: { type: String, default: undefined },
     title: { type: String, default: undefined },
     contextTitle: { type: String, default: undefined },
     description: { type: String, default: undefined },
     live: { type: Boolean, default: false },
+	url: { type: Boolean, default: undefined },
     maxAvatars: {
       default: 5,
       validator: function (value) {
@@ -193,7 +196,6 @@ export default {
         return dayjs(value).isValid();
       },
     },
-    menuitems: { type: Array, default: new Array() },
     participants: { type: Array, default: new Array() },
     actions: { type: Array, default: new Array() },
   },
@@ -271,6 +273,9 @@ export default {
           return "error";
       }
     },
+    menuitems: function () { 
+    	return [{ "string": "Edit", "icon": "edit", "action": this.editMeeting }, { "string": "Delete", "icon": "delete", "action": this.deleteMeeting }];
+    },
     shownParticipants: function () {
       let maxAvatars = Math.round(this.maxAvatars);
       if (maxAvatars && this.participants.length > maxAvatars) {
@@ -283,6 +288,30 @@ export default {
         return this.participants;
       }
     },
+  },
+  methods: {
+	  joinMeeting: function(){
+	     window.open(this.url);
+	  },
+	  deleteMeeting: function() {
+		  // Delete meeting
+		  fetch('/meeting/' + this.id, {
+	        credentials: 'include',
+	        method: 'DELETE',
+	        cache: "no-cache",
+	        headers: { "Content-Type": "application/json; charset=utf-8" },
+	      }).then(res => res.json())
+	      .catch(error => console.error('Error:', error))
+	      .then(response => this.$emit('onDeleted', this.id));
+	  },
+	  editMeeting: function() {
+	      let parameters = {
+	        title: this.title,
+	        description: this.description,
+	        date_open: this.startDate,
+	        date_close: this.endDate};
+		  this.$router.push({name: "EditMeeting", params: parameters});
+	  }
   },
 };
 </script>

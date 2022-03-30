@@ -47,6 +47,7 @@
             >
               <sakai-meeting-card
                 class="h-100"
+                :id="meeting.id"
                 :title="meeting.title"
                 :description="meeting.description"
                 :contextTitle="meeting.contextTitle"
@@ -55,7 +56,8 @@
                 :live="meeting.live"
                 :startDate="meeting.startDate"
                 :endDate="meeting.endDate"
-                :menuitems="meeting.menuitems"
+				:url="meeting.url"
+				@onDeleted="handleMeetingDelete"
               >
               </sakai-meeting-card>
             </li>
@@ -74,6 +76,7 @@
             <div class="col pt-4" v-for="meeting in inFuture" :key="meeting.id">
               <sakai-meeting-card
                 class="h-100"
+                :id="meeting.id"
                 :title="meeting.title"
                 :description="meeting.description"
                 :contextTitle="meeting.contextTitle"
@@ -82,7 +85,8 @@
                 :live="meeting.live"
                 :startDate="meeting.startDate"
                 :endDate="meeting.endDate"
-                :menuitems="meeting.menuitems"
+				:url="meeting.url"
+				@onDeleted="handleMeetingDelete"
               >
               </sakai-meeting-card>
             </div>
@@ -114,6 +118,7 @@
             <li class="col pt-4" v-for="meeting in inPast" :key="meeting.id">
               <sakai-meeting-card
                 class="h-100"
+                :id="meeting.id"
                 :title="meeting.title"
                 :description="meeting.description"
                 :contextTitle="meeting.contextTitle"
@@ -122,7 +127,7 @@
                 :live="meeting.live"
                 :startDate="meeting.startDate"
                 :endDate="meeting.endDate"
-                :menuitems="meeting.menuitems"
+                @onDeleted="handleMeetingDelete"
               >
               </sakai-meeting-card>
             </li>
@@ -140,6 +145,7 @@ import SakaiButton from "../components/sakai-button.vue";
 import SakaiDropdownButton from "../components/sakai-dropdown-button.vue";
 import SakaiIcon from "../components/sakai-icon.vue";
 import dbData from "../../data/db.json";
+import constants from "../resources/constants.js";
 
 // eslint-disable-next-line
 
@@ -189,13 +195,15 @@ export default {
   },
   methods: {
     handleCreateNewMeeting: function () {
-      this.$router.push({ name: "Settings" });
+      this.$router.push({ name: "EditMeeting" });
     },
     handleTemplates: function () {
       this.$refs.feedback.innerHTML = "Here will be a menu to work with meeting templates";
     },
-    handleMeetingDelete: function () {
-      this.$refs.feedback.innerHTML = "Meeting deleted";
+    handleMeetingDelete: function (id) {
+      if (id) {
+        this.meetingsList = this.meetingsList.filter( (meeting) => meeting.id !== id );
+      }
     },
     handleMeetingEdit: function () {
       this.$refs.feedback.innerHTML = "Meetings are not editable yet, but the action would be triggered now";
@@ -207,19 +215,24 @@ export default {
       this.$refs.feedback.innerHTML = "Displaying past meetings with recordings";
     },
     loadMeetingsList: function () {
-      //const response = await fetch("/db.json");
-      //let list = await response.json();
-
-      const db = JSON.parse(JSON.stringify(dbData));
-      const list = db.meetingList;
-      list.forEach(meeting => {
-        meeting.menuitems.forEach(item => {
-          item.string = item.action == "edit" ? "Edit" : "Delete";
-          item.icon = item.action;
-          item.action = item.action == "edit" ? this.handleMeetingEdit : this.handleMeetingDelete;
+      fetch(constants.toolPlacement + "/meeting/all")
+      .then(r => {
+        if (r.ok) {
+          return r.json();
+        }
+        throw new Error(`Failed to get meetings from ${url}`);
+      })
+      .then(data => {
+        data.forEach(meeting => {
+            meeting.live = false;
+            console.log(meeting.startDate);
+            if (dayjs().isAfter(dayjs(meeting.startDate)) && dayjs().isBefore(dayjs(meeting.endDate))) {
+                meeting.live = true;
+            }
         });
-      });
-      this.meetingsList = [...list];
+        this.meetingsList = [...data];
+      })
+      .catch (error => console.error(error));
     },
     switchtheme: function () {
     },

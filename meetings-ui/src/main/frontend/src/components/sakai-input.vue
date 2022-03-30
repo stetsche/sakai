@@ -10,7 +10,8 @@
   >
     <slot name="prepend" />
     <input
-      v-model="internalValue"
+      v-model="value"
+      @input="$emit('update:value', $event.target.value)"
       :id="id"
       :name="name"
       :type="type"
@@ -34,17 +35,11 @@
 // import sakaiIcon from "./sakai-icon.vue";
 export default {
   // components: { sakaiIcon },
-  data() {
-    return {
-      internalValue: null,
-    };
-  },
-  watch: {
-    internalValue(newValue) {
-      this.$emit("input", newValue);
-    },
-  },
   props: {
+    value: {
+      type: [Number, String, Array],
+      default: undefined,
+    },
     id: {
       type: String,
       default: null,
@@ -69,10 +64,6 @@ export default {
       type: String,
       default: null,
     },
-    value: {
-      type: [String, Boolean, Number],
-      default: "",
-    },
     min: {
       //for input number
       type: [String, Number],
@@ -82,13 +73,6 @@ export default {
       type: String,
       default: undefined,
     },
-  },
-  mounted() {
-    this.internalValue = this.value;
-  },
-  model: {
-    prop: "value",
-    event: "input",
   },
 };
 </script>

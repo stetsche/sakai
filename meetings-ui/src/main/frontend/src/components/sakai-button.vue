@@ -62,7 +62,7 @@ export default {
       this.showMenu = !this.showMenu;
     },
     handleClick() {
-      this.$emit("click");
+      
     },
   },
 };

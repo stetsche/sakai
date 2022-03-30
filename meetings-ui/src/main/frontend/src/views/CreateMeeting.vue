@@ -4,10 +4,10 @@
       <sakai-accordion-item title="1. Meeting Information" :open="true">
         <div class="pb-4">
           <div class="col-md-4 col-xl-3">
-            <SakaiInputLabelled title="Meetings Title" />
+            <SakaiInputLabelled title="Meetings Title" v-model:value="title"/>
           </div>
           <div class="col-md-8 col-xl-5 mt-3">
-            <SakaiInputLabelled title="Description" textarea="true" />
+            <SakaiInputLabelled title="Description" textarea="true" v-model:value="description"/>
           </div>
           <div class="col-md-4 col-xl-3">
             <!-- <div class="row mt-3 align-items-md-end">
@@ -24,7 +24,7 @@
                   title="Video conferencing service"
                   select="true"
                   :items="confServ"
-                  value="microsoft_teams"
+                  v-model:value="conf_service"
                 />
               </div>
             </div>
@@ -91,10 +91,10 @@
       <sakai-accordion-item title="3. Availability">
         <div class="col-md-4 col-xl-3 pb-4">
           <div class="row align-items-md-end mb-3">
-            <SakaiInputLabelled title="Open Date" type="datetime-local" />
+            <SakaiInputLabelled title="Open Date" type="datetime-local" v-model:value="date_open"/>
           </div>
           <div class="row align-items-md-end mb-3">
-            <SakaiInputLabelled title="Closed Date" type="datetime-local" />
+            <SakaiInputLabelled title="Closed Date" type="datetime-local"  v-model:value="date_close"/>
           </div>
           <div class="row align-items-md-end mb-3">
             <SakaiInputLabelled
@@ -199,6 +199,7 @@
 </template>
 
 <script>
+import dayjs from "dayjs";
 import SakaiAccordionItem from "../components/sakai-accordion-item.vue";
 import SakaiAccordion from "../components/sakai-accordion.vue";
 import SakaiInputLabelled from "../components/sakai-input-labelled.vue";
@@ -207,6 +208,7 @@ import SakaiInput from "../components/sakai-input.vue";
 // import SakaiParticipantsList from "../components/sakai-participants-list.vue";
 // import SakaiSelectedParticipants from "../components/sakai-selected-participants.vue";
 import SakaiIcon from "../components/sakai-icon.vue";
+import constants from "../resources/constants.js";
 export default {
   components: {
     SakaiAccordionItem,
@@ -283,51 +285,76 @@ export default {
           value: "calendar_outlook",
         },
       ],
+      confServ: [
+          {
+            string: "Big Blue Button",
+            value: "big_blue_button",
+          },
+          {
+            string: "Microsoft Teams",
+            value: "microsoft_teams",
+          },
+          {
+            string: "Zoom",
+            value: "zoom",
+          },
+      ],
+      partType: [
+          {
+            string: "All Site Members",
+            value: "all_site_members",
+          },
+          {
+            string: "Role",
+            value: "role",
+          },
+          {
+            string: "Selections/Groups",
+            value: "sections_or_groups",
+          },
+          {
+            string: "Users",
+            value: "users",
+          },
+      ]
     };
   },
   props: {
-    confServ: {
-      type: Array,
-      default: () => [
-        {
-          string: "Big Bule Button",
-          value: "big_blue_button",
+      id: { type: String, default: undefined },
+      title: { type: String, default: undefined },
+      description: { type: String, default: undefined },
+      conf_service: { type: String, default: undefined },
+      date_open: {
+        validator: function (value) {
+          return dayjs(value).isValid();
         },
-        {
-          string: "Microsoft Teams",
-          value: "microsoft_teams",
+      },
+      date_close: {
+        validator: function (value) {
+          return dayjs(value).isValid();
         },
-        {
-          string: "Zoom",
-          value: "zoom",
-        },
-      ],
-    },
-    partType: {
-      type: Array,
-      default: () => [
-        {
-          string: "All Site Members",
-          value: "all_site_members",
-        },
-        {
-          string: "Role",
-          value: "role",
-        },
-        {
-          string: "Selections/Groups",
-          value: "sections_or_groups",
-        },
-        {
-          string: "Users",
-          value: "users",
-        },
-      ],
-    },
+      }
   },
   methods: {
     handleSave: function () {
-      this.$router.push({ name: "Main" });
+      let saveData = {
+        title: this.title,
+        description: this.description,
+        startDate: dayjs(this.date_open).format('YYYY-MM-DDTHH:mm:ss[Z]'),
+        endDate: dayjs(this.date_close).format('YYYY-MM-DDTHH:mm:ss[Z]')
+      };
+      fetch(constants.toolPlacement + '/meeting', {
+        credentials: 'include',
+        method: 'POST',
+        cache: "no-cache",
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+        body: JSON.stringify(saveData)
+      }).then(res => res.json())
+      .then(data => {
+    	 this.$router.push({ name: "Main" });
+      })
+      .catch(error => console.error('Error:', error))
+      .then(response => console.log('Success:', response));
     },
     handleSaveTemplate: function () {
       this.$router.push({ name: "Main" });

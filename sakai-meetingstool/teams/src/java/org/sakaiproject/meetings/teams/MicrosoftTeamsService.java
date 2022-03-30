@@ -14,22 +14,34 @@ import com.microsoft.graph.requests.UserCollectionRequestBuilder;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.text.ParseException;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.springframework.stereotype.Component;
+import org.sakaiproject.meetings.teams.data.TeamsMeetingData;
 
 import com.google.gson.JsonPrimitive;
 import com.microsoft.graph.models.AadUserConversationMember;
 import com.microsoft.graph.models.ConversationMember;
 import com.microsoft.graph.models.Group;
 import com.microsoft.graph.models.GroupSetting;
+import com.microsoft.graph.models.Identity;
+import com.microsoft.graph.models.IdentitySet;
+import com.microsoft.graph.models.LobbyBypassScope;
+import com.microsoft.graph.models.LobbyBypassSettings;
+import com.microsoft.graph.models.MeetingParticipantInfo;
+import com.microsoft.graph.models.MeetingParticipants;
+import com.microsoft.graph.models.OnlineMeeting;
+import com.microsoft.graph.models.OnlineMeetingPresenters;
+import com.microsoft.graph.models.OnlineMeetingRole;
 import com.microsoft.graph.models.SettingValue;
 import com.microsoft.graph.models.Team;
 
 @Slf4j
-@Component(value="MicrosoftTeamsService")
 public class MicrosoftTeamsService  {
 
     private GraphServiceClient graphClient;
@@ -51,6 +63,7 @@ public class MicrosoftTeamsService  {
 			while(page != null) {
 				for(User o : page.getCurrentPage()) {
 					System.out.println(o.id+": "+o.displayName);
+					
 				}
 				userList.addAll(page.getCurrentPage());
 				UserCollectionRequestBuilder builder = page.getNextPage();
@@ -58,7 +71,7 @@ public class MicrosoftTeamsService  {
 				page = builder.buildRequest().get();
 			}
 		} catch(Exception e) {
-			
+			e.printStackTrace();
 		}
 		return userList;
     }
@@ -104,6 +117,7 @@ public class MicrosoftTeamsService  {
     		LinkedList<String> rolesList = new LinkedList<String>();
     		rolesList.add("owner");
     		members.roles = rolesList;
+    		members.oDataType = "#microsoft.graph.aadUserConversationMember";
     		members.additionalDataManager().put("user@odata.bind", new JsonPrimitive("https://graph.microsoft.com/v1.0/users('89557e16-62b9-4988-982b-2fb652464aa1')"));
     		membersList.add(members);
     		ConversationMemberCollectionResponse conversationMemberCollectionResponse = new ConversationMemberCollectionResponse();
@@ -113,12 +127,70 @@ public class MicrosoftTeamsService  {
 
     		graphClient.teams()
     		    .buildRequest()
-    		    .post(team);   		
+    		    .post(team);
+    		
+    		System.out.println("Team creado!!!");
+    		
         } catch(Exception ex){
             System.out.println("Oops! We have an exception of type - " + ex.getClass());
             System.out.println("Exception message - " + ex.getMessage());
             throw ex;
         }
+    }
+    
+    
+    public User getUserByMicrosoftLogin(String microsoftLogin) {
+    	User result = graphClient.users(microsoftLogin).buildRequest().get();
+    	return result;
+    }
+    
+    
+    
+    public TeamsMeetingData onlineMeeting(String presenter, String subject, Instant startDate, Instant endDate) throws ParseException {
+    	
+    	// Get presenter user 
+    	User organizerUser = getUserByMicrosoftLogin(presenter);
+    	
+    	// Organizer
+    	MeetingParticipantInfo organizer = new MeetingParticipantInfo();
+    	IdentitySet organizerIdentity = new IdentitySet();
+    	Identity iden = new Identity();
+    	iden.id = organizerUser.id;
+    	iden.displayName = organizerUser.displayName;
+    	organizerIdentity.application = iden; 
+    	organizer.identity = organizerIdentity;
+    	organizer.role = OnlineMeetingRole.PRESENTER;
+    	
+    	// Participants
+    	MeetingParticipants participants = new MeetingParticipants();
+    	participants.organizer = organizer;
+    	
+    	// Lobby Settings
+    	LobbyBypassSettings lobbySettings = new LobbyBypassSettings();
+    	lobbySettings.scope = LobbyBypassScope.ORGANIZATION;
+    	
+    	// Online Meeting
+    	OnlineMeeting onlineMeeting = new OnlineMeeting();
+    	onlineMeeting.startDateTime = OffsetDateTime.ofInstant(startDate, ZoneId.systemDefault());
+    	onlineMeeting.endDateTime = OffsetDateTime.ofInstant(endDate, ZoneId.systemDefault());
+    	onlineMeeting.participants = participants;
+    	onlineMeeting.subject = subject;
+    	onlineMeeting.lobbyBypassSettings = lobbySettings;
+    	onlineMeeting.allowedPresenters = OnlineMeetingPresenters.ROLE_IS_PRESENTER;
+    	
+    	OnlineMeeting meeting = graphClient.users(organizerUser.id).onlineMeetings()
+    	    .buildRequest()
+    	    .post(onlineMeeting);
+
+    	TeamsMeetingData result = new TeamsMeetingData();
+    	result.setId(meeting.id);
+    	result.setJoinUrl(meeting.joinWebUrl);
+    	return result;
+    }
+    
+    public void deleteMeeting(String organizerUser, String meetingId) {
+    	User user = getUserByMicrosoftLogin(organizerUser);
+    	graphClient.users(user.id).onlineMeetings(meetingId).buildRequest().delete();
     }
 
 }

@@ -12,35 +12,31 @@
     <context:component-scan base-package="org.sakaiproject.meetings"/>
     <tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
 
-    <bean id="org.sakaiproject.meetings.api.HelloWorldService" class="org.sakaiproject.meetings.impl.HelloWorldServiceImpl" init-method="init">
-        <property name="helloWorldRepository" ref="org.sakaiproject.meetings.api.persistence.HelloWorldRepository"/>
-    </bean>
-
     <!--  Hibernate persistence -->
-    <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.Person"
+    <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.meetingstool"
           class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
         <property name="annotatedClasses">
             <list>
-                <value>org.sakaiproject.meetings.api.model.Person</value>
+                <value>org.sakaiproject.meetings.api.model.Meeting</value>
+                <value>org.sakaiproject.meetings.api.model.MeetingProperty</value>
+                <value>org.sakaiproject.meetings.api.model.MeetingAttendee</value>
+                <value>org.sakaiproject.meetings.api.model.MeetingsProvider</value>
             </list>
         </property>
     </bean>
 
-    <bean id="org.sakaiproject.meetings.api.persistence.HelloWorldRepository"
-          class="org.sakaiproject.meetings.impl.persistence.HelloWorldRepositoryImpl">
+    <bean id="org.sakaiproject.meetings.api.persistence.MeetingRepository"
+          class="org.sakaiproject.meetings.impl.persistence.MeetingRepositoryImpl">
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
-
-    <!-- Scheduling -->
-    <bean id="org.sakaiproject.meetings.impl.jobs.HelloWorldJob" class="org.sakaiproject.meetings.impl.jobs.HelloWorldJob">
-        <property name="helloWorldService" ref="org.sakaiproject.meetings.api.HelloWorldService" />
+    <bean id="org.sakaiproject.meetings.api.persistence.MeetingPropertyRepository"
+          class="org.sakaiproject.meetings.impl.persistence.MeetingPropertyRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+    
+    <bean id="org.sakaiproject.meetings.api.MeetingService" class="org.sakaiproject.meetings.impl.MeetingServiceImpl" init-method="init">
+        <property name="meetingRepository" ref="org.sakaiproject.meetings.api.persistence.MeetingRepository"/>
+        <property name="meetingPropertyRepository" ref="org.sakaiproject.meetings.api.persistence.MeetingPropertyRepository"/>
     </bean>
 
-    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.com.edf.helloworld.impl.jobs.HelloWorldJob"
-          class="org.sakaiproject.component.app.scheduler.jobs.SpringStatefulJobBeanWrapper"
-          init-method="init">
-        <property name="beanId" value="org.sakaiproject.meetings.impl.jobs.HelloWorldJob"/>
-        <property name="jobName" value="Hello World Job"/>
-        <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
-    </bean>
 </beans>

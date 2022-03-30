@@ -10,8 +10,8 @@ const routes = [
     props: true
   },
   {
-    path: routeprefix + '/settings',
-    name: 'Settings',
+    path: routeprefix + '/meeting',
+    name: 'EditMeeting',
     props: true,
     component: function () {
       return import('../views/CreateMeeting.vue')

@@ -4,7 +4,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.Index;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -12,29 +11,26 @@ import org.hibernate.annotations.GenericGenerator;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "EDF_PERSON", indexes = {@Index(name = "IDX_EDF_PERSON_CONTEXT", columnList = "CONTEXT")})
+@Table(name = "meeting_providers")
+@AllArgsConstructor
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(of = "id")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class Person {
+public class MeetingsProvider {
 
-    @Id
-    @Column(name = "PERSON_ID", length = 36, nullable = false)
+	@Id
+    @Column(name = "provider_id", length = 36, nullable = false)
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     private String id;
-
-    @Column(name = "NAME")
+	
+	@Column(name = "provider_name", length = 255, nullable = false)
     private String name;
-
-    @Column(name = "CONTEXT", length = 99, nullable = false)
-    private String context;
-
+	
+	
 }
-

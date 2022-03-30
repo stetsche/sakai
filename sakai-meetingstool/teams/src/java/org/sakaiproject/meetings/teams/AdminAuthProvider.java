@@ -24,11 +24,14 @@ public class AdminAuthProvider implements IAuthenticationProvider {
 	public CompletableFuture<String> getAuthorizationTokenAsync(URL requestUrl) {
 		CompletableFuture<String> token = new CompletableFuture<>();
 		try {
+System.out.println("getting authorization");
 			readConfig();
+System.out.println("config read!");
 			BuildConfidentialClientObject();
+System.out.println("Confidential client built");
 			IAuthenticationResult result = getAccessTokenByClientCredentialGrant();
+System.out.println("getAccessTokenByClientCredentialGrant executed!");
 			token.complete(result.accessToken());
-System.out.println("Token!!" + result.accessToken());
 		} catch (Exception e) {
 			System.out.println("------ Oops! We have an exception of type - " + e.getClass());
             System.out.println("------ Exception message - " + e.getMessage());
@@ -71,12 +74,14 @@ System.out.println("Token!!" + result.accessToken());
 	 * @throws IOException
 	 */
     private void readConfig() throws IOException {
+System.out.println("Gonna read properties!");
         Properties properties = new Properties();
         properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("graph.properties"));
         authority = properties.getProperty("AUTHORITY");
         clientId = properties.getProperty("CLIENT_ID");
         secret = properties.getProperty("SECRET");
         scope = properties.getProperty("SCOPE");
+System.out.println("Properties read! Example: "+clientId);
     }
 	
 }
