@@ -12,6 +12,7 @@ import com.microsoft.graph.requests.GroupCollectionRequestBuilder;
 import com.microsoft.graph.requests.UserCollectionPage;
 import com.microsoft.graph.requests.UserCollectionRequestBuilder;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.text.ParseException;
@@ -22,6 +23,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.meetings.teams.data.TeamsMeetingData;
 
 import com.google.gson.JsonPrimitive;
@@ -44,17 +47,32 @@ import com.microsoft.graph.models.Team;
 @Slf4j
 public class MicrosoftTeamsService  {
 
+    private static final ServerConfigurationService serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
+    
     private GraphServiceClient graphClient;
     
+    private static final String MSTEAMS_PREFIX = "meetings.msteams.";
+    private static final String AUTHORITY = "authority";
+    private static final String CLIENT_ID = "clientId";
+    private static final String SECRET = "secret";
+    private static final String SCOPE = "scope";
     
-    public MicrosoftTeamsService () {
-    	AdminAuthProvider authRober = new AdminAuthProvider();
+    public MicrosoftTeamsService() {
+        log.info("Initializing Microsoft Teams Service");
+        String authority = serverConfigurationService.getString(MSTEAMS_PREFIX + AUTHORITY, null);
+        String clientId = serverConfigurationService.getString(MSTEAMS_PREFIX + CLIENT_ID, null);
+        String secret = serverConfigurationService.getString(MSTEAMS_PREFIX + SECRET, null);
+        String scope = serverConfigurationService.getString(MSTEAMS_PREFIX + SCOPE, null);
+System.out.println(authority);
+System.out.println(clientId);
+System.out.println(secret);
+System.out.println(scope);
+        AdminAuthProvider authProvider = new AdminAuthProvider(authority, clientId, secret, scope);
         graphClient = GraphServiceClient
                 .builder()
-                .authenticationProvider(authRober)
+                .authenticationProvider(authProvider)
                 .buildClient();
     }
-    
     
     public List<User> getAzureUserList() {
     	List<User> userList = new ArrayList<>();

@@ -49,6 +49,11 @@
 			<artifactId>json</artifactId>
 			<version>20090211</version>
 		</dependency>
+		<dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

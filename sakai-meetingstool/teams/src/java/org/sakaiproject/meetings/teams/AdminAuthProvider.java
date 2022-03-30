@@ -1,9 +1,7 @@
 package org.sakaiproject.meetings.teams;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
-import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 
 import com.microsoft.aad.msal4j.ClientCredentialFactory;
@@ -14,19 +12,25 @@ import com.microsoft.graph.authentication.IAuthenticationProvider;
 
 public class AdminAuthProvider implements IAuthenticationProvider {
 
-    private static String authority;
-    private static String clientId;
-    private static String secret;
-    private static String scope;
-    private static ConfidentialClientApplication app;
+    private String authority;
+    private String clientId;
+    private String secret;
+    private String scope;
+    private ConfidentialClientApplication app;
+
+    
+    public AdminAuthProvider(String authority, String clientId, String secret, String scope) {
+        this.authority = authority;
+        this.clientId = clientId;
+        this.secret = secret;
+        this.scope = scope;
+    }
     
 	@Override
 	public CompletableFuture<String> getAuthorizationTokenAsync(URL requestUrl) {
 		CompletableFuture<String> token = new CompletableFuture<>();
 		try {
 System.out.println("getting authorization");
-			readConfig();
-System.out.println("config read!");
 			BuildConfidentialClientObject();
 System.out.println("Confidential client built");
 			IAuthenticationResult result = getAccessTokenByClientCredentialGrant();
@@ -66,22 +70,6 @@ System.out.println("getAccessTokenByClientCredentialGrant executed!");
     	
         CompletableFuture<IAuthenticationResult> future = app.acquireToken(clientCredentialParam);
         return future.get();
-    }
-	
-    
-	/**
-	 * Read app connection properties
-	 * @throws IOException
-	 */
-    private void readConfig() throws IOException {
-System.out.println("Gonna read properties!");
-        Properties properties = new Properties();
-        properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("graph.properties"));
-        authority = properties.getProperty("AUTHORITY");
-        clientId = properties.getProperty("CLIENT_ID");
-        secret = properties.getProperty("SECRET");
-        scope = properties.getProperty("SCOPE");
-System.out.println("Properties read! Example: "+clientId);
     }
 	
 }
