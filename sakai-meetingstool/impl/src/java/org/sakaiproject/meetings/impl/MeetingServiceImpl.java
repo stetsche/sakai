@@ -7,6 +7,7 @@ import org.sakaiproject.meetings.api.model.MeetingProperty;
 import org.sakaiproject.meetings.api.persistence.MeetingPropertyRepository;
 import org.sakaiproject.meetings.api.persistence.MeetingRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.sakaiproject.meetings.api.MeetingService;
@@ -31,6 +32,10 @@ public class MeetingServiceImpl implements MeetingService {
 	public Iterable<Meeting> getAllMeetings() {
 		return meetingRepository.findAll();
 	}
+	
+	public List<Meeting> getUserMeetings(String userId, List<String> siteIds, List <String> groupIds) {
+        return meetingRepository.getMeetings(userId, siteIds, groupIds);
+    }
 	
 	public Optional<Meeting> getMeetingById(String id) {
 		return meetingRepository.findById(id);

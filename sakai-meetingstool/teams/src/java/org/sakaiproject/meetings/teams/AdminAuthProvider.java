@@ -10,6 +10,9 @@ import com.microsoft.aad.msal4j.ConfidentialClientApplication;
 import com.microsoft.aad.msal4j.IAuthenticationResult;
 import com.microsoft.graph.authentication.IAuthenticationProvider;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class AdminAuthProvider implements IAuthenticationProvider {
 
     private String authority;
@@ -30,15 +33,11 @@ public class AdminAuthProvider implements IAuthenticationProvider {
 	public CompletableFuture<String> getAuthorizationTokenAsync(URL requestUrl) {
 		CompletableFuture<String> token = new CompletableFuture<>();
 		try {
-System.out.println("getting authorization");
 			BuildConfidentialClientObject();
-System.out.println("Confidential client built");
 			IAuthenticationResult result = getAccessTokenByClientCredentialGrant();
-System.out.println("getAccessTokenByClientCredentialGrant executed!");
 			token.complete(result.accessToken());
 		} catch (Exception e) {
-			System.out.println("------ Oops! We have an exception of type - " + e.getClass());
-            System.out.println("------ Exception message - " + e.getMessage());
+		    log.error("Exception retrieving token from Microsoft Graph Auth Provider: " + e.getClass(), e);
 		}
 		return token;
 	}

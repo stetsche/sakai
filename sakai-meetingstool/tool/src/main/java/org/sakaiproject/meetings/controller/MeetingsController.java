@@ -19,12 +19,20 @@ package org.sakaiproject.meetings.controller;
 import lombok.extern.slf4j.Slf4j;
 
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.meetings.api.MeetingService;
 import org.sakaiproject.meetings.api.model.Meeting;
 import org.sakaiproject.meetings.controller.data.MeetingData;
 import org.sakaiproject.meetings.teams.MicrosoftTeamsService;
 import org.sakaiproject.meetings.teams.data.TeamsMeetingData;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -35,7 +43,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,9 +50,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
+
 
 /**
  * MainController
@@ -65,6 +71,9 @@ public class MeetingsController {
 	
     @Autowired
 	private ToolManager toolManager;
+    
+    @Autowired
+    private SiteService siteService;
 	
     @Autowired
     private MeetingService meetingService;
@@ -94,22 +103,37 @@ public class MeetingsController {
     
 
     @GetMapping(value = "/meeting/all", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Iterable<Meeting> getAllMeetings() {    
-        return meetingService.getAllMeetings();
+    public Iterable<Meeting> getAllMeetings() {
+        String userId = getCurrentUser().getId();
+        List<Site> sites = siteService.getUserSites();
+        List<String> siteIds = sites.stream().map(e->e.getId()).collect(Collectors.toList());
+        List<Group> groups = new ArrayList<>();
+        siteIds.stream().forEach(s -> {
+            try {
+                Site site = siteService.getSite(s);
+                groups.addAll(site.getGroupsWithMember(userId));
+                site.getGroupsWithMember(userId);
+            } catch (IdUnusedException e) {
+                log.error("Error while retrieving group list on Meetings", e);
+            };
+        });
+        List<String> groupIds = groups.stream().map(e->e.getId()).collect(Collectors.toList());
+        return meetingService.getUserMeetings(userId, siteIds, groupIds);
     }
 
     
     @PostMapping(value = "/meeting", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public Meeting createMeeting(@RequestBody MeetingData data) {
         Meeting meeting = null;
+        User user = getCurrentUser();
         try {
             meeting = new Meeting();
             BeanUtils.copyProperties(data, meeting);
-            TeamsMeetingData meetingTeams = teamsService.onlineMeeting("ropemar@ropemargmail.onmicrosoft.com", meeting.getTitle(), meeting.getStartDate(), meeting.getEndDate());
+            TeamsMeetingData meetingTeams = teamsService.onlineMeeting(user.getEmail(), meeting.getTitle(), meeting.getStartDate(), meeting.getEndDate());
             meeting.setUrl(meetingTeams.getJoinUrl());
             meetingService.createMeeting(meeting);
             meetingService.setMeetingProperty(meeting, ONLINE_MEETING_ID, meetingTeams.getId());
-            meetingService.setMeetingProperty(meeting, ORGANIZER_USER, "ropemar@ropemargmail.onmicrosoft.com");
+            meetingService.setMeetingProperty(meeting, ORGANIZER_USER, user.getEmail());
         } catch (ParseException e) {
             log.error("Error creating meeting", e);
         }

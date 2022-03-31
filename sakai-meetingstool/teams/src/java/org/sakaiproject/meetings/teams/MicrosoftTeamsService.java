@@ -63,10 +63,6 @@ public class MicrosoftTeamsService  {
         String clientId = serverConfigurationService.getString(MSTEAMS_PREFIX + CLIENT_ID, null);
         String secret = serverConfigurationService.getString(MSTEAMS_PREFIX + SECRET, null);
         String scope = serverConfigurationService.getString(MSTEAMS_PREFIX + SCOPE, null);
-System.out.println(authority);
-System.out.println(clientId);
-System.out.println(secret);
-System.out.println(scope);
         AdminAuthProvider authProvider = new AdminAuthProvider(authority, clientId, secret, scope);
         graphClient = GraphServiceClient
                 .builder()
@@ -146,8 +142,6 @@ System.out.println(scope);
     		graphClient.teams()
     		    .buildRequest()
     		    .post(team);
-    		
-    		System.out.println("Team creado!!!");
     		
         } catch(Exception ex){
             System.out.println("Oops! We have an exception of type - " + ex.getClass());
