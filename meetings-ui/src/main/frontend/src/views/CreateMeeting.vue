@@ -338,14 +338,24 @@ export default {
   methods: {
     handleSave: function () {
       let saveData = {
+        id: this.id,
         title: this.title,
         description: this.description,
         startDate: dayjs(this.date_open).format('YYYY-MM-DDTHH:mm:ss[Z]'),
         endDate: dayjs(this.date_close).format('YYYY-MM-DDTHH:mm:ss[Z]')
       };
-      fetch(constants.toolPlacement + '/meeting', {
+      let methodToCall = constants.toolPlacement;
+      let restMethod = 'POST';
+      if (this.id) {
+          methodToCall = methodToCall + '/meeting/' + this.id;
+          restMethod = 'PUT';
+      } else {
+          methodToCall = methodToCall + '/meeting';
+      }
+      // Invoke REST Controller - Save (POST or PUT)
+      fetch(methodToCall, {
         credentials: 'include',
-        method: 'POST',
+        method: restMethod,
         cache: "no-cache",
         headers: { "Content-Type": "application/json; charset=utf-8" },
         body: JSON.stringify(saveData)

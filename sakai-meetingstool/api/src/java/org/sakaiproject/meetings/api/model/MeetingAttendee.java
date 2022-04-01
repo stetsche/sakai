@@ -1,5 +1,6 @@
 package org.sakaiproject.meetings.api.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -31,7 +32,7 @@ public class MeetingAttendee {
     @SequenceGenerator(name = "meeting_attendee_sequence", sequenceName = "MEETING_ATTENDEE_S")
     private Long id;
 	
-	@ManyToOne
+	@ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="attendee_meeting_id")
     private Meeting meeting;
 	

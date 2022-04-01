@@ -34,9 +34,14 @@
           class="org.sakaiproject.meetings.impl.persistence.MeetingPropertyRepositoryImpl">
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
+    <bean id="org.sakaiproject.meetings.api.persistence.MeetingAttendeeRepository"
+          class="org.sakaiproject.meetings.impl.persistence.MeetingAttendeeRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
     <bean id="org.sakaiproject.meetings.api.MeetingService" class="org.sakaiproject.meetings.impl.MeetingServiceImpl" init-method="init">
         <property name="meetingRepository" ref="org.sakaiproject.meetings.api.persistence.MeetingRepository"/>
         <property name="meetingPropertyRepository" ref="org.sakaiproject.meetings.api.persistence.MeetingPropertyRepository"/>
+        <property name="meetingAttendeeRepository" ref="org.sakaiproject.meetings.api.persistence.MeetingAttendeeRepository"/>
     </bean>
     
 </beans>

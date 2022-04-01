@@ -22,11 +22,14 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.meetings.api.MeetingService;
+import org.sakaiproject.meetings.api.model.AttendeeType;
 import org.sakaiproject.meetings.api.model.Meeting;
+import org.sakaiproject.meetings.api.model.MeetingAttendee;
 import org.sakaiproject.meetings.controller.data.MeetingData;
 import org.sakaiproject.meetings.teams.MicrosoftTeamsService;
 import org.sakaiproject.meetings.teams.data.TeamsMeetingData;
@@ -86,7 +89,7 @@ public class MeetingsController {
     public static final String ORGANIZER_USER = "organizerUser";
 
     
-    public User getCurrentUser() {
+    private User getCurrentUser() {
         String userId = sessionManager.getCurrentSessionUserId();
         log.info("Current user is {}", userId);
         try {
@@ -97,7 +100,7 @@ public class MeetingsController {
         return null;
     }
 
-    public String getCurrentSiteId() {
+    private String getCurrentSiteId() {
         return toolManager.getCurrentPlacement().getContext();
     }
     
@@ -131,7 +134,8 @@ public class MeetingsController {
             BeanUtils.copyProperties(data, meeting);
             TeamsMeetingData meetingTeams = teamsService.onlineMeeting(user.getEmail(), meeting.getTitle(), meeting.getStartDate(), meeting.getEndDate());
             meeting.setUrl(meetingTeams.getJoinUrl());
-            meetingService.createMeeting(meeting);
+            meeting = meetingService.createMeeting(meeting);
+            meetingService.addAttendeeToMeeting(meeting, user.getId(), AttendeeType.USER);
             meetingService.setMeetingProperty(meeting, ONLINE_MEETING_ID, meetingTeams.getId());
             meetingService.setMeetingProperty(meeting, ORGANIZER_USER, user.getEmail());
         } catch (ParseException e) {
@@ -140,20 +144,28 @@ public class MeetingsController {
         return meeting;
     }
     
-    @PutMapping(value = "/meeting/{meetingId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/meeting/{meetingId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public Meeting updateMeeting(@RequestBody MeetingData data, @PathVariable String meetingId) {
-        return null;
+        Optional<Meeting> optMeeting = meetingService.getMeetingById(meetingId);
+        Meeting meeting = null;
+        if (optMeeting.isPresent()) {
+            meeting = optMeeting.get();
+            meeting.setTitle(data.getTitle());
+            meeting.setDescription(data.getDescription());
+            meeting.setStartDate(data.getStartDate());
+            meeting.setEndDate(data.getEndDate());
+            meetingService.updateMeeting(meeting);
+        }
+        return meeting;
     }
     
-    @DeleteMapping(value = "/meeting/{meetingId}")
-    public ResponseEntity<?> deleteMeeting(@PathVariable String meetingId) {
+    @DeleteMapping(value = "/meeting/{meetingId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public void deleteMeeting(@PathVariable String meetingId) {
         try {
             meetingService.deleteMeetingById(meetingId);
         } catch (Exception e) {
             log.error("Error deleting meeting", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        return ResponseEntity.status(HttpStatus.OK).build();
     }
     
     @GetMapping("/groups")

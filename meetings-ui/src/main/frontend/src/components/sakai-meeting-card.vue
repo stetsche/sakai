@@ -148,6 +148,7 @@ import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import relativeTime from "dayjs/plugin/relativeTime";
 import SakaiModal from "./sakai-modal.vue";
+import constants from "../resources/constants.js";
 //import locale_es from 'dayjs/locale/es';
 
 dayjs.extend(relativeTime);
@@ -295,21 +296,23 @@ export default {
 	  },
 	  deleteMeeting: function() {
 		  // Delete meeting
-		  fetch('/meeting/' + this.id, {
+		  fetch(constants.toolPlacement + '/meeting/' + this.id, {
 	        credentials: 'include',
 	        method: 'DELETE',
 	        cache: "no-cache",
 	        headers: { "Content-Type": "application/json; charset=utf-8" },
-	      }).then(res => res.json())
+	      })
 	      .catch(error => console.error('Error:', error))
 	      .then(response => this.$emit('onDeleted', this.id));
 	  },
 	  editMeeting: function() {
 	      let parameters = {
+	        id: this.id,
 	        title: this.title,
 	        description: this.description,
 	        date_open: this.startDate,
-	        date_close: this.endDate};
+	        date_close: this.endDate
+	      };
 		  this.$router.push({name: "EditMeeting", params: parameters});
 	  }
   },

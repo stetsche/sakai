@@ -1,12 +1,16 @@
 package org.sakaiproject.meetings.impl;
 
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.util.CollectionUtils;
+import org.sakaiproject.meetings.api.model.AttendeeType;
 import org.sakaiproject.meetings.api.model.Meeting;
+import org.sakaiproject.meetings.api.model.MeetingAttendee;
 import org.sakaiproject.meetings.api.model.MeetingProperty;
+import org.sakaiproject.meetings.api.persistence.MeetingAttendeeRepository;
 import org.sakaiproject.meetings.api.persistence.MeetingPropertyRepository;
 import org.sakaiproject.meetings.api.persistence.MeetingRepository;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +28,9 @@ public class MeetingServiceImpl implements MeetingService {
 	
     @Setter
 	MeetingPropertyRepository meetingPropertyRepository;
+    
+    @Setter
+    MeetingAttendeeRepository meetingAttendeeRepository;
 
     public void init() {
         log.info("Initializing Meeting Service");
@@ -41,12 +48,17 @@ public class MeetingServiceImpl implements MeetingService {
 		return meetingRepository.findById(id);
 	}
 
-	public void createMeeting(Meeting meetingData) {
-		meetingRepository.save(meetingData);
+	public Meeting createMeeting(Meeting meetingData) {
+		return meetingRepository.save(meetingData);
+	}
+	
+	public void updateMeeting(Meeting meetingData) {
+	    meetingRepository.update(meetingData);
 	}
 	
 	public void deleteMeetingById(String id) {
 		meetingPropertyRepository.deletePropertiesByMeetingId(id);
+		meetingAttendeeRepository.removeAttendeesByMeetingId(id);
 		meetingRepository.deleteById(id);
 	}
 	
@@ -65,6 +77,20 @@ public class MeetingServiceImpl implements MeetingService {
 			result = prop.getValue();
 		}
 		return result;
+	}
+	
+	public void addAttendeeToMeeting(Meeting meeting, String objectId, AttendeeType type) {
+	    MeetingAttendee attendee = new MeetingAttendee();
+	    attendee.setObjectId(objectId);
+	    attendee.setType(type);
+	    if (CollectionUtils.isEmpty(meeting.getAttendees())) {
+	        meeting.setAttendees(Arrays.asList(attendee));
+	    } else {
+	        meeting.getAttendees().add(attendee);
+	    }
+	    meetingRepository.update(meeting);
+	    attendee.setMeeting(meeting);
+	    attendee = meetingAttendeeRepository.save(attendee);
 	}
 	
 }
