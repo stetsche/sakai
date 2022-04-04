@@ -287,17 +287,9 @@ export default {
       ],
       confServ: [
           {
-            string: "Big Blue Button",
-            value: "big_blue_button",
-          },
-          {
             string: "Microsoft Teams",
             value: "microsoft_teams",
-          },
-          {
-            string: "Zoom",
-            value: "zoom",
-          },
+          }
       ],
       partType: [
           {
@@ -323,7 +315,7 @@ export default {
       id: { type: String, default: undefined },
       title: { type: String, default: undefined },
       description: { type: String, default: undefined },
-      conf_service: { type: String, default: undefined },
+      conf_service: { type: String, default: "microsoft_teams" },
       date_open: {
         validator: function (value) {
           return dayjs(value).isValid();
