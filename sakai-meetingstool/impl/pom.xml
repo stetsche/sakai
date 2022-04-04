@@ -14,7 +14,13 @@
     <groupId>org.sakaiproject.meetings</groupId>
     <artifactId>sakai-meetingstool-impl</artifactId>
     <packaging>sakai-component</packaging>
-
+    
+    <properties>
+        <!-- Dependency versions -->
+        <junit.jupiter.version>5.5.2</junit.jupiter.version>
+        <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+    </properties>
+    
     <dependencies>
         <dependency>
             <groupId>org.sakaiproject.meetings</groupId>
@@ -46,18 +52,28 @@
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
         </dependency>
+        <dependency>
+		    <groupId>org.springframework</groupId>
+		    <artifactId>spring-test</artifactId>
+		    <version>2.5</version>
+		    <scope>test</scope>
+		</dependency>
     </dependencies>
 
+	
+
     <build>
+        <sourceDirectory>${basedir}/src/java</sourceDirectory>
+        <testSourceDirectory>${basedir}/src/test/java</testSourceDirectory>
         <resources>
             <resource>
-                <directory>${basedir}/src/sql</directory>
+                <directory>${basedir}/src/main/sql</directory>
                 <includes>
                     <include>**/*.sql</include>
                 </includes>
             </resource>
             <resource>
-                <directory>${basedir}/src/bundle</directory>
+                <directory>${basedir}/src/main/bundle</directory>
                 <includes>
                     <include>**/*.properties</include>
                 </includes>
@@ -71,7 +87,7 @@
         </resources>
         <testResources>
             <testResource>
-                <directory>${basedir}/src/webapp</directory>
+                <directory>${basedir}/src/test/webapp</directory>
             </testResource>
             <testResource>
                 <directory>${basedir}/src/test/resources</directory>
