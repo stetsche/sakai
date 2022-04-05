@@ -10,14 +10,16 @@
             <SakaiInputLabelled title="Description" textarea="true" v-model:value="formdata.description"/>
           </div>
           <div class="col-md-4 col-xl-3">
-            <!-- <div class="row mt-3 align-items-md-end">
+            <!--
+            <div class="row mt-3 align-items-md-end">
               <div class="col">
                 <SakaiInputLabelled title="Preupload presentation" />
               </div>
               <div class="col-sm-12 col-md-auto mt-3">
                 <SakaiButton text="Add" class="w-100" />
               </div>
-            </div> -->
+            </div>
+            -->
             <div class="row mt-3">
               <div class="col">
                 <SakaiInputLabelled
@@ -29,6 +31,7 @@
                 />
               </div>
             </div>
+            <!--
             <div class="row mt-3">
               <div class="col">
                 <div class="d-flex">
@@ -44,6 +47,7 @@
                 </div>
               </div>
             </div>
+            -->
           </div>
         </div>
       </sakai-accordion-item>
@@ -189,12 +193,6 @@
         class="me-2"
         :disabled="!allValid"
       />
-      <SakaiButton
-        text="Save as Template"
-        @click="handleSaveTemplate"
-        class="me-2"
-        :disabled="!allValid"
-      />
       <SakaiButton text="Cancel" @click="handleCancel" />
     </div>
   </div>
@@ -318,7 +316,7 @@ export default {
             value: "users",
           },
       ],
-      validations: { title: false}
+      validations: { title: false }
     };
   },
   props: {
@@ -375,9 +373,6 @@ export default {
       })
       .catch(error => console.error('Error:', error))
       .then(response => console.log('Success:', response));
-    },
-    handleSaveTemplate: function () {
-      this.$router.push({ name: "Main" });
     },
     handleCancel: function () {
       this.$router.push({ name: "Main" });

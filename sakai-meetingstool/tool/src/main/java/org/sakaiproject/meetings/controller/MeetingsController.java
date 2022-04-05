@@ -95,7 +95,7 @@ public class MeetingsController {
     
     public static final String ONLINE_MEETING_ID = "onlineMeetingId";
     public static final String ORGANIZER_USER = "organizerUser";
-    private final static String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+    private final static String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
     
     private User getCurrentUser() {
@@ -132,7 +132,7 @@ public class MeetingsController {
         return meetingService.getUserMeetings(userId, siteIds, groupIds);
     }
     
-    @GetMapping(value = "/user/permission", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/meetings/user/editperms", produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean canUpdateSite() {
         boolean result = false;
         String userId = sessionManager.getCurrentSessionUserId();
