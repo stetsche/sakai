@@ -4,10 +4,10 @@
       <sakai-accordion-item title="1. Meeting Information" :open="true">
         <div class="pb-4">
           <div class="col-md-4 col-xl-3">
-            <SakaiInputLabelled title="Meetings Title" v-model:value="title"/>
+            <SakaiInputLabelled title="Meetings Title" v-model:value="formdata.title" :required="true" @validation="setValidation('title', $event)"/>
           </div>
           <div class="col-md-8 col-xl-5 mt-3">
-            <SakaiInputLabelled title="Description" textarea="true" v-model:value="description"/>
+            <SakaiInputLabelled title="Description" textarea="true" v-model:value="formdata.description"/>
           </div>
           <div class="col-md-4 col-xl-3">
             <!-- <div class="row mt-3 align-items-md-end">
@@ -24,15 +24,15 @@
                   title="Video conferencing service"
                   select="true"
                   :items="confServ"
-                  v-model:value="conf_service"
+                  :disabled="true"
+                  v-model:value="formdata.conf_service"
                 />
               </div>
             </div>
             <div class="row mt-3">
               <div class="col">
                 <div class="d-flex">
-                  <SakaiInput type="checkbox" />
-                  <label class="ms-2" for="input">Record Meeting</label>
+                  <SakaiInputLabelled text="Record Meeting" type="checkbox"/>
                 </div>
                 <div class="d-flex">
                   <SakaiInput type="checkbox" />
@@ -187,11 +187,13 @@
         @click="handleSave"
         :primary="true"
         class="me-2"
+        :disabled="!allValid"
       />
       <SakaiButton
         text="Save as Template"
         @click="handleSaveTemplate"
         class="me-2"
+        :disabled="!allValid"
       />
       <SakaiButton text="Cancel" @click="handleCancel" />
     </div>
@@ -222,6 +224,13 @@ export default {
   },
   data() {
     return {
+      formdata: {
+        title: "",
+        description: "",
+        conf_service: "",
+        date_open: undefined,
+        date_close: undefined,
+      },
       notifications: [],
       notificationTemplate: {
         id: 0,
@@ -308,7 +317,8 @@ export default {
             string: "Users",
             value: "users",
           },
-      ]
+      ],
+      validations: { title: false}
     };
   },
   props: {
@@ -327,14 +337,22 @@ export default {
         },
       }
   },
+  computed: {
+    allValid() {
+      return !Object.values(this.validations).includes(false);
+    }
+  },
   methods: {
+    setValidation(field, valid) {
+      this.validations[field] = valid;
+    },
     handleSave: function () {
       let saveData = {
         id: this.id,
-        title: this.title,
-        description: this.description,
-        startDate: dayjs(this.date_open).format('YYYY-MM-DDTHH:mm:ss[Z]'),
-        endDate: dayjs(this.date_close).format('YYYY-MM-DDTHH:mm:ss[Z]')
+        title: this.formdata.title,
+        description: this.formdata.description,
+        startDate: dayjs(this.formdata.date_open).format('YYYY-MM-DDTHH:mm:ss'),
+        endDate: dayjs(this.formdata.date_close).format('YYYY-MM-DDTHH:mm:ss')
       };
       let methodToCall = constants.toolPlacement;
       let restMethod = 'POST';
@@ -384,8 +402,28 @@ export default {
       if (index > -1) {
         this.notifications.splice(index, 1);
       }
-    },
+    }
   },
+  created() {
+    if(this.title) {
+      this.validations.title = true;
+      this.formdata.title = this.title;
+    }
+    if(this.description) {
+      this.formdata.description = this.description;
+    }
+    if(this.conf_service) {
+      this.formdata.conf_service = this.conf_service;
+    }
+    if(this.date_open) {
+      this.formdata.date_open = this.date_open;
+    } else {
+      this.formdata.date_open = new Date();
+    }
+    if(this.date_close) {
+      this.formdata.date_close = this.date_close;
+    }
+  }
 };
 </script>
 <style></style>

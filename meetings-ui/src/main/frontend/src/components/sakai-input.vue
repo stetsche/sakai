@@ -1,40 +1,37 @@
 <template>
   <div
     :class="[
-      'sakai-wrapper',
       { 'sakai-search': type == 'search' },
-      { 'sakai-disabled': disabled },
-      { 'sakai-invalid': invalid },
-      null,
     ]"
   >
     <slot name="prepend" />
     <input
       v-model="value"
-      @input="$emit('update:value', $event.target.value)"
+      @input="handleInput($event.target.value)"
       :id="id"
       :name="name"
       :type="type"
-      :role="type == 'search' ? 'search' : null"
+      :role="type == 'search' ? 'search' : undefined"
       :disabled="disabled"
       :placeholder="placeholder"
       :aria-label="arialabel"
+      :class="inputClasses"
+      :required="required"
     />
-
-    <slot name="append">
-      <!-- <sakai-icon
-          v-if="type == 'date'"
-          class="icon-append"
-          iconkey="calendar"
-        ></sakai-icon> -->
-    </slot>
+    <div v-if="validating && hasValidation" class="invalid-feedback">
+      {{validationStatus.message}}
+    </div>
+    <slot name="append"></slot>
   </div>
 </template>
 
 <script>
-// import sakaiIcon from "./sakai-icon.vue";
 export default {
-  // components: { sakaiIcon },
+  data() {
+    return {
+      validating: false,
+    }
+  },
   props: {
     value: {
       type: [Number, String, Array],
@@ -56,10 +53,6 @@ export default {
       type: Boolean,
       default: false,
     },
-    invalid: {
-      type: Boolean,
-      default: false,
-    },
     placeholder: {
       type: String,
       default: null,
@@ -73,15 +66,99 @@ export default {
       type: String,
       default: undefined,
     },
+    validate: {
+      type: String,
+      default: undefined,
+    },
+    required: {
+      type: Boolean,
+      default: false
+    }
   },
+  computed: {
+    inputClasses() {
+      let classes = [];
+      if(this.validating && this.hasValidation && !this.validationStatus.isValid) {
+        classes.push("is-invalid");
+      }
+      if(this.type == "checkbox") {
+        classes.push("form-check-input");
+      } else {
+        classes.push("form-control");
+      }
+      return classes.join(" ");
+    },
+    validations() {
+      let validations = [];
+      if(this.required) {
+        validations.push({ type: "required" });
+      }
+      if(this.maxlength) {
+        validations.push({
+          type: "maxlength",
+          value: this.maxlength
+        });
+      }
+      if(this.minlength) {
+        validations.push({
+          type: "minlength",
+          value: this.minlength
+        })
+      }
+      return validations;
+    },
+    hasValidation() {
+      return this.validations.length > 0;
+    },
+    validationStatus() {
+      //Setup Status boject
+      var status = {
+        isValid: false,
+        message: ''
+      }
+      //Return if we are not validating yet
+      if(!this.validating) { return { } }
+      //Go through validation options
+      this.validations.forEach(validationInput => {
+        let validationType = validationInput instanceof String || typeof validationInput === 'string'
+          ? validationInput : validationInput.type;
+        switch(validationType) {
+          case 'required':
+            if(this.type == "checkbox" && this.value == false) {
+              status.message = validationInput.message ? validationInput.message : "This checkbox must be checked";
+            } else if (this.value == undefined || this.value == "") {
+              status.message = validationInput.message ? validationInput.message : "This field must be filled out";
+            } else {
+              status.isValid = true;
+            }
+            break;
+          default:
+            console.error("Unknown validation string", validationInput);
+            break;
+        }
+      });
+      return status;
+    }
+  },
+  watch: {
+    validationStatus(newStatus) {
+      this.$emit('validation', { ...newStatus }.isValid );
+    }
+  },
+  methods: {
+    handleInput(value) {
+      //Emit update:value to work with v-model:value
+      this.$emit('update:value', value);
+      //If we are not validating yet, we will want to after the first input
+      if(!this.validating && this.hasValidation) {
+        this.validating = true;
+      }
+    },
+  }
 };
 </script>
 
 <style>
-.sakai-wrapper {
-  position: relative;
-  display: flex;
-}
 .sakai-search {
   min-width: 100px;
   background: var(--sakai-background-color-1);
@@ -142,13 +219,5 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:focus-visible {
 .icon-append {
   padding: 0 8px 0 0;
   align-self: center;
-}
-.sakai-invalid {
-  outline: 1px solid rgb(205 137 137);
-  color: rgb(205 137 137);
-}
-.sakai-disabled {
-  outline: 1px solid rgb(255, 255, 255);
-  color: rgb(217 217 217);
 }
 </style>

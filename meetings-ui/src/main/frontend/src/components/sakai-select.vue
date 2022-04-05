@@ -3,6 +3,7 @@
     class="form-select"
     :name="name"
     :id="id"
+    :disabled="disabled ? 'disabled' : undefined"
     v-model="value"
     @change="$emit('update:value', $event.target.value)"
   >
@@ -37,6 +38,10 @@ export default {
     "item-key": {
       type: String,
       default: "id",
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     },
   },
 };

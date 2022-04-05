@@ -19,12 +19,17 @@ package org.sakaiproject.meetings.controller;
 import lombok.extern.slf4j.Slf4j;
 
 import java.text.ParseException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.meetings.api.MeetingService;
 import org.sakaiproject.meetings.api.model.AttendeeType;
@@ -77,6 +82,9 @@ public class MeetingsController {
     
     @Autowired
     private SiteService siteService;
+    
+    @Autowired
+    private SecurityService securityService;
 	
     @Autowired
     private MeetingService meetingService;
@@ -87,11 +95,11 @@ public class MeetingsController {
     
     public static final String ONLINE_MEETING_ID = "onlineMeetingId";
     public static final String ORGANIZER_USER = "organizerUser";
+    private final static String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
     
     private User getCurrentUser() {
         String userId = sessionManager.getCurrentSessionUserId();
-        log.info("Current user is {}", userId);
         try {
             return userDirectoryService.getUser(userId);
         } catch (UserNotDefinedException e) {
@@ -123,6 +131,21 @@ public class MeetingsController {
         List<String> groupIds = groups.stream().map(e->e.getId()).collect(Collectors.toList());
         return meetingService.getUserMeetings(userId, siteIds, groupIds);
     }
+    
+    @GetMapping(value = "/user/permission", produces = MediaType.APPLICATION_JSON_VALUE)
+    public boolean canUpdateSite() {
+        boolean result = false;
+        String userId = sessionManager.getCurrentSessionUserId();
+        String siteId = getCurrentSiteId();
+        try {
+            Site site = siteService.getSite(siteId);
+            result = (securityService.unlock(userId, SiteService.SECURE_UPDATE_SITE, site.getReference()) || securityService.isSuperUser(userId));
+        } catch (IdUnusedException e) {
+            log.error("Error retrieving user permission", e);
+            result = false;
+        }
+        return result;
+    }
 
     
     @PostMapping(value = "/meeting", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -132,6 +155,10 @@ public class MeetingsController {
         try {
             meeting = new Meeting();
             BeanUtils.copyProperties(data, meeting);
+            Instant startDate = LocalDateTime.parse(data.getStartDate(), DateTimeFormatter.ofPattern(DATE_FORMAT)).atZone(ZoneId.systemDefault()).toInstant();
+            Instant endDate = LocalDateTime.parse(data.getEndDate(), DateTimeFormatter.ofPattern(DATE_FORMAT)).atZone(ZoneId.systemDefault()).toInstant();
+            meeting.setStartDate(startDate);
+            meeting.setEndDate(endDate);
             TeamsMeetingData meetingTeams = teamsService.onlineMeeting(user.getEmail(), meeting.getTitle(), meeting.getStartDate(), meeting.getEndDate());
             meeting.setUrl(meetingTeams.getJoinUrl());
             meeting = meetingService.createMeeting(meeting);
@@ -152,8 +179,10 @@ public class MeetingsController {
             meeting = optMeeting.get();
             meeting.setTitle(data.getTitle());
             meeting.setDescription(data.getDescription());
-            meeting.setStartDate(data.getStartDate());
-            meeting.setEndDate(data.getEndDate());
+            Instant startDate = LocalDateTime.parse(data.getStartDate(), DateTimeFormatter.ofPattern(DATE_FORMAT)).atZone(ZoneId.systemDefault()).toInstant();
+            Instant endDate = LocalDateTime.parse(data.getEndDate(), DateTimeFormatter.ofPattern(DATE_FORMAT)).atZone(ZoneId.systemDefault()).toInstant();
+            meeting.setStartDate(startDate);
+            meeting.setEndDate(endDate);
             meetingService.updateMeeting(meeting);
         }
         return meeting;

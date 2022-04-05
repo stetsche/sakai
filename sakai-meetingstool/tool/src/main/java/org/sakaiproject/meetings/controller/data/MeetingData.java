@@ -14,8 +14,8 @@ public class MeetingData implements Serializable {
 	private String title;
 	private String description;
 	private String siteId;
-	private Instant startDate;
-	private Instant endDate;
+	private String startDate;
+	private String endDate;
 	private String ownerId;
 	private Integer live; 
 	

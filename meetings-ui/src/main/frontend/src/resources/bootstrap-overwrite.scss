@@ -11,6 +11,10 @@
     [class^="col-"] {
         float: unset;
     }
+    
+    .is-invalid~.invalid-feedback, .is-invalid~.invalid-tooltip, .was-validated :invalid~.invalid-feedback, .was-validated :invalid~.invalid-tooltip {
+        display: block;
+    }
 
 }
 /* Since B5 is based havyly on the rem unit,

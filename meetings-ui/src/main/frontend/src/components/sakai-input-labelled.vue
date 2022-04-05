@@ -4,7 +4,8 @@
     <textarea
       v-if="textarea"
       :id="inputId"
-      class="sakai-area"
+      :disabled="disabled"
+      class="form-control"
       rows="10"
       v-model="value"
       @input="$emit('update:value', $event.target.value)"
@@ -13,6 +14,7 @@
       v-else-if="select"
       :items="items"
       :id="inputId"
+      :disabled="disabled"
       v-model:value="value"
       @change="$emit('update:value', $event.target.value)"
     />
@@ -20,8 +22,11 @@
       v-else
       :id="inputId"
       :type="type"
+      :disabled="disabled"
       v-model:value="value"
+      :required="required"
       @input="$emit('update:value', $event.target.value)"
+      @validation="$emit('validation', $event)"
     >
       <template #prepend>
         <slot name="prepend" />
@@ -71,6 +76,15 @@ export default {
       type: [String, Boolean, Number, Array],
       default: "",
     },
+    required: {
+      type: Boolean,
+      default: false
+    },
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+  
   },
   created: function () {
     this.inputId += uuid().substring(8, 13);
