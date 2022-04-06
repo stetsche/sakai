@@ -39,11 +39,7 @@ public class MeetingRepositoryImpl extends BasicSerializableRepository<Meeting, 
 
     @Override
     public void deleteById(String id) {
-        CriteriaBuilder criteriaBuilder = getCurrentSession().getCriteriaBuilder();
-        CriteriaDelete<Meeting> criteriaDelete = criteriaBuilder.createCriteriaDelete(Meeting.class);
-        Root<Meeting> root = criteriaDelete.from(Meeting.class);
-        criteriaDelete.where(criteriaBuilder.equal(root.get("id"), id));
-        getCurrentSession().createQuery(criteriaDelete);
+        getCurrentSession().createQuery("delete from Meeting where id = :id").setParameter("id", id).executeUpdate();
     }
     
     @Override

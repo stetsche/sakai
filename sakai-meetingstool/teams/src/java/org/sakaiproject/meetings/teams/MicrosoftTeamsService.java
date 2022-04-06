@@ -182,9 +182,9 @@ public class MicrosoftTeamsService  {
     	lobbySettings.scope = LobbyBypassScope.ORGANIZATION;
     	
     	// Online Meeting
-    	OnlineMeeting onlineMeeting = new OnlineMeeting();
-    	onlineMeeting.startDateTime = OffsetDateTime.ofInstant(startDate, ZoneId.systemDefault());
-    	onlineMeeting.endDateTime = OffsetDateTime.ofInstant(endDate, ZoneId.systemDefault());
+        OnlineMeeting onlineMeeting = new OnlineMeeting();
+        if (startDate != null) onlineMeeting.startDateTime = OffsetDateTime.ofInstant(startDate, ZoneId.systemDefault());
+        if (endDate != null) onlineMeeting.endDateTime = OffsetDateTime.ofInstant(endDate, ZoneId.systemDefault());
     	onlineMeeting.participants = participants;
     	onlineMeeting.subject = subject;
     	onlineMeeting.lobbyBypassSettings = lobbySettings;

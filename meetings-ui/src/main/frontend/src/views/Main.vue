@@ -13,6 +13,7 @@
           </template>
         </SakaiButton>
       </div>
+<!-- 
       <SakaiInput
         type="search"
         placeholder="Search for meetings"
@@ -25,6 +26,7 @@
       </SakaiInput>
       <SakaiDropdownButton class="order-3" :items="items" text="Options">
       </SakaiDropdownButton>
+-->
     </div>
     <div v-if="happeningToday.length > 0">
       <div class="section-heading">
@@ -99,11 +101,13 @@
         class="section-heading d-flex align-items-end"
       >
         <h1 class="mb-0 h4" id="flush-headingThree">Past</h1>
+<!--         
         <div class="ms-auto">
           <div @click="btnPress2 = !btnPress2" class="ms-auto">
             <SakaiDropdownButton :items="showAll" text="Show All" :clear="true"></SakaiDropdownButton>
           </div>
         </div>
+-->
       </div>
       <hr aria-hidden="true" class="mb-0 mt-2" />
       <div>
@@ -225,7 +229,6 @@ export default {
       .then(data => {
         data.forEach(meeting => {
             meeting.live = false;
-            console.log(meeting.startDate);
             if (dayjs().isAfter(dayjs(meeting.startDate)) && dayjs().isBefore(dayjs(meeting.endDate))) {
                 meeting.live = true;
             }

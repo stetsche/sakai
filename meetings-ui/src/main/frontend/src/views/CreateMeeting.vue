@@ -92,14 +92,15 @@
           </div>
         </div>
       </sakai-accordion-item> -->
-      <sakai-accordion-item title="3. Availability">
+      <sakai-accordion-item title="2. Availability">
         <div class="col-md-4 col-xl-3 pb-4">
           <div class="row align-items-md-end mb-3">
-            <SakaiInputLabelled title="Open Date" type="datetime-local" v-model:value="date_open"/>
+            <SakaiInputLabelled title="Open Date" type="datetime-local" v-model:value="formdata.date_open"/>
           </div>
           <div class="row align-items-md-end mb-3">
-            <SakaiInputLabelled title="Closed Date" type="datetime-local"  v-model:value="date_close"/>
+            <SakaiInputLabelled title="Closed Date" type="datetime-local"  v-model:value="formdata.date_close"/>
           </div>
+<!--
           <div class="row align-items-md-end mb-3">
             <SakaiInputLabelled
               title="Save to Calendar"
@@ -108,8 +109,10 @@
               :items="calendars"
             />
           </div>
+-->
         </div>
       </sakai-accordion-item>
+<!--
       <sakai-accordion-item title="4. Notifications">
         <div class="col-sm-12 col-xl-7 pb-4">
           <div class="sak-banner-info" v-if="notifications.length === 0">
@@ -175,7 +178,9 @@
           </div>
         </div>
       </sakai-accordion-item>
-      <!-- <sakai-accordion-item title="5. Meeting Add-ons">
+-->
+<!--
+      <sakai-accordion-item title="5. Meeting Add-ons">
         <div class="pb-4">
           <div class="d-flex">
             <SakaiInput type="checkbox" />
@@ -183,7 +188,8 @@
           </div>
           <SakaiButton text="Add Poll" :primary="true" class="mt-3" />
         </div>
-      </sakai-accordion-item> -->
+      </sakai-accordion-item>
+-->
     </sakai-accordion>
     <div class="d-flex mt-5">
       <SakaiButton
@@ -348,6 +354,7 @@ export default {
       let saveData = {
         id: this.id,
         title: this.formdata.title,
+        siteId: this.$route.params.siteid,
         description: this.formdata.description,
         startDate: dayjs(this.formdata.date_open).format('YYYY-MM-DDTHH:mm:ss'),
         endDate: dayjs(this.formdata.date_close).format('YYYY-MM-DDTHH:mm:ss')
@@ -411,12 +418,12 @@ export default {
       this.formdata.conf_service = this.conf_service;
     }
     if(this.date_open) {
-      this.formdata.date_open = this.date_open;
+      this.formdata.date_open = dayjs(this.date_open).format('YYYY-MM-DDTHH:mm:ss');
     } else {
       this.formdata.date_open = new Date();
     }
     if(this.date_close) {
-      this.formdata.date_close = this.date_close;
+      this.formdata.date_close = dayjs(this.date_close).format('YYYY-MM-DDTHH:mm:ss');
     }
   }
 };

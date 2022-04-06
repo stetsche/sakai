@@ -1,7 +1,6 @@
 package org.sakaiproject.meetings.controller.data;
 
 import java.io.Serializable;
-import java.time.Instant;
 
 import lombok.Data;
 
@@ -17,6 +16,8 @@ public class MeetingData implements Serializable {
 	private String startDate;
 	private String endDate;
 	private String ownerId;
+	private boolean saveToCalendar;
+	private NotificationType notificationType;
 	private Integer live; 
 	
 }
