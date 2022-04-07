@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label class="mb-1" :for="inputId">{{ title }}</label>
+    <label v-if="!isCheckbox" class="mb-1" :for="inputId">{{ title }}</label>
     <textarea
       v-if="textarea"
       :id="inputId"
@@ -20,11 +20,12 @@
     />
     <SakaiInput
       v-else
+      v-model:value="value"
       :id="inputId"
       :type="type"
       :disabled="disabled"
-      v-model:value="value"
       :required="required"
+      :checklabel="title"
       @input="$emit('update:value', $event.target.value)"
       @validation="$emit('validation', $event)"
     >
@@ -46,11 +47,11 @@ export default {
   data() {
     return {
       inputId: "input",
-    };
+    }
   },
   components: {
     SakaiInput,
-    SakaiSelect,
+    SakaiSelect
   },
   props: {
     title: {
@@ -84,7 +85,12 @@ export default {
       type: Boolean,
       default: false
     },
-  
+
+  },
+  computed: {
+    isCheckbox() {
+      return this.type == 'checkbox';
+    },
   },
   created: function () {
     this.inputId += uuid().substring(8, 13);

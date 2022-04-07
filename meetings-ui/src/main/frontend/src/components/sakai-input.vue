@@ -1,7 +1,7 @@
 <template>
   <div
     :class="[
-      { 'sakai-search': type == 'search' },
+      { 'form-check': type == 'checkbox' },
     ]"
   >
     <slot name="prepend" />
@@ -18,6 +18,7 @@
       :class="inputClasses"
       :required="required"
     />
+    <label v-if="isCheckbox" class="form-check-label" :for="id">{{checklabel}}</label>
     <div v-if="validating && hasValidation" class="invalid-feedback">
       {{validationStatus.message}}
     </div>
@@ -70,12 +71,19 @@ export default {
       type: String,
       default: undefined,
     },
+    checklabel: {
+      type: String,
+      default: undefined,
+    },
     required: {
       type: Boolean,
       default: false
     }
   },
   computed: {
+    isCheckbox() {
+      return this.type == 'checkbox';
+    },
     inputClasses() {
       let classes = [];
       if(this.validating && this.hasValidation && !this.validationStatus.isValid) {
@@ -160,12 +168,13 @@ export default {
 
 <style>
 .sakai-search {
-  min-width: 100px;
   background: var(--sakai-background-color-1);
   border: 1px solid var(--sakai-border-color);
   border-radius: 5px;
-  height: 2.25rem;
   width: 100%;
+}
+.sakai-search .sakai-icon {
+  color:green;
 }
 .sakai-search:focus-within,
 input:focus {
@@ -182,6 +191,9 @@ input {
 }
 ::placeholder {
   color: var(--sakai-text-color-dimmed);
+}
+::placeholder::before {
+  content: 'asd',
 }
 input[type="search"] {
   color: var(--sakai-text-color-1);

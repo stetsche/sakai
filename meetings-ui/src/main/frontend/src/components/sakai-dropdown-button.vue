@@ -4,8 +4,8 @@
       <template #activation>
         <SakaiButton
           @click="handleClick"
-          :aria-controls="id"
           aria-haspopup="true"
+          :aria-controls="id"
           :aria-expanded="expanded ? 'true' : 'false'"
           :text="text"
           :clear="clear"
@@ -20,7 +20,7 @@
           </template>
           <template #append>
             <slot name="append">
-              <sakai-icon
+              <SakaiIcon
                 class="ms-1"
                 :iconkey="expanded ? 'chevron_up' : 'chevron_down'"
               />

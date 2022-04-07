@@ -1,15 +1,15 @@
 <template>
   <div>
-    <span ref="feedback" class="sr-only" aria-live="polite">emty</span>
-    <div class="header-menu d-flex flex-column flex-md-row gap-2 mb-4 div-heigth">
+    <div class="header-menu d-flex flex-column flex-md-row gap-2 div-heigth" :class="editPermission ? 'mb-4' : ''">
       <div class="order-1 me-md-auto">
         <SakaiButton
+          v-if="editPermission"
           text="Create New Meeting"
           @click="handleCreateNewMeeting"
           class="w-100"
         >
           <template #prepend>
-            <sakai-icon class="me-1" iconkey="plus" />
+            <SakaiIcon class="me-1" iconkey="plus" />
           </template>
         </SakaiButton>
       </div>
@@ -19,16 +19,58 @@
         placeholder="Search for meetings"
         class="order-0 order-md-2 w-auto"
         style="min-width: 20%"
+        v-model:value="searchString"
       >
-        <template #prepend>
-          <sakai-icon class="search-icon" iconkey="search" />
-        </template>
       </SakaiInput>
       <SakaiDropdownButton class="order-3" :items="items" text="Options">
       </SakaiDropdownButton>
 -->
     </div>
-    <div v-if="happeningToday.length > 0">
+    <div v-if="searching">
+      <div class="section-heading">
+        <h1 id="flush-headingOne" class="h4">Search results</h1>
+        <hr aria-hidden="true" class="mb-0 mt-2" />
+      </div>
+      <div>
+        <div class="accordion-body p-0 pb-4">
+          <div v-if="searchResult.length === 0" class="sak-banner-info">
+            No results for this search
+          </div>
+          <ul
+            v-else
+            class="
+              list-unstyled
+              row row-cols-1 row-cols-md-2 row-cols-xl-3 row-cols-xxl-4
+              align-content-stretch
+            "
+          >
+            <li
+              class="col pt-4"
+              v-for="meeting in searchResult"
+              :key="meeting.id"
+            >
+              <SakaiMeetingCard
+                class="h-100"
+                :id="meeting.id"
+                :title="meeting.title"
+                :description="meeting.description"
+                :contextTitle="meeting.contextTitle"
+                :participants="meeting.participants"
+                :actions="meeting.actions"
+                :live="meeting.live"
+                :startDate="meeting.startDate"
+                :endDate="meeting.endDate"
+                :editable="editPermission"
+                :url="meeting.url"
+                @onDeleted="handleMeetingDelete"
+              >
+              </SakaiMeetingCard>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div v-if="happeningToday.length > 0 && !searching">
       <div class="section-heading">
         <h1 id="flush-headingOne" class="h4">Today</h1>
         <hr aria-hidden="true" class="mb-0 mt-2" />
@@ -47,7 +89,7 @@
               v-for="meeting in happeningToday"
               :key="meeting.id"
             >
-              <sakai-meeting-card
+              <SakaiMeetingCard
                 class="h-100"
                 :id="meeting.id"
                 :title="meeting.title"
@@ -58,16 +100,17 @@
                 :live="meeting.live"
                 :startDate="meeting.startDate"
                 :endDate="meeting.endDate"
-				:url="meeting.url"
-				@onDeleted="handleMeetingDelete"
+                :editable="editPermission"
+                :url="meeting.url"
+                @onDeleted="handleMeetingDelete"
               >
-              </sakai-meeting-card>
+              </SakaiMeetingCard>
             </li>
           </ul>
         </div>
       </div>
     </div>
-    <div v-if="inFuture.length > 0">
+    <div v-if="inFuture.length > 0 && !searching">
       <div class="section-heading">
         <h1 class="accordion-header h4" id="flush-headingTwo">Future</h1>
         <hr aria-hidden="true" class="mb-0 mt-2" />
@@ -76,7 +119,7 @@
         <ul class="list-unstyled accordion-body p-0 pb-4">
           <li class="row row-cols-1 row-cols-md-2 row-cols-xl-3 row-cols-xxl-4">
             <div class="col pt-4" v-for="meeting in inFuture" :key="meeting.id">
-              <sakai-meeting-card
+              <SakaiMeetingCard
                 class="h-100"
                 :id="meeting.id"
                 :title="meeting.title"
@@ -87,16 +130,17 @@
                 :live="meeting.live"
                 :startDate="meeting.startDate"
                 :endDate="meeting.endDate"
-				:url="meeting.url"
-				@onDeleted="handleMeetingDelete"
+                :editable="editPermission"
+                :url="meeting.url"
+                @onDeleted="handleMeetingDelete"
               >
-              </sakai-meeting-card>
+              </SakaiMeetingCard>
             </div>
           </li>
         </ul>
       </div>
     </div>
-    <div v-if="inPast.length > 0">
+    <div v-if="inPast.length > 0 && !searching">
       <div
         class="section-heading d-flex align-items-end"
       >
@@ -120,7 +164,7 @@
             v-if="inPast.length > 0"
           >
             <li class="col pt-4" v-for="meeting in inPast" :key="meeting.id">
-              <sakai-meeting-card
+              <SakaiMeetingCard
                 class="h-100"
                 :id="meeting.id"
                 :title="meeting.title"
@@ -131,9 +175,10 @@
                 :live="meeting.live"
                 :startDate="meeting.startDate"
                 :endDate="meeting.endDate"
+                :editable="editPermission"
                 @onDeleted="handleMeetingDelete"
               >
-              </sakai-meeting-card>
+              </SakaiMeetingCard>
             </li>
           </ul>
         </div>
@@ -142,7 +187,6 @@
   </div>
 </template>
 <script>
-import dayjs from "dayjs";
 import SakaiMeetingCard from "../components/sakai-meeting-card.vue";
 import SakaiInput from "../components/sakai-input.vue";
 import SakaiButton from "../components/sakai-button.vue";
@@ -151,6 +195,9 @@ import SakaiIcon from "../components/sakai-icon.vue";
 import dbData from "../../data/db.json";
 import constants from "../resources/constants.js";
 
+import dayjs from "dayjs";
+import isTodayPlugin from "dayjs/plugin/isToday";
+dayjs.extend(isTodayPlugin)
 // eslint-disable-next-line
 
 export default {
@@ -164,7 +211,7 @@ export default {
   data() {
     return {
       meetingsList: [],
-      alert:"abc",
+      searchString: '',
       btnPress1: false,
       btnPress2: false,
       items: [
@@ -202,7 +249,6 @@ export default {
       this.$router.push({ name: "EditMeeting" });
     },
     handleTemplates: function () {
-      this.$refs.feedback.innerHTML = "Here will be a menu to work with meeting templates";
     },
     handleMeetingDelete: function (id) {
       if (id) {
@@ -210,13 +256,10 @@ export default {
       }
     },
     handleMeetingEdit: function () {
-      this.$refs.feedback.innerHTML = "Meetings are not editable yet, but the action would be triggered now";
     },
     handleShowAll: function () {
-      this.$refs.feedback.innerHTML = "Displaying all past meetings";
     },
     handleShowRecordings: function () {
-      this.$refs.feedback.innerHTML = "Displaying past meetings with recordings";
     },
     loadMeetingsList: function () {
       fetch(constants.toolPlacement + "/meeting/all")
@@ -234,34 +277,55 @@ export default {
             }
         });
         this.meetingsList = [...data];
+        console.log(this.meetingsList)
       })
       .catch (error => console.error(error));
+    },
+    meetingsComperator(a,b) {
+      return dayjs(a.startDate).isBefore(b.startDate) ? -1 : 1;
+    },
+    loadEditPermission() {
+      //TODO fetch permissions from editperms endpoint 
+      this.editPermission =  true;
     },
     switchtheme: function () {
     },
   },
   computed: {
     happeningToday: function () {
+      //Filter meetingsList for meetings that happen today, and are not over
       return this.meetingsList.filter(
         (meeting) =>
-          dayjs().isSame(dayjs(meeting.startDate), "day") || meeting.live
-      );
+          dayjs(meeting.startDate).isToday() && dayjs(meeting.endDate).isAfter(dayjs()) || meeting.live
+      ).sort(this.meetingsComperator);
     },
     inPast: function () {
       return this.meetingsList.filter(
         (meeting) =>
-          dayjs().isAfter(dayjs(meeting.startDate), "day") && !meeting.live
-      );
+          dayjs(meeting.startDate).isBefore(dayjs()) && !meeting.live
+      ).sort(this.meetingsComperator);
     },
     inFuture: function () {
       return this.meetingsList.filter(
         (meeting) =>
           dayjs().isBefore(dayjs(meeting.startDate), "day") && !meeting.live
+      ).sort(this.meetingsComperator);
+    },
+    searching: function () {
+      return this.searchString !== '';
+    },
+    searchResult: function () {
+      let searchString = this.searchString;
+      if (!this.searching) { return [] }
+      return this.meetingsList.filter(
+        (meeting) =>
+          meeting.title.search(searchString) > -1 || meeting.description.search(searchString) > -1
       );
     },
   },
   mounted: function () {
     this.loadMeetingsList();
+    this.loadEditPermission();
   },
 };
 </script>

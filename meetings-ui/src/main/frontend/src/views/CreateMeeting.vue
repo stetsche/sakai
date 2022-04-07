@@ -1,13 +1,22 @@
 <template>
   <div>
-    <sakai-accordion>
-      <sakai-accordion-item title="1. Meeting Information" :open="true">
+    <SakaiAccordion>
+      <SakaiAccordionItem title="1. Meeting Information" :open="true">
         <div class="pb-4">
           <div class="col-md-4 col-xl-3">
-            <SakaiInputLabelled title="Meetings Title" v-model:value="formdata.title" :required="true" @validation="setValidation('title', $event)"/>
+            <SakaiInputLabelled
+              title="Meetings Title"
+              v-model:value="formdata.title"
+              :required="true"
+              @validation="setValidation('title', $event)"
+            />
           </div>
           <div class="col-md-8 col-xl-5 mt-3">
-            <SakaiInputLabelled title="Description" textarea="true" v-model:value="formdata.description"/>
+            <SakaiInputLabelled
+              title="Description"
+              textarea="true"
+              v-model:value="formdata.description"
+            />
           </div>
           <div class="col-md-4 col-xl-3">
             <!--
@@ -50,8 +59,8 @@
             -->
           </div>
         </div>
-      </sakai-accordion-item>
-      <!-- <sakai-accordion-item title="2. Participants">
+      </SakaiAccordionItem>
+      <!-- <SakaiAccordionItem title="2. Participants">
         <div class="pb-4">
           <div class="row">
             <div class="col-md-4 col-xl-3">
@@ -91,29 +100,36 @@
             </div>
           </div>
         </div>
-      </sakai-accordion-item> -->
-      <sakai-accordion-item title="2. Availability">
+      </SakaiAccordionItem> -->
+      <SakaiAccordionItem title="2. Availability">
         <div class="col-md-4 col-xl-3 pb-4">
           <div class="row align-items-md-end mb-3">
-            <SakaiInputLabelled title="Open Date" type="datetime-local" v-model:value="formdata.date_open"/>
+            <SakaiInputLabelled
+              title="Open Date"
+              type="datetime-local"
+              v-model:value="formdata.date_open"
+            />
           </div>
-          <div class="row align-items-md-end mb-3">
-            <SakaiInputLabelled title="Closed Date" type="datetime-local"  v-model:value="formdata.date_close"/>
-          </div>
-<!--
           <div class="row align-items-md-end mb-3">
             <SakaiInputLabelled
-              title="Save to Calendar"
-              select="true"
-              value="calendar_google"
-              :items="calendars"
+              title="Closed Date"
+              type="datetime-local"
+              v-model:value="formdata.date_close"
+            />
+          </div>
+          <!--
+          <div class="row align-items-md-end mb-3">
+            <SakaiInputLabelled
+              title="Add meeting to calendar"
+              v-model="formdata.addToCalendar"
+              type="checkbox"
             />
           </div>
 -->
         </div>
-      </sakai-accordion-item>
-<!--
-      <sakai-accordion-item title="4. Notifications">
+      </SakaiAccordionItem>
+      <!--
+      <SakaiAccordionItem title="4. Notifications">
         <div class="col-sm-12 col-xl-7 pb-4">
           <div class="sak-banner-info" v-if="notifications.length === 0">
             Currently no notifications specified
@@ -123,7 +139,7 @@
             v-for="notification in notifications"
             :key="notification.id"
           >
-            <sakai-input-labelled
+            <SakaiInputLabelled
               :select="true"
               :title="notification.notificationTypes.label"
               :items="notification.notificationTypes.options"
@@ -131,13 +147,13 @@
               class="w-100"
             />
             <div class="d-flex flex-row gap-3 align-items-end w-100">
-              <sakai-input
+              <SakaiInput
                 arialabel="Number of days, minutes or hours to notify"
                 v-model.number="notification.frequency.times"
                 type="number"
                 style="max-width: 3rem"
               />
-              <sakai-input-labelled
+              <SakaiInputLabelled
                 :select="true"
                 :title="notification.frequency.label"
                 :items="notification.frequency.options"
@@ -177,10 +193,10 @@
             </div>
           </div>
         </div>
-      </sakai-accordion-item>
--->
-<!--
-      <sakai-accordion-item title="5. Meeting Add-ons">
+      </SakaiAccordionItem>
+      -->
+      <!--
+      <SakaiAccordionItem title="5. Meeting Add-ons">
         <div class="pb-4">
           <div class="d-flex">
             <SakaiInput type="checkbox" />
@@ -188,9 +204,9 @@
           </div>
           <SakaiButton text="Add Poll" :primary="true" class="mt-3" />
         </div>
-      </sakai-accordion-item>
+      </SakaiAccordionItem>
 -->
-    </sakai-accordion>
+    </SakaiAccordion>
     <div class="d-flex mt-5">
       <SakaiButton
         text="Save"
@@ -232,8 +248,9 @@ export default {
         title: "",
         description: "",
         conf_service: "",
-        date_open: undefined,
-        date_close: undefined,
+        save_to_calendar: "",
+        date_open: dayjs().format("YYYY-MM-DDTHH:mm:ss"),
+        date_close: dayjs().add(1, "hour").format("YYYY-MM-DDTHH:mm:ss"),
       },
       notifications: [],
       notificationTemplate: {
@@ -288,63 +305,54 @@ export default {
         },
       ],
       selectedParticipants: [],
-      calendars: [
-        {
-          string: "Google Calendar",
-          value: "calendar_google",
-        },
-        {
-          string: "Microsoft Outlook",
-          value: "calendar_outlook",
-        },
-      ],
       confServ: [
-          {
-            string: "Microsoft Teams",
-            value: "microsoft_teams",
-          }
+        {
+          string: "Microsoft Teams",
+          value: "microsoft_teams",
+        },
       ],
       partType: [
-          {
-            string: "All Site Members",
-            value: "all_site_members",
-          },
-          {
-            string: "Role",
-            value: "role",
-          },
-          {
-            string: "Selections/Groups",
-            value: "sections_or_groups",
-          },
-          {
-            string: "Users",
-            value: "users",
-          },
+        {
+          string: "All Site Members",
+          value: "all_site_members",
+        },
+        {
+          string: "Role",
+          value: "role",
+        },
+        {
+          string: "Selections/Groups",
+          value: "sections_or_groups",
+        },
+        {
+          string: "Users",
+          value: "users",
+        },
       ],
-      validations: { title: false }
+      validations: { title: false },
     };
   },
   props: {
-      id: { type: String, default: undefined },
-      title: { type: String, default: undefined },
-      description: { type: String, default: undefined },
-      conf_service: { type: String, default: "microsoft_teams" },
-      date_open: {
-        validator: function (value) {
-          return dayjs(value).isValid();
-        },
+    id: { type: String, default: undefined },
+    title: { type: String, default: "" },
+    description: { type: String, default: "" },
+    conf_service: { type: String, default: "microsoft_teams" },
+    save_to_calendar: { type: String, default: true },
+    date_open: {
+      validator: function (value) {
+        return dayjs(value).isValid();
       },
-      date_close: {
-        validator: function (value) {
-          return dayjs(value).isValid();
-        },
-      }
+    },
+    date_close: {
+      validator: function (value) {
+        return dayjs(value).isValid();
+      },
+    },
   },
   computed: {
     allValid() {
       return !Object.values(this.validations).includes(false);
-    }
+    },
   },
   methods: {
     setValidation(field, valid) {
@@ -356,32 +364,37 @@ export default {
         title: this.formdata.title,
         siteId: this.$route.params.siteid,
         description: this.formdata.description,
-        startDate: dayjs(this.formdata.date_open).format('YYYY-MM-DDTHH:mm:ss'),
-        endDate: dayjs(this.formdata.date_close).format('YYYY-MM-DDTHH:mm:ss')
+        startDate: dayjs(this.formdata.date_open)
+          .subtract(portal.user.offsetFromServerMillis, "millis")
+          .format("YYYY-MM-DDTHH:mm:ss"),
+        endDate: dayjs(this.formdata.date_close)
+          .subtract(portal.user.offsetFromServerMillis, "millis")
+          .format("YYYY-MM-DDTHH:mm:ss"),
       };
       let methodToCall = constants.toolPlacement;
-      let restMethod = 'POST';
+      let restMethod = "POST";
       if (this.id) {
-          methodToCall = methodToCall + '/meeting/' + this.id;
-          restMethod = 'PUT';
+        methodToCall = methodToCall + "/meeting/" + this.id;
+        restMethod = "PUT";
       } else {
-          methodToCall = methodToCall + '/meeting';
+        methodToCall = methodToCall + "/meeting";
       }
       // Invoke REST Controller - Save (POST or PUT)
       fetch(methodToCall, {
-        credentials: 'include',
+        credentials: "include",
         method: restMethod,
         cache: "no-cache",
         headers: { "Content-Type": "application/json; charset=utf-8" },
-        body: JSON.stringify(saveData)
-      }).then(res => res.json())
-      .then(data => {
-    	 this.$router.push({ name: "Main" });
+        body: JSON.stringify(saveData),
       })
-      .catch(error => console.error('Error:', error))
-      .then(response => console.log('Success:', response));
+        .then((res) => res.json())
+        .then((data) => {
+          this.$router.push({ name: "Main" });
+        })
+        .catch((error) => console.error("Error:", error))
+        .then((response) => console.log("Success:", response));
     },
-    handleCancel: function () {
+    handleCancel() {
       this.$router.push({ name: "Main" });
     },
     createRoom(participants) {
@@ -404,28 +417,33 @@ export default {
       if (index > -1) {
         this.notifications.splice(index, 1);
       }
-    }
+    },
   },
   created() {
-    if(this.title) {
+    if (this.title) {
       this.validations.title = true;
       this.formdata.title = this.title;
     }
-    if(this.description) {
+    if (this.description) {
       this.formdata.description = this.description;
     }
-    if(this.conf_service) {
+    if (this.conf_service) {
       this.formdata.conf_service = this.conf_service;
     }
-    if(this.date_open) {
-      this.formdata.date_open = dayjs(this.date_open).format('YYYY-MM-DDTHH:mm:ss');
-    } else {
-      this.formdata.date_open = new Date();
+    if (this.saveToCalendar) {
+      this.formdata.saveToCalendar = this.save_to_calendar;
     }
-    if(this.date_close) {
-      this.formdata.date_close = dayjs(this.date_close).format('YYYY-MM-DDTHH:mm:ss');
+    if (this.date_open) {
+      this.formdata.date_open = dayjs(this.date_open)
+        .add(portal.user.offsetFromServerMillis, "millis")
+        .format("YYYY-MM-DDTHH:mm:ss");
     }
-  }
+    if (this.date_close) {
+      this.formdata.date_close = dayjs(this.date_close)
+        .add(portal.user.offsetFromServerMillis, "millis")
+        .format("YYYY-MM-DDTHH:mm:ss");
+    }
+  },
 };
 </script>
 <style></style>

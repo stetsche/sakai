@@ -4,11 +4,12 @@
       <div class="mt-1 mb-2 contextTitle">{{ contextTitle }}</div>
       <h2 id="title" class="card-title" :title="title">{{ title }}</h2>
     <SakaiDropdownButton
+      v-if="showMenu" 
       :items="menuitems"
-      class="card-menu"
       :circle="true"
       :clear="true"
       :textHidden="true"
+      class="card-menu"
       text="Options"
     >
       <template #append>
@@ -67,7 +68,7 @@
         :length="maxAvatars"
       ></sakai-avatar-list>
     </div>
-    <div class="card-body p-0 d-flex">
+    <div v-if="showCardBody" class="card-body p-0 d-flex">
       <div class="action-list d-flex">
         <div v-for="action in actions" :key="action.icon">
           <sakai-button
@@ -86,10 +87,10 @@
       <div class="ms-auto p-1">
         <slot name="right"> </slot>
         <sakai-button
-          v-if="currentStatus != status.over"
+          v-if="showJoinButton"
           :disabled="!live"
           :primary="true"
-		  @click="joinMeeting"
+          @click="joinMeeting"
           text="Join Meeting"
         >
         </sakai-button>
@@ -143,17 +144,21 @@ import SakaiAvatarList from "./sakai-avatar-list.vue";
 import SakaiIcon from "./sakai-icon.vue";
 import SakaiButton from "./sakai-button.vue";
 import SakaiDropdownButton from "./sakai-dropdown-button.vue";
+import SakaiModal from "./sakai-modal.vue";
+
+import constants from "../resources/constants.js";
 
 import dayjs from "dayjs";
-import localizedFormat from "dayjs/plugin/localizedFormat";
-import relativeTime from "dayjs/plugin/relativeTime";
-import SakaiModal from "./sakai-modal.vue";
-import constants from "../resources/constants.js";
-//import locale_es from 'dayjs/locale/es';
+import relativeTimePlugin from "dayjs/plugin/relativeTime";
+import localizedFormatPlugin from "dayjs/plugin/localizedFormat";
+import utcPlugin from "dayjs/plugin/utc";
+import timezonePlugin from "dayjs/plugin/timezone";
 
-dayjs.extend(relativeTime);
-dayjs.extend(localizedFormat);
-//dayjs.locale(locale_es);
+dayjs.extend(relativeTimePlugin);
+dayjs.extend(localizedFormatPlugin);
+dayjs.extend(utcPlugin);
+dayjs.extend(timezonePlugin);
+
 export default {
   components: {
     SakaiAvatar,
@@ -175,12 +180,13 @@ export default {
     };
   },
   props: {
-	id: { type: String, default: undefined },
+    id: { type: String, default: undefined },
     title: { type: String, default: undefined },
     contextTitle: { type: String, default: undefined },
     description: { type: String, default: undefined },
     live: { type: Boolean, default: false },
-	url: { type: Boolean, default: undefined },
+    url: { type: Boolean, default: undefined },
+    editable: { type: Boolean, default: false },
     maxAvatars: {
       default: 5,
       validator: function (value) {
@@ -199,11 +205,12 @@ export default {
     },
     participants: { type: Array, default: new Array() },
     actions: { type: Array, default: new Array() },
+    actions: { type: Boolean, default: false },
   },
   computed: {
     schedule: function () {
-      let start = dayjs(this.startDate);
-      let end = dayjs(this.endDate);
+      let start = dayjs(this.startDate).add(portal.user.offsetFromServerMillis,'millis');
+      let end = dayjs(this.endDate).add(portal.user.offsetFromServerMillis,'millis');
       let startTextFormat;
       let endTextFormat;
       if (dayjs().isSame(start, "year")) {
@@ -276,6 +283,16 @@ export default {
     },
     menuitems: function () { 
     	return [{ "string": "Edit", "icon": "edit", "action": this.editMeeting }, { "string": "Delete", "icon": "delete", "action": this.deleteMeeting }];
+    },
+    showMenu: function () {
+      return this.editable;
+    },
+    showJoinButton: function () {
+      return this.currentStatus != this.status.over; 
+    },
+    showCardBody: function () {
+      let actionsShown = this.actions && this.actions.length > 0;
+      return actionsShown || this.showJoinButton;
     },
     shownParticipants: function () {
       let maxAvatars = Math.round(this.maxAvatars);
