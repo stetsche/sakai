@@ -7,7 +7,7 @@
 *#    
     #if ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle )
 
-        #parse("/vm/portal/includePageNav.vm")
+        #parse("/vm/portal/includeNewSiteNav.vm")
 
     #else 
 
@@ -17,9 +17,9 @@
 #* TODO: decide - Trinity chopping block
     <div class="Mrphs-pagebody px-3">
 
-        #parse("/vm/portal/snippets/siteStatus-snippet.vm")
+        #parse("/vm/trinity/snippets/siteStatus-snippet.vm")
 
-        #parse("/vm/portal/includeSiteHierarchy.vm")
+        #parse("/vm/trinity/includeSiteHierarchy.vm")
 *#
         #parse("/vm/portal/includePageBody.vm")
 #* TODO: decide - Trinity chopping block

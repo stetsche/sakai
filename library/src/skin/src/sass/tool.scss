@@ -95,6 +95,8 @@ $success: #7952b3;
 
 @import "icon-list";
 
+@import "modules/tool/portal";
+
 body {
   //padding: 1.5rem;
 }
@@ -121,6 +123,7 @@ body {
   }
   .sakai-navSidebar.sakai-navSidebar {
     visibility: visible;
+    background-color: var(--bs-gray-200);
     box-shadow: none;
     transform: none;
   }

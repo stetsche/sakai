@@ -1,0 +1,291 @@
+<!-- START VM includePageNav.vm -->
+
+#macro(toolLink $url $current $tab $popup $subsite)
+    <li class="list-group-item #if ($current)is-current active#{end}">
+        <a class="Mrphs-toolsNav__menuitem--link #if (${page.hidden} || ${page.locked})is-invisible#{end} #if ($current)list-group-item-action#{end}""
+            #if ($tab || $popup)
+                href="javascript:;"
+                #if ($tab)
+                onclick="window.open('${url}')"
+                #else
+                onclick="window.open('${url}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=1024,height=768')"
+                #{end}
+            #else
+                href="$url"
+            #{end}
+            #if ($subsite)
+            title="${rloader.subsite} ${site.fullTitle}"
+            #else
+            title="${page.pageTitle} - ${page.description}"
+            #{end}
+            #if ($current)
+            aria-current="page"
+            #{end}
+        >
+        <div class="Mrphs-toolsNav__menuitem--icon ${page.menuClass} $!{page.menuClassOverride} #if ($current)icon-active#{end} #if ($subsite)${sitePages.subsiteClass}#{end}"></div>
+            #if ($subsite)
+            <div class="Mrphs-toolsNav__menuitem--title">${rloader.subsite} ${site.siteTitle}</div>
+            #else
+            <div class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</div>
+            #{end}
+            <div class="Mrphs-toolsNav__menuitem--status-block">
+                #if (${page.hidden} && !${page.locked})
+                <div class="fa fa-eye-slash tool-status-icon"
+                    role="note"
+                    title="${rloader.site_tool_hidden_tooltip}"
+                    aria-label="${rloader.site_tool_hidden_tooltip}"></div>
+                #{end}
+                #if (${page.locked})
+                <div class="fa fa-lock tool-status-icon"
+                    role="note"
+                    title="${rloader.site_tool_locked_tooltip}"
+                    aria-label="${rloader.site_tool_locked_tooltip}"></div>
+                #{end}
+            </div>
+        </a>
+    </li>
+#end
+
+#macro(siteExample $velocityCount $siteId $fullTitle)
+
+            <li class="site-list-item mb-1">
+                <div class="site-list-item-head d-flex align-items-stretch pe-2">
+                    <button class="btn btn-nav btn-site rounded-end text-start collapsed border-0 me-1 d-flex flex-grow-1" data-bs-toggle="collapse" data-bs-target="#site-${velocityCount}-pages" aria-expanded="false" aria-controls="site-${velocityCount}-pages">
+                        <i class="btn-site-carret" aria-hidden="true"></i><span>${fullTitle}</span>
+                    </button>
+                    <button data-pin-site="${siteId}" data-pinned="true" title="Unpin site" class="site-opt-pin btn btn-site-opt bi bi-pin-fill"></button>
+                </div>
+                <div id="site-${velocityCount}-pages" class="site-list-item-collapse collapse">
+                    <p class="site-desc text-truncate fst-italic ps-4 pt-2 mb-0">Short site description</p>
+                    <ul class="site-page-list nav flex-column py-1">
+                        <li class="nav-item"><a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-speedometer2" aria-hidden="true"></i>Dashboard</a></li>
+                        <li class="nav-item"><a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-megaphone" aria-hidden="true"></i>Announcements</a></li>
+                        <li class="nav-item"><a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-newspaper" aria-hidden="true"></i>Assignments</a></li>
+                        <li class="nav-item">
+                            <div class="d-inline-flex align-items-stretch">
+                                <button class="btn btn-nav btn-subsite rounded-end text-start collapsed border-0 ps-4" data-bs-toggle="collapse" data-bs-target="#site-${velocityCount}-lessons" aria-expanded="false" aria-controls="site-${velocityCount}-lessons">
+                                    <i class="btn-site-carret" aria-hidden="true"></i><span>Lessons</span>
+                                </button>
+                            </div>
+                            <div id="site-${velocityCount}-lessons" class="collapse">
+                                <ul class="nav flex-column pe-2">
+                                    <li class="nav-item">
+                                        <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-book" aria-hidden="true"></i>Main View</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Part 0</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Part 1</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Part 2</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Part 3</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="nav-item"><a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-card-text" aria-hidden="true"></i>Tests & Quizzes</a></li>
+                        <li class="nav-item">
+                            <div class="d-inline-flex align-items-stretch">
+                                <button class="btn btn-nav btn-subsite rounded-end text-start collapsed border-0 ps-4" data-bs-toggle="collapse" data-bs-target="#site-${velocityCount}-subpages" aria-expanded="false" aria-controls="site-${velocityCount}-subpages">
+                                    <i class="btn-site-carret" aria-hidden="true"></i>Subsites
+                                </button>
+                            </div>
+                            <div id="site-${velocityCount}-subpages" class="collapse">
+                                <ul class="nav flex-column">
+                                    <li class="nav-item">
+                                        <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Subsite 1</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Subsite 2</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Subsite 3</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="nav-item"><a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-gear" aria-hidden="true"></i>Site Settings</a></li>
+                    </ul>
+                </div>
+            </li>
+#end
+
+#macro(siteActual $index $site)
+<li class="site-list-item mb-1">
+    <div class="site-list-item-head d-flex align-items-stretch pe-2">
+        <button class="btn btn-nav btn-site rounded-end text-start collapsed border-0 me-1 d-flex flex-grow-1" data-bs-toggle="collapse" data-bs-target="#site-${index}-pages" aria-expanded="false" aria-controls="site-${index}-pages">
+            <i class="btn-site-carret" aria-hidden="true"></i><span>${site.fullTitle}</span>
+        </button>
+        <button data-pin-site="${site.siteId}" data-pinned="true" title="Unpin site" class="site-opt-pin btn btn-site-opt bi bi-pin-fill"></button>
+    </div>
+    <div id="site-${index}-pages" class="site-list-item-collapse collapse">
+        <p class="site-desc text-truncate fst-italic ps-4 pt-2 mb-0">Short site description</p>
+        <ul class="site-page-list nav flex-column py-1">
+            <li class="nav-item"><a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-speedometer2" aria-hidden="true"></i>Dashboard</a></li>
+            <li class="nav-item"><a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-megaphone" aria-hidden="true"></i>Announcements</a></li>
+            <li class="nav-item"><a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-newspaper" aria-hidden="true"></i>Assignments</a></li>
+            <li class="nav-item">
+                <div class="d-inline-flex align-items-stretch">
+                    <button class="btn btn-nav btn-subsite rounded-end text-start collapsed border-0 ps-4" data-bs-toggle="collapse" data-bs-target="#site-${index}-lessons" aria-expanded="false" aria-controls="site-${index}-lessons">
+                        <i class="btn-site-carret" aria-hidden="true"></i><span>Lessons</span>
+                    </button>
+                </div>
+                <div id="site-${index}-lessons" class="collapse">
+                    <ul class="nav flex-column pe-2">
+                        <li class="nav-item">
+                            <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-book" aria-hidden="true"></i>Main View</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Part 0</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Part 1</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Part 2</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Part 3</a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item"><a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-card-text" aria-hidden="true"></i>Tests & Quizzes</a></li>
+            <li class="nav-item">
+                <div class="d-inline-flex align-items-stretch">
+                    <button class="btn btn-nav btn-subsite rounded-end text-start collapsed border-0 ps-4" data-bs-toggle="collapse" data-bs-target="#site-${index}-subpages" aria-expanded="false" aria-controls="site-${index}-subpages">
+                        <i class="btn-site-carret" aria-hidden="true"></i>Subsites
+                    </button>
+                </div>
+                <div id="site-${index}-subpages" class="collapse">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Subsite 1</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Subsite 2</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Subsite 3</a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item"><a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-gear" aria-hidden="true"></i>Site Settings</a></li>
+        </ul>
+    </div>
+</li>
+#end
+
+#* TODO: decide - Trinity chopping block
+<div id="toolMenuWrap" class="Mrphs-container Mrphs-container--nav-tools sakai-navSidebar mt-3" #if($scrollingToolbarEnabled) scrollingToolbarEnabled #end>
+*#
+<aside id="sakai-navSidebar" class="sakai-navSidebar offcanvas offcanvas-start border-end" tabindex="-1" data-bs-backdrop="false" aria-labelledby="">
+#if ($sitePages.siteHTMLInclude)
+    <div id="siteHTMLInclude" class="Mrphs-siteHTMLInclude">
+        $sitePages.siteHTMLInclude
+    </div>
+#end ## END of IF ($sitePages.siteHTMLInclude)
+
+<!--Added this check in to make sure that we just don't have an empty img element in the page. -->
+#if(${sitePages.pageNavIconUrl} != "")
+    <img src="${sitePages.pageNavIconUrl}" alt="${rloader.sit_icon_alt}" class="img_site_toolmenu">
+#end
+#* TODO: decide - Trinity chopping block
+    <div id="toolSubsitesContainer">
+*#
+
+<style>
+.site-row {
+    background-color: lightblue;
+}
+</style>
+    <nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu sakai-sitesAndToolsNav">
+        <h2 class="skip visually-hidden" tabindex="-1" id="totoolmenu">${rloader.sit_toolshead}</h2>
+
+#if (${userIsLoggedIn})
+        <h2 class="mb-2 pt-3 ps-3 fs-5">Current Site</h2>
+        <ul class="mb-0 list-unstyled">
+            #siteExample("1234", "12341234", "Cool Site")
+        </ul>
+        <h2 class="mb-2 pt-3 ps-3 fs-5">Pinned Sites</h2>
+    #foreach ( $site in $tabsSites.tabsSites )
+        <ul class="mb-0 list-unstyled">
+        #if (${site.favorite} == "true" || ${site.isCurrentSite} || !${userIsLoggedIn})
+        #siteActual( $velocityCount, $site)
+        #end
+    #end
+        <h2 class="mb-2 pt-3 ps-3 fs-5">Most recent Sites</h2>
+        <ul class="mb-0 list-unstyled">
+            #siteExample("124", "123414", "This one")
+            #siteExample("234", "121234", "That one")
+            #siteExample("134", "141234", "Another one")
+        </ul>
+#end
+#*
+          <ul class="sakai-pinnedSites mb-0 list-unstyled">
+            <li id="site-list-item" class="my-2 me-1">
+              <div class="d-inline-flex align-items-stretch" >
+                <button class="btn btn-nav d-inline-flex align-items-center collapsed" data-bs-toggle="collapse" data-bs-target="#sakai-pinnedSite1" aria-expanded="false" aria-controls="sakai-pinnedSite1">NURSING 380 001 SP22</button>
+                <button id="pin" class="btn btn-pin bi bi-pin-fill d-inline-flex align-items-center">
+                </button>
+              </div>
+              <div id="sakai-pinnedSite1" class="collapse">
+                <ul class="nav flex-column">
+                  <li class="nav-item"><a class="nav-link ps-5" href="#">Dashboard</a></li>
+                  <li class="nav-item"><a class="nav-link ps-5" href="#">Announcements</a></li>
+                  <li class="nav-item"><a class="nav-link ps-5" href="#">Assignments</a></li>
+                  <li class="nav-item"><a class="nav-link ps-5" href="#">Tests & Quizzes</a></li>
+                  <li class="nav-item"><a class="nav-link ps-5" href="#">Site Settings</a></li>
+                </ul>
+              </div>
+            </li>
+            </ul>
+        <ul class="nav flex-column">
+*#
+    </ul>
+</nav>
+
+#if ( $subSites )
+
+    <nav id="subSites" #if ($showSubsitesAsFlyout) class="is-hidden d-none"#end>
+            <ul>
+
+                #foreach ( $site in $subSites )
+                    #toolLink("${site.siteUrl}", false, false, false, true)
+                #end ## END of FOREACH ( $site in $subSites )
+
+            </ul>
+    </nav>
+
+#end ## END of IF ( $subSites )
+#* TODO: decide - Trinity chopping block (if opening tag is removed above)
+    </div>
+*#
+
+    #if (${sitePages.additionalLessonsPages})
+        <script src="/library/js/lessons-subnav.js$!{portalCDNQuery}"></script>
+        <script>
+            sakai = window.sakai || {};
+            sakai.lessons_subnav = new LessonsSubPageNavigation($sitePages.additionalLessonsPages);
+        </script>
+    #end
+</aside>
+<script>
+const sidebarNavElement = document.getElementById("toolMenu");
+const siteSidebarConfig = {
+    i18n: {
+        pinButtons: {
+            titlePin: "Pin site",
+            titleUnpin: "Unpin site"
+        }
+    }
+};
+const siteSidebar = new SitesSidebar(sidebarNavElement, siteSidebarConfig);
+console.log(siteSidebar);
+</script>
+<!-- END VM includePageNav.vm -->

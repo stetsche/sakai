@@ -1,0 +1,56 @@
+.btn-nav,
+.btn-site-opt {
+  &:hover,
+  &:focus {
+    background-color: #c7d5dd;
+  }
+  &:active {
+    background-color: #a6bcca;
+  }
+}
+
+.btn-nav {
+  border-radius: 0;
+}
+
+.btn-site {
+  font-weight: 550;
+}
+
+.btn-site-carret {
+  &::before {
+    display: inline-flex;
+    width: 1.25em;
+    margin-inline-end: 0.25rem;
+    line-height: 0;
+    content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='rgba%280,0,0,.5%29' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 14l6-6-6-6'/%3e%3c/svg%3e");
+    transition: transform 0.35s ease;
+    transform-origin: 0.5em 50%;
+  }
+}
+
+.btn-site,
+.btn-subsite {
+  &[aria-expanded="true"] .btn-site-carret::before {
+    transform: rotate(90deg);
+  }
+}
+
+/* .site-page-list { */
+.site-list-item-collapse {
+  background-color: var(--bs-gray-100);
+}
+
+.site-desc {
+  font-style: italic;
+}
+
+.site-list-item {
+  .btn-site-opt {
+    color: transparent;
+  }
+  &:hover .btn-site-opt,
+  &:focus-within .btn-site-opt {
+    color: #000;
+  }
+}
