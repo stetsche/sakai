@@ -204,6 +204,7 @@ body {
   height: 100%;
   overflow-y: auto;
   overscroll-behavior: contain; // prevent the whole page scrolling when scrolling past the bottom of the sites and tools list
+  scrollbar-gutter: stable;
 }
 .sakai-sitesAndToolsNav .active .list-group-item-action {
   font-weight: 700;
