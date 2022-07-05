@@ -459,11 +459,11 @@
 									<fileSets>
 										<fileSet>
 											<sourceFile>${sakai.skin.customization.scss.lib}</sourceFile>
-											<destinationFile>${basedir}/src/${sakai.skin.source}/sass/_customization-lib.scss</destinationFile>
+											<destinationFile>${basedir}/src/${sakai.skin.source}/src/sass/_customization-lib.scss</destinationFile>
 										</fileSet>
 										<fileSet>
 											<sourceFile>${sakai.skin.customization.scss.main}</sourceFile>
-											<destinationFile>${basedir}/src/${sakai.skin.source}/sass/_customization-main.scss</destinationFile>
+											<destinationFile>${basedir}/src/${sakai.skin.source}/src/sass/_customization-main.scss</destinationFile>
 										</fileSet>
 										</fileSets>
 								</configuration>
@@ -541,7 +541,7 @@
 								</goals>
 								<configuration>
 									<arguments>
-										run -dd build
+										run build
 									</arguments>
 								</configuration>
 							</execution>
