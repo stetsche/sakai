@@ -83,90 +83,113 @@ $success: #7952b3;
 // Utilities
 @import "bootstrap/scss/utilities/api";
 
+
+//Bootstrap icons
+@import "bootstrap-icons/font/bootstrap-icons";
+
+//Fontawsome icons
+$fa-font-path: "./fonts";
+@import "font-awesome/scss/font-awesome";
+
+//Tools
+@import "modules/tool/portal";
+
 //
 // Custom styles
 //
 
 @import "icon-list";
 
-body {
-  //padding: 1.5rem;
-}
-sui-button sui-icon {
-  margin-right: .25em;
-}
-
 
 //
 // Custom styles that need to be relocated
 //
 :root {
-  --sakai-navSidebar: 16rem;
+  --portal-nav-sidebar: 16rem;
   --sakai-headerHeight: 4rem;
 }
-.sakai-portalContainer {
+.portal-container {
   display: grid;
-  grid-template-columns: auto;
-  grid-template-rows: var(--sakai-headerHeight) auto var(--sakai-headerHeight);
-  grid-template-areas: "header" "main" "mobilebar";
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto var(--sakai-headerHeight) 1fr var(--sakai-headerHeight);
+  grid-template-areas: "paBanner" "jumpLinks" "header" "mainContainer" "mobilebar";
 }
+
 @include media-breakpoint-up(md) {
-  .sakai-portalContainer {
-    display: grid;
-    grid-template-columns: var(--sakai-navSidebar) auto;
-    grid-template-rows: var(--sakai-headerHeight) auto;
-    grid-template-areas: "header header" "toolbar main";
+  .portal-container {
+    grid-template-columns: var(--portal-nav-sidebar) 1fr;
+    grid-template-rows: auto auto var(--sakai-headerHeight) 1fr;
+    grid-template-areas: "paBanner paBanner" "jumpLinks jumpLinks" "header header" "toolbar mainContainer";
+    &.sidebar-collapsed {
+      grid-template-areas: "paBanner paBanner" "jumpLinks jumpLinks" "header header" "mainContainer mainContainer";
+    }
   }
-  .sakai-navSidebar.sakai-navSidebar {
+  .portal-nav-sidebar {
+    //height: calc(100vh - var(--sakai-headerHeight));
     visibility: visible;
     box-shadow: none;
     transform: none;
+    .sidebar-collapsed & {
+      display: none;
+    }
+  }
+  .portal-jump-links {
+    padding-left: var(--portal-nav-sidebar);
   }
 }
-.sakai-topHeader {
+.portal-pasystem {
+  grid-area: paBanner;
+}
+.portal-header {
   grid-area: header;
-  z-index: 1050;
   box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
 }
-.sakai-navSidebar {
+.portal-nav-sidebar {
   grid-area: toolbar;
-  top: var(--sakai-headerHeight);
-  width: var(--sakai-navSidebar);
-  height: calc(100vh - var(--sakai-headerHeight) - var(--sakai-headerHeight));  //in narrow views, there are fixed top and bottom bars of headerHeight height
+  //top: var(--sakai-headerHeight);
+  //width: var(--portal-nav-sidebar);
+  //height: calc(100vh - var(--sakai-headerHeight) - var(--sakai-headerHeight));  //in narrow views, there are fixed top and bottom bars of headerHeight height
 }
-@include media-breakpoint-up(md) {
-  .sakai-navSidebar {
-    height: calc(100vh - var(--sakai-headerHeight));
-  }
-}
-.sakai-mainContent {
+
+.portal-main-content {
   grid-area: main;
-  min-height: calc(100vh - var(--sakai-headerHeight));
 }
-.sakai-mobileBar {
+.portal-main-container {
+  display: grid;
+  grid-area: mainContainer;
+  grid-template-areas: "main" "footer";
+  grid-template-rows: 1fr auto;
+  align-content: space-between;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+.portal-footer {
+  grid-area: footer;
+}
+.portal-mobilebar {
   grid-area: mobilebar;
   position: sticky;
   bottom: 0;
   z-index: 1050;
 }
-.sakai-jumpLinks {
-  padding-left: var(--sakai-navSidebar);
+.portal-jump-links {
+  grid-area: jumpLinks;
 }
-.sakai-jumpLinks a {
+.portal-jump-links a {
   color: #fff;
 }
-.sakai-headerLogo {
+.portal-header-logo {
   height: var(--sakai-headerHeight);
 }
 @include media-breakpoint-up(md) {
-  .sakai-headerLogo {
-    width: var(--sakai-navSidebar);
+  .portal-header-logo {
+    width: var(--portal-nav-sidebar);
   }
 }
-.sakai-headerLogo img {
+.portal-header-logo img {
   max-height: 3rem;
 }
-.sakai-newNotificationsIndicator {
+.portal-notifications-indicator {
   position: absolute;
   top: 0;
   right: 20%;
@@ -195,20 +218,22 @@ sui-button sui-icon {
     bottom: var(--sakai-headerHeight);
   }
 }
+
+/*
 .sakai-sitesAndToolsNav {
   height: 100%;
   overflow-y: auto;
   overscroll-behavior: contain; // prevent the whole page scrolling when scrolling past the bottom of the sites and tools list
 }
+*/
 .sakai-sitesAndToolsNav .active .list-group-item-action {
   font-weight: 700;
   color: #fff;
 }
-.sakai-footer .nav-link {
+.portal-footer .nav-link {
   padding-top: 0;
   padding-bottom: 0;
 }
-
 
 //
 // Temporary Styles for Morpheus to Trinity conversion

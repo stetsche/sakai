@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -685,6 +686,18 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("siteNavTopLogin", Boolean.valueOf(topLogin));
 			rcontext.put("siteNavLoggedIn", Boolean.valueOf(loggedIn));
 
+			ResourceProperties resourceProperties = PreferencesService.getPreferences(session.getUserId())
+				.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+			
+
+			if (loggedIn) {
+				List<String> siteIds = resourceProperties.getPropertyList("order");
+
+				List<Map<String, Object>> sites = getSitesWithPages(siteIds);
+				rcontext.put("newSites",sites);
+			
+			}
+
 			try
 			{
 				if (loggedIn)
@@ -706,6 +719,46 @@ public class SiteHandler extends WorksiteHandler
 			}
 		}
 	}
+
+    private List<Map<String, Object>> getSitesWithPages(List<String> siteids) {
+		ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class.getName());
+        return siteids.stream().map(siteid -> {
+            Map<String, Object> siteMap = new HashMap<>();
+            try {
+                Site site = SiteService.getSite(siteid);
+                siteMap.put("id", site.getId());
+                siteMap.put("title", site.getTitle());
+                siteMap.put("url", site.getUrl());
+                siteMap.put("type", site.getType());
+                siteMap.put("shortDescription", site.getShortDescription());
+                siteMap.put("isFavorite", true);
+                List<Map<String, Object>> pageList = site.getOrderedPages().stream().map(page -> {
+                    Map<String, Object> pageMap = new HashMap<>();
+                    List<ToolConfiguration> toolList = page.getTools();
+                    if (toolList.size() == 1) {
+                        String toolId = toolList.get(0).getId();
+                        String toolUrl = page.getUrl().replaceFirst("page.*", "tool/".concat(toolId));
+                        pageMap.put("url", toolUrl);
+                        pageMap.put("resetUrl", toolUrl.replaceFirst("tool", "tool-reset"));
+                        pageMap.put("toolid", toolList.get(0).getToolId());
+                    } else {
+                        pageMap.put("url", page.getUrl());
+                        pageMap.put("resetUrl", page.getUrl().replaceFirst("page", "page-reset"));
+                    }
+                    pageMap.put("hidden", toolList.size() > 0 && toolManager.isHidden(toolList.get(0)));
+                    pageMap.put("locked", !toolManager.isFirstToolVisibleToAnyNonMaintainerRole(page));
+                    pageMap.put("isPopup", page.isPopUp());
+                    pageMap.put("title", page.getTitle());
+                    //pageMap.put("url", page.getUrl());
+                    return pageMap;
+                }).collect(Collectors.toList());
+                siteMap.put("pages", pageList);
+            } catch (IdUnusedException e) {
+                log.error(e.getMessage());
+            }
+            return siteMap;
+        }).collect(Collectors.toList());
+    }
 
 	final static String AUTO_FAVORITES_LAST_REFRESHED_TIME = "autoFavoritesLastRefreshedTime";
 
@@ -739,10 +792,6 @@ public class SiteHandler extends WorksiteHandler
 			String skinRepo = ServerConfigurationService.getString("skin.repo");
 			rcontext.put("logoSkin", skin);
 			rcontext.put("logoSkinRepo", skinRepo);
-			String siteType = portal.calcSiteType(siteId);
-			String cssClass = (siteType != null) ? siteType : "undeterminedSiteType";
-			rcontext.put("logoSiteType", siteType);
-			rcontext.put("logoSiteClass", cssClass);
 			portal.includeLogin(rcontext, req, session);
 		}
 	}
@@ -924,7 +973,7 @@ public class SiteHandler extends WorksiteHandler
 			}
 
 			rcontext.put("tabDisplayLabel", tabDisplayLabel);
-			rcontext.put("toolsCollapsed", Boolean.valueOf(toolsCollapsed));
+			rcontext.put("sidebarCollapsed", Boolean.valueOf(toolsCollapsed));
 			rcontext.put("toolMaximised", Boolean.valueOf(toolMaximised));
 			
 			SiteView siteView = portal.getSiteHelper().getSitesView(

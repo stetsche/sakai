@@ -15,7 +15,7 @@
 	<properties>
 		<!-- This is used in re-write rules as well -->
 		<ckeditor.version>4.16.1</ckeditor.version>
-		<bootstrap-version>3.3.7</bootstrap-version>
+		<bootstrap-version>5.1.3</bootstrap-version>
 		<font-awesome-version>4.7.0</font-awesome-version>
 		<node-version>v16.8.0</node-version>
 		<npm-version>6.14.15</npm-version>
@@ -161,6 +161,11 @@
 			<artifactId>bootstrap</artifactId>
 			<version>${bootstrap-version}</version>
 			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+    		<groupId>org.webjars</groupId>
+    		<artifactId>popper.js</artifactId>
+    		<version>2.9.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>
@@ -386,7 +391,7 @@
 									<outputDirectory>${basedir}/src/webapp/skin/${sakai.skin.target}/images/</outputDirectory>
 									<resources>
 										<resource>
-											<directory>src/${sakai.skin.source}/images/</directory>
+											<directory>src/skins/${sakai.skin.source}/images/</directory>
 										</resource>
 									</resources>
 								</configuration>
@@ -401,10 +406,10 @@
 									<outputDirectory>${basedir}/src/webapp/skin/${sakai.skin.target}/fonts/</outputDirectory>
 									<resources>
 										<resource>
-											<directory>${basedir}/src/${sakai.skin.source}/font-awesome-sass-${font-awesome-version}/assets/fonts/</directory>
+											<directory>${basedir}/src/skins/${sakai.skin.source}/node_modules/font-awesome/fonts/</directory>
 										</resource>
 										<resource>
-										  <directory>${basedir}/src/${sakai.skin.source}/bootstrap-sass-${bootstrap-version}/assets/fonts/</directory>
+											<directory>${basedir}/src/skins/${sakai.skin.source}/node_modules/bootstrap-icons/font/fonts/</directory>
 										</resource>
 									</resources>
 								</configuration>

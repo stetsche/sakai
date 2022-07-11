@@ -1,0 +1,98 @@
+#if (${useBullhornAlerts} && ${userIsLoggedIn})
+<aside class="offcanvas offcanvas-end" tabindex="-1" id="sakai-notificationsPanel" aria-labelledby="sakai-notificationsPanelLabel">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title" id="sakai-notificationsPanelLabel">Notifications</h2>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close this notifications panel"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="accordion" id="sakai-notificationsAccordion">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="sakai-notificationsAssignments">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+            Assignments (2)
+          </button>
+        </h2>
+        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne">
+          <div class="accordion-body p-0">
+            <ul class="list-unstyled">
+              <li class="pe-1">
+                <div class="alert alert-light alert-dismissible fade show m-0" role="alert">
+                  <a href="#">Assignment 2 is now available</a>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Remove this notification"></button>
+                </div>
+              </li>
+              <li class="pe-1">
+                <div class="alert alert-light alert-dismissible fade show m-0" role="alert">
+                  <a href="#">Assignment 1 has been graded and returned</a>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Remove this notification"></button>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="sakai-notificationsDiscussions">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+            Discussions (8)
+          </button>
+        </h2>
+        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingOne">
+          <div class="accordion-body p-0">
+            <ul class="list-unstyled">
+              <li class="pe-1">
+                <div class="alert alert-light alert-dismissible fade show m-0" role="alert">
+                  <a href="#">Someone commented on your post "Lesson 2..."</a>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Remove this notification"></button>
+                </div>
+              </li>
+              <li class="pe-1">
+                <div class="alert alert-light alert-dismissible fade show m-0" role="alert">
+                  <a href="#">Someone replied to your comment on "Lesson 5..."</a>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Remove this notification"></button>
+                </div>
+              </li>
+              <li class="pe-1">
+                <div class="alert alert-light alert-dismissible fade show m-0" role="alert">
+                  <a href="#">Someone replied to your post "Introductions"</a>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Remove this notification"></button>
+                </div>
+              </li>
+              <li class="pe-1">
+                <div class="alert alert-light alert-dismissible fade show m-0" role="alert">
+                  <a href="#">Someone replied to your post "Lesson 6..."</a>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Remove this notification"></button>
+                </div>
+              </li>
+              <li class="pe-1">
+                <div class="alert alert-light alert-dismissible fade show m-0" role="alert">
+                  <a href="#">Someone replied to your comment on "Lesson 5..."</a>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Remove this notification"></button>
+                </div>
+              </li>
+              <li class="pe-1">
+                <div class="alert alert-light alert-dismissible fade show m-0" role="alert">
+                  <a href="#">Someone replied to your commment on "Lesson 5..."</a>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Remove this notification"></button>
+                </div>
+              </li>
+              <li class="pe-1">
+                <div class="alert alert-light alert-dismissible fade show m-0" role="alert">
+                  <a href="#">Someone replied to your comment on "Lesson 5..."</a>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Remove this notification"></button>
+                </div>
+              </li>
+              <li class="pe-1">
+                <div class="alert alert-light alert-dismissible fade show m-0" role="alert">
+                  <a href="#">Someone replied to your comment on "Lesson 1..."</a>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Remove this notification"></button>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</aside>
+#end

@@ -1,10 +1,8 @@
 {
   "name": "skin-default",
-  "version": "1.0.0",
   "description": "Sakai Default Skin",
   "scripts": {
     "build": "npm-run-all css-lint css-compile css-prefix",
-    "buildi-lint": "npm-run-all css-compile css-prefix",
     "css-compile": "sass --style=expanded --load-path=node_modules src/sass:target",
     "css-watch": "sass --watch --style=expanded --load-path=node_modules src/sass:$npm_config_target",
     "css-lint": "stylelint src/sass/ --config config/.stylelintrc.json",
@@ -17,7 +15,8 @@
   },
   "dependencies": {
     "bootstrap": "^5.1.2",
-    "bootstrap-icons": "^1.4.0"
+    "bootstrap-icons": "^1.4.0",
+    "font-awesome": "^4.7.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.2.5",
