@@ -1,0 +1,144 @@
+<!-- START VM includeSiteNav.vm -->
+##This is a work in progress!
+#macro(siteExample $velocityCount $siteId $fullTitle)
+    <li class="site-list-item mb-1">
+        <div class="site-list-item-head d-flex align-items-stretch pe-2">
+            <button class="btn btn-nav btn-site rounded-end text-start collapsed border-0 me-1 d-flex flex-grow-1" data-bs-toggle="collapse" data-bs-target="#site-${velocityCount}-pages" aria-expanded="false" aria-controls="site-${velocityCount}-pages">
+                <i class="btn-site-carret" aria-hidden="true"></i><span>${fullTitle}</span>
+            </button>
+            <button data-pin-site="${siteId}" data-pinned="false" title="Pin site" class="site-opt-pin btn btn-site-opt bi bi-pin"></button>
+        </div>
+        <div id="site-${velocityCount}-pages" class="site-list-item-collapse collapse">
+            <p class="site-desc text-truncate fst-italic ps-4 pt-2 mb-0">Short site description</p>
+            <ul class="site-page-list nav flex-column py-1">
+                <li class="nav-item"><a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-speedometer2" aria-hidden="true"></i>Dashboard</a></li>
+                <li class="nav-item"><a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-megaphone" aria-hidden="true"></i>Announcements</a></li>
+                <li class="nav-item"><a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-newspaper" aria-hidden="true"></i>Assignments</a></li>
+                <li class="nav-item">
+                    <div class="d-inline-flex align-items-stretch">
+                        <button class="btn btn-nav btn-subsite rounded-end text-start collapsed border-0 ps-4" data-bs-toggle="collapse" data-bs-target="#site-${velocityCount}-lessons" aria-expanded="false" aria-controls="site-${velocityCount}-lessons">
+                            <i class="btn-site-carret" aria-hidden="true"></i><span>Lessons</span>
+                        </button>
+                    </div>
+                    <div id="site-${velocityCount}-lessons" class="collapse">
+                        <ul class="nav flex-column pe-2">
+                            <li class="nav-item">
+                                <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-book" aria-hidden="true"></i>Main View</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Part 0</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Part 1</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Part 2</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Part 3</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item"><a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-card-text" aria-hidden="true"></i>Tests & Quizzes</a></li>
+                <li class="nav-item">
+                    <div class="d-inline-flex align-items-stretch">
+                        <button class="btn btn-nav btn-subsite rounded-end text-start collapsed border-0 ps-4" data-bs-toggle="collapse" data-bs-target="#site-${velocityCount}-subpages" aria-expanded="false" aria-controls="site-${velocityCount}-subpages">
+                            <i class="btn-site-carret" aria-hidden="true"></i>Subsites
+                        </button>
+                    </div>
+                    <div id="site-${velocityCount}-subpages" class="collapse">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Subsite 1</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Subsite 2</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Subsite 3</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item"><a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-gear" aria-hidden="true"></i>Site Settings</a></li>
+            </ul>
+        </div>
+    </li>
+#end
+
+#macro(siteActual $index $site $isCurrentSite)
+    <li class="site-list-item mb-1">
+        <div class="site-list-item-head d-flex align-items-stretch pe-2">
+            <button class="btn btn-nav btn-site rounded-end text-start collapsed border-0 me-1 d-flex flex-grow-1" data-bs-toggle="collapse" data-bs-target="#site-${index}-pages" aria-expanded="false" aria-controls="site-${index}-pages">
+                <i class="btn-site-carret" aria-hidden="true"></i><span>${site.title}</span>
+            </button>
+            <button data-pin-site="${site.id}" data-pinned="true" title="${rloader.sitenav_btn_unpin}" class="site-opt-pin btn btn-site-opt bi bi-pin-fill"></button>
+        </div>
+        <div id="site-${index}-pages" class="site-list-item-collapse collapse">
+            #if ($site.shortDescription)
+                <p class="site-desc text-truncate fst-italic ps-4 pt-2 mb-0">${site.shortDescription}</p>
+            #end
+            <ul class="site-page-list nav flex-column py-1">
+            #foreach ( $page in $site.pages )
+                #if ($isCurrentSite)
+                    #set($url = $page.resetUrl)
+                #else
+                    #set($url = $page.url)
+                #end
+                <li class="nav-item"><a class="btn btn-nav rounded-end ps-4" href="${url}"><i class="me-2 bi bi-tools" aria-hidden="true"></i>${page.title}</a></li>
+            #end
+            </ul>
+        </div>
+    </li>
+#end
+
+<aside id="${portalCssPrefix}-nav-sidebar" class="d-none ${portalCssPrefix}-nav-sidebar overflow-auto" tabindex="-1" data-bs-backdrop="true" aria-labelledby="">
+    <div class="offcanvas-header d-md-none">
+        <h2 class="offcanvas-title">${rloader.sitenav_title}</h2>
+        <button type="button" class="btn-close text-reset ms-auto" data-bs-dismiss="offcanvas" aria-label="Close the sites sidebar"></button>
+    </div>
+    <nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu sakai-sitesAndToolsNav h-100 d-flex flex-column">
+        <h2 class="visually-hidden d-none d-md-block" id="totoolmenu">${rloader.sitenav_title}</h2>
+        #if (${userIsLoggedIn})
+            <div class="sites-section">
+                <h3 class="mb-2 pt-3 ps-3 fs-5">${rloader.sitenav_title_current}</h3>
+                <ul class="mb-0 list-unstyled">
+                    #siteExample("1234", "12341234", "Cool Site")
+                </ul>
+            </div>
+            <div class="sites-section">
+                <h3 class="mb-2 pt-3 ps-3 fs-5">${rloader.sitenav_title_pinned}</h3>
+                <ul class="mb-0 list-unstyled">
+                    #foreach ( $site in $newSites)
+                        #if (${userIsLoggedIn})
+                            #siteActual( $velocityCount, $site)
+                        #end
+                    #end
+                </ul>
+            </div>
+            <div class="sites-section flex-grow-1">
+                <h3 class="mb-2 pt-3 ps-3 fs-5">${rloader.sitenav_title_recent}</h3>
+                <ul class="mb-0 list-unstyled">
+                    #siteExample("124", "123414", "This one")
+                    #siteExample("234", "121234", "That one")
+                    #siteExample("134", "141234", "Another one")
+                </ul>
+            </div>
+            <div class="sites-section p-1">
+                <a class="sakia-viewAllSites btn btn-nav py-3 w-100 btn-site" href="#">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grid-3x3-gap-fill" viewBox="0 0 16 16">
+                        <path d="M1 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V2zM1 7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V7zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V7zM1 12a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-2z"></path>
+                    </svg>
+                    <span class="ps-1">${rloader.sitenav_link_allsites}</span>
+                </a>
+            </div>
+        #else
+            <div class="sites-section">
+                <h3 class="mb-2 pt-3 ps-3 fs-5">Gateway Site</h3>
+                <span>This is temporarly emty, when logged out...</span>
+            </div>
+        #end
+    </nav>
+</aside>
+<!-- END VM includeSiteNav.vm -->

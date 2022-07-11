@@ -1023,6 +1023,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		skin = getSkin(skin);
 		String skinRepo = ServerConfigurationService.getString("skin.repo");
 
+		rcontext.put("portalCssPrefix", "portal");
 		rcontext.put("pageSkinRepo", skinRepo);
 		rcontext.put("pageSkin", skin);
 		rcontext.put("pageTitle", Web.escapeHtml(title));
@@ -1034,7 +1035,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("pageTop", Boolean.valueOf(true));
 		rcontext.put("rloader", rloader);
 		rcontext.put("cmLoader", cmLoader);
-		//rcontext.put("browser", new BrowserDetector(request));
+
 		// Allow for inclusion of extra header code via property
 		String includeExtraHead = ServerConfigurationService.getString("portal.include.extrahead", "");
 		rcontext.put("includeExtraHead",includeExtraHead);
@@ -1086,14 +1087,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("cookieNoticeEnabled", ServerConfigurationService.getBoolean("portal.cookie.policy.warning.enabled",false));
 		rcontext.put("cookieNoticeText", cookieNoticeText);
 
-		if (siteType != null && siteType.length() > 0)
-		{
-			siteType = "class=\"" + siteType + "\"";
-		}
-		else
-		{
-			siteType = "";
-		}
 		rcontext.put("pageSiteType", siteType);
 		rcontext.put("toolParamResetState", portalService.getResetStateParam());
 
