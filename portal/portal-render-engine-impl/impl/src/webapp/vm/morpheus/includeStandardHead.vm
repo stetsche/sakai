@@ -72,8 +72,6 @@
         <script src="/library/js/sakai-message-broker.js$!{portalCDNQuery}"></script>
         <script src="/library/js/BreakpointManager.js$!{portalCDNQuery}"></script>
         <script src="/library/js/sakai-lti-advantage.js$!{portalCDNQuery}"></script>
-        <script src="/library/js/portal.sidebar.sites.js$!{portalCDNQuery}"></script>
-        <script src="/library/js/portal.sidebar.collapse.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}momentjs/2.29.1/min/moment-with-locales.min.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}popper.js/2.9.3/umd/popper.min.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}bootstrap/5.1.3/js/bootstrap.min.js$!{portalCDNQuery}"></script>
@@ -83,6 +81,7 @@
         <script>
             moment.locale(window.portal.locale);
         </script>
+        #parse("/vm/morpheus/snippets/portalScripts-snippet.vm")
     #if ($useBullhornAlerts)
         <script src="/profile2-tool/javascript/profile2-eb.js$!{portalCDNQuery}"></script>
     #end

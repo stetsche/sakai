@@ -448,7 +448,7 @@
 								</configuration>
 							</execution>
 						</executions>
-                    </plugin>
+					</plugin>
 					<plugin>
 						<groupId>com.coderplus.maven.plugins</groupId>
 						<artifactId>copy-rename-maven-plugin</artifactId>
@@ -475,18 +475,18 @@
 							</execution>
 						</executions>
 					</plugin>
-                    <plugin>
-                        <groupId>com.samaxes.maven</groupId>
-                        <artifactId>minify-maven-plugin</artifactId>
-                        <version>1.7.6</version>
-                        <executions>
-                            <execution>
-                                <id>elfinder-minify</id>
-                                <configuration>
-                                    <charset>UTF-8</charset>
-                                    <webappSourceDir>${basedir}/src/webapp</webappSourceDir>
-                                    <jsSourceDir>editor/elfinder/sakai/js/src/</jsSourceDir>
-                                    <jsSourceFiles>
+					<plugin>
+						<groupId>com.samaxes.maven</groupId>
+						<artifactId>minify-maven-plugin</artifactId>
+						<version>1.7.6</version>
+						<executions>
+							<execution>
+								<id>elfinder-minify</id>
+								<configuration>
+									<charset>UTF-8</charset>
+									<webappSourceDir>${basedir}/src/webapp</webappSourceDir>
+									<jsSourceDir>editor/elfinder/sakai/js/src/</jsSourceDir>
+									<jsSourceFiles>
 										<jsSourceFile>sakai.js</jsSourceFile>
 										<jsSourceFile>query.js</jsSourceFile>
 										<jsSourceFile>tools.js</jsSourceFile>
@@ -497,15 +497,15 @@
 										<jsSourceFile>confirm.js</jsSourceFile>
 										<jsSourceFile>i18n.js</jsSourceFile>
 										<jsSourceFile>init.js</jsSourceFile>
-                                    </jsSourceFiles>
-                                    <jsTargetDir>editor/elfinder/sakai/js</jsTargetDir>
-                                    <jsFinalFile>sakai-elfinder.js</jsFinalFile>
-                                    <jsEngine>CLOSURE</jsEngine>
-                                </configuration>
-                                <goals><goal>minify</goal></goals>
-                            </execution>
-                        </executions>
-                    </plugin>
+									</jsSourceFiles>
+									<jsTargetDir>editor/elfinder/sakai/js</jsTargetDir>
+									<jsFinalFile>sakai-elfinder.js</jsFinalFile>
+									<jsEngine>CLOSURE</jsEngine>
+								</configuration>
+								<goals><goal>minify</goal></goals>
+							</execution>
+						</executions>
+					</plugin>
 					<plugin>
 						<groupId>com.github.eirslett</groupId>
 						<artifactId>frontend-maven-plugin</artifactId>
@@ -715,7 +715,10 @@
 			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
-					<warSourceExcludes>editor/elfinder/sakai/js/src/**</warSourceExcludes>
+					<warSourceExcludes>
+						editor/elfinder/sakai/js/src/**,
+						js/portal/src/**
+					</warSourceExcludes>
 					<webResources>
 						<resource>
 							<directory>src/webapp-filtered</directory>
