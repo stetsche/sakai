@@ -2,6 +2,7 @@
     //Set portal dom references
     portal.container = document.querySelector("div.${portalCssPrefix}-container");
     portal.head = portal.container.querySelector("header.${portalCssPrefix}-header");
+    portal.footer = portal.container.querySelector("footer.${portalCssPrefix}-footer");
     portal.sidebars = {
         sites: portal.container.querySelector("#${portalCssPrefix}-nav-sidebar")
     }; 
@@ -19,6 +20,7 @@
         };
         const collapseButton = new SidebarCollapseButton(buttonElement, buttonConfig);
     })();
+
     //Setup sidebar
     (() => {
         const siteSidebarConfig = {
@@ -33,13 +35,36 @@
         const setSidebarView = (currentBP, previousBP) => {
             let currentMobile = BreakpointManager.compare(currentBP, "sm") <= 0;
             let previousMobile = previousBP ? BreakpointManager.compare(previousBP, "sm") <= 0 : null;
-            //Only set View
+            //Only set View if we are crossing the sm breakpoint
             if (previousMobile === null || currentMobile != previousMobile) {
                 siteSidebar.setView(currentMobile);
             }
         };
         portal.breakpointManager.registerCallback(setSidebarView);
         setSidebarView(portal.breakpointManager.currentBreakpoint);
+    })();
+
+    //Setup server info popover
+    (() => {
+        const serverInfo = document.querySelector("#serverInfo");
+        const serverInfoPopover = new ServerInfoPopover(serverInfo, {
+            #if ($showServerTime)
+            serverTime: {
+                selector: "#serverTime",
+                initialTime: ${serverTzGMTOffset},
+                timeZone: "${serverTzDisplay}",
+            },
+            #end
+            #if ($showServerTime && $showPreferredTzTime)
+            preferredTime: {
+                selector: "#preferredTime",
+                initialTime: ${preferredTzGMTOffset},
+                timeZone: "${preferredTzDisplay}",
+            },
+            #end
+            popoverContainer: portal.footer,
+            iconClasses: ["bi-info-circle", "bi-info-circle-fill"]
+        });
     })();
 </script>
 <script>
