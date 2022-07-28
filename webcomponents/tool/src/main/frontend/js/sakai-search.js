@@ -1,7 +1,7 @@
 import { SakaiElement } from "./sakai-element.js";
 import "./sakai-pager.js";
-import { html } from "./assets/lit-element/lit-element.js";
-import { unsafeHTML } from "./assets/lit-html/directives/unsafe-html.js";
+import { html } from "@assets/lit-element/lit-element.js";
+import { unsafeHTML } from "@assets/lit-html/directives/unsafe-html.js";
 
 class SakaiSearch extends SakaiElement {
 
@@ -90,42 +90,36 @@ class SakaiSearch extends SakaiElement {
   render() {
 
     return html`
-      <div class="sakai-search-input" role="search">
-        <input type="text"
+      <div class="input-group position-relative" role="search">
+        <input type="search"
+            class="sakaiSearch form-control"
             autocomplete="off"
-            style="font-family: FontAwesome, sans-serif"
             id="sakai-search-input"
-            role="searchbox"
-            tabindex="0"
+            placeholder="Search"
             @keydown=${this.search}
             @click=${this.handleSearchClick}
-            .value="&#xf002; ${this.searchTerms}"
-            aria-label="${this.i18n.search_placeholder}" />
+            value=${this.searchTerms}
+            aria-label="${this.i18n.search_placeholder}" >
+          <i class="bi bi-search position-absolute start-0 top-50 translate-middle ms-3"></i>
+            <button class="btn btn-primary" type="button" id="sakai-search-button"  @click=${this.handleButtonClick}>Search Sakai</button>
       </div>
       ${this.noResults ? html`
-        <div class="sakai-search-results" tabindex="1">
-          <div class="search-result-container"><div class="search-result">No results</div></div>
-        </div>
+        <li class="no results">No results found</li>
       ` : ""}
       ${this.results.length > 0 ? html`
-        <div class="sakai-search-results">
-          <div style="float: right;">
-            <button class="btn-transparent" @click=${this.closeResults}>
-              <sakai-icon type="close"></sakai-icon>
-            </button>
-          </div>
+        <button type="button" class="btn-close" aria-label="Close" @click=${this.closeResults}></button>
           ${this.currentPageOfResults.map(r => html`
-          <div class="search-result-container">
+            <li class="list-group-item d-flex justify-content-between align-items-start">
             <a href="${r.url}" @click=${this.toggleField} @keydown=${this.handleKeydownOnResult}>
               ${!this.tool ? html`
-              <div>
+              <div class="me-auto">
+                <div class="fw-bold">
                 <i class="search-result-tool-icon ${this.iconMapping[r.tool]}" title="${this.toolNameMapping[r.tool]}"></i>
                 <span class="search-result-toolname">${this.toolNameMapping[r.tool]}</span>
                 <span>${this.i18n.from_site}</span>
                 <span class="search-result-site-title">${r.siteTitle}</span>
               </div>
               ` : ""}
-              <div class="search-result-title-block">
                 ${!this.tool ? html`
                 <span class="search-result-title-label">${this.i18n.search_result_title}</span>
                 ` : ""}
@@ -133,9 +127,11 @@ class SakaiSearch extends SakaiElement {
               </div>
               <div class="search-result">${unsafeHTML(r.searchResult)}</div>
             </a>
-          </div>
+            </li>
           `)}
+          ${this.pages > 1 ? html`
           <sakai-pager count="${this.pages}" current"1" @page-selected=${this.pageSelected}></sakai-pager>
+          ` : ""}
         </div>
       ` : ""}
     `;
@@ -166,7 +162,7 @@ class SakaiSearch extends SakaiElement {
 
     const keycode = e.keyCode ? e.keyCode : e.which;
 
-    if ((keycode === 8 || keycode === 37) && e.target.selectionStart <= 2) {
+    if ((keycode === 8 || keycode === 37) && e.target.selectionStart <= 0) {
       e.preventDefault();
       return false;
     }
@@ -174,7 +170,7 @@ class SakaiSearch extends SakaiElement {
     this.closeResults();
 
     if (keycode == "13" && e.target.value.length > 4) {
-      const terms = e.target.value.substring(2);
+      const terms = e.target.value.substring(0, e.target.selectionStart);
       if (!this.tool) {
         sessionStorage.setItem("searchterms", terms);
       }
@@ -236,6 +232,11 @@ class SakaiSearch extends SakaiElement {
     } else {
       this.clear();
     }
+  }
+
+  handleButtonClick() {
+    const searchButton = document.getElementById("sakai-search-input");
+    searchButton.dispatchEvent(new KeyboardEvent("keydown", {keyCode: 13}));
   }
 
   initSetsOfResults(results) {
