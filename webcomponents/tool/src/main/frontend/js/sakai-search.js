@@ -90,55 +90,54 @@ class SakaiSearch extends SakaiElement {
   render() {
 
     return html`
-      <div class="sakai-search-input" role="search">
-        <input type="text"
-            autocomplete="off"
-            style="font-family: FontAwesome, sans-serif"
-            id="sakai-search-input"
-            role="searchbox"
-            tabindex="0"
-            @keydown=${this.search}
-            @click=${this.handleSearchClick}
-            .value="&#xf002; ${this.searchTerms}"
-            aria-label="${this.i18n.search_placeholder}" />
-      </div>
-      ${this.noResults ? html`
-        <div class="sakai-search-results" tabindex="1">
-          <div class="search-result-container"><div class="search-result">No results</div></div>
-        </div>
-      ` : ""}
-      ${this.results.length > 0 ? html`
-        <div class="sakai-search-results">
-          <div style="float: right;">
-            <button class="btn-transparent" @click=${this.closeResults}>
-              <sakai-icon type="close"></sakai-icon>
-            </button>
-          </div>
-          ${this.currentPageOfResults.map(r => html`
+    <div class="input-group position-relative" role="search">
+    <input type="search"
+        class="sakaiSearch form-control"
+        autocomplete="off"
+        id="sakai-search-input"
+        placeholder="${this.i18n.search_placeholder}"
+        @keydown=${this.search}
+        @click=${this.handleSearchClick}
+        value=${this.searchTerms}
+        aria-label="${this.i18n.search_placeholder}" />
+        <button class="btn btn-primary" type="button" id="sakai-search-button"  @click=${this.handleButtonClick}>Search Sakai</button>
+    </div>
+  ${this.noResults ? html`
+  <li class="list-group-item d-flex justify-content-between align-items-start">
+    <span class="no-results">No results found :(</span>
+  </li>  
+  ` : ""}
+  ${this.results.length > 0 ? html`
+    <button type="button" class="btn-close" aria-label="Close" @click=${this.closeResults}></button>
+      ${this.currentPageOfResults.map(r => html`
+      <li class="list-group-item d-flex justify-content-between align-items-start">
+        <a href="${r.url}" @click=${this.toggleField} @keydown=${this.handleKeydownOnResult}>
+          ${!this.tool ? html`
           <div class="search-result-container">
-            <a href="${r.url}" @click=${this.toggleField} @keydown=${this.handleKeydownOnResult}>
-              ${!this.tool ? html`
-              <div>
-                <i class="search-result-tool-icon ${this.iconMapping[r.tool]}" title="${this.toolNameMapping[r.tool]}"></i>
-                <span class="search-result-toolname">${this.toolNameMapping[r.tool]}</span>
-                <span>${this.i18n.from_site}</span>
-                <span class="search-result-site-title">${r.siteTitle}</span>
-              </div>
-              ` : ""}
-              <div class="search-result-title-block">
-                ${!this.tool ? html`
-                <span class="search-result-title-label">${this.i18n.search_result_title}</span>
-                ` : ""}
-                <span class="search-result-title">${r.title}</span>
-              </div>
-              <div class="search-result">${unsafeHTML(r.searchResult)}</div>
-            </a>
+          <div class="me-auto">
+            <div class="fw-bold">
+            <i class="search-result-tool-icon ${this.iconMapping[r.tool]}" title="${this.toolNameMapping[r.tool]}"></i>
+            <span class="search-result-toolname">${this.toolNameMapping[r.tool]}</span>
+            <span>${this.i18n.from_site}</span>
+            <span class="search-result-site-title">${r.siteTitle}</span>
+            </div>
+          ` : ""}
+            ${!this.tool ? html`
+            <span class="search-result-title-label">${this.i18n.search_result_title}</span>
+            ` : ""}
+            <span class="search-result-title">${r.title}</span>
           </div>
-          `)}
-          <sakai-pager count="${this.pages}" current"1" @page-selected=${this.pageSelected}></sakai-pager>
-        </div>
+          </div>
+          <div class="search-result">${unsafeHTML(r.searchResult)}</div>
+        </a>
+        </li>
+      `)}
+      ${this.pages > 1 ? html`
+      <sakai-pager count="${this.pages}" current"1" @page-selected=${this.pageSelected}></sakai-pager>
       ` : ""}
-    `;
+    </div>
+  ` : ""}
+`;
   }
 
   clear() {
@@ -155,7 +154,7 @@ class SakaiSearch extends SakaiElement {
 
   handleSearchClick(e) {
 
-    if (e.target.selectionStart <= 2) {
+    if (e.target.selectionStart <= 0) {
       e.preventDefault();
       e.target.setSelectionRange(2, 2);
       return false;
@@ -163,10 +162,9 @@ class SakaiSearch extends SakaiElement {
   }
 
   search(e) {
-
     const keycode = e.keyCode ? e.keyCode : e.which;
 
-    if ((keycode === 8 || keycode === 37) && e.target.selectionStart <= 2) {
+    if ((keycode === 8 || keycode === 37) && e.target.selectionStart === 0) {
       e.preventDefault();
       return false;
     }
@@ -174,11 +172,11 @@ class SakaiSearch extends SakaiElement {
     this.closeResults();
 
     if (keycode == "13" && e.target.value.length > 4) {
-      const terms = e.target.value.substring(2);
+      const terms = e.target.value.substring(0, e.target.selectionStart);
       if (!this.tool) {
         sessionStorage.setItem("searchterms", terms);
       }
-      fetch(`/api/search?terms=${terms}${this.siteId ? `&site=${this.siteId}` : ""}`, {cache: "no-cache", credentials: "same-origin"})
+      fetch(`/api/search?terms=${terms}${this.siteId ? `&site=${this.siteId}` : ""}`, { cache: "no-cache", credentials: "same-origin" })
         .then(r => {
 
           if (r.ok) {
@@ -236,6 +234,11 @@ class SakaiSearch extends SakaiElement {
     } else {
       this.clear();
     }
+  }
+
+  handleButtonClick() {
+    const searchButton = this.querySelector("input");
+    searchButton.dispatchEvent(new KeyboardEvent("keydown", {keyCode: 13}));
   }
 
   initSetsOfResults(results) {
