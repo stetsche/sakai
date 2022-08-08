@@ -21,6 +21,12 @@ class SitesSidebar {
             desktopClasses.forEach((cssClass) => {
                 this._element.classList.remove(cssClass);
             });
+            this._element.addEventListener("hidden.bs.offcanvas", () => {
+                this._element.style.visibility = "visible";
+            }, { once: true })
+            this._element.addEventListener("show.bs.offcanvas", () => {
+                this._element.style.visibility = "visible";
+            }, { once: true })
         } else {
             //Set desktop view
             
@@ -54,8 +60,7 @@ class PinButton {
 
     set title(newValue) {
         this._element.setAttribute("title", newValue);
-        this._element.setAttribute("data-bs-original-title", newValue);
-        this._tooltip.show();
+        this._tooltip.setContent({'.tooltip-inner': newValue});
     }
 
     get pinned() {

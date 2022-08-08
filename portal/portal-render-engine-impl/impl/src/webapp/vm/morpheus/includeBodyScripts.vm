@@ -66,6 +66,43 @@
             iconClasses: ["bi-info-circle", "bi-info-circle-fill"]
         });
     })();
+
+    //Setup header login password field
+    (() => {
+        const loginInputGroup = portal.head.querySelector(".password-field"); 
+        const mobileLogin = new PasswordField(loginInputGroup, {
+            icons: {
+                hidden: "bi-eye-slash-fill",
+                shown:"bi-eye-fill",
+                capsLock: "bi-capslock-fill"
+            }
+        });
+    })();
+
+    //Setup mobile login
+    (() => {
+        const mobileLoginConfig = {
+            passwordField: {
+                icons: {
+                    hidden: "bi-eye-slash-fill",
+                    shown:"bi-eye-fill",
+                    capsLock: "bi-capslock-fill"
+                }
+            }
+        };
+        const mobileLoginBtn = portal.head.querySelector("#mobileLoginBtn"); 
+        const mobileLogin = new MobileLogin(mobileLoginBtn, mobileLoginConfig);
+    })();
+
+    //Add an on-load listener to focus the password field
+    (() => {
+        window.addEventListener("load", () => {
+            //Check if window is above xs breakpoint
+            if (BreakpointManager.compare(portal.breakpointManager.currentBreakpoint, "xs") > 1) {
+                document.querySelector("#eid")?.focus()
+            }
+        });
+    })();
 </script>
 <script>
     var needJQuery = true;

@@ -14,8 +14,7 @@ class SidebarCollapseButton {
 
     set title(newValue) {
         this._element.setAttribute("title", newValue);
-        this._element.setAttribute("data-bs-original-title", newValue);
-        this._tooltip.show();
+        this._tooltip.setContent({'.tooltip-inner': newValue});
     }
 
     constructor(element, config) {
