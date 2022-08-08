@@ -1,3 +1,26 @@
+@mixin focus-outline($color) {
+  &:focus {
+    box-shadow: 0 0 0 $input-focus-width rgba($color, .5);
+    //box-shadow: 0 0 0 $input-focus-width rgba(mix($input-bg, $input-border-color, 15%), .5);
+  }
+}
+
+@each $color, $value in $theme-colors {
+  .focus-#{$color} {
+    @include focus-outline($value);
+  }
+}
+
+.btn-input-group {
+  @include button-variant(
+    $input-bg,
+    $input-border-color,
+    $active-background: $input-group-addon-bg,
+  );
+  display: flex;
+  align-items: center;
+}
+
 .btn-sidebar-collapse {
   border: none;
   @include button-variant($primary, $light);
@@ -21,6 +44,7 @@
 
   .btn-nav,
   .btn-site-opt {
+    --bs-btn-box-shadow: unset;
     &:hover,
     &:focus {
       background-color: #c7d5dd;

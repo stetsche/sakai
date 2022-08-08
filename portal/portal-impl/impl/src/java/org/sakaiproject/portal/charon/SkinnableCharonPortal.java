@@ -1675,8 +1675,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			copyright = copyright.replaceAll(SERVER_COPYRIGHT_CURRENT_YEAR_KEYWORD, currentServerYear);
 
 			String service = ServerConfigurationService.getString("ui.service", "Sakai");
-			String serviceVersion = ServerConfigurationService.getString(
-					"version.service", "?");
+			String serviceVersion = ServerConfigurationService.getString("version.service", "?");
 			String sakaiVersion = ServerConfigurationService.getString("version.sakai", "?");
 			String server = ServerConfigurationService.getServerId();
 			String[] footerLinks = ServerConfigurationService.getStrings("footerlinks");
@@ -1949,30 +1948,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 			else
 			{
-				String eidWording = null;
-				String pwWording = null;
-				eidWording = StringUtils.trimToNull(rloader.getString("log.userid"));
-				pwWording = StringUtils.trimToNull(rloader.getString("log.pass"));
-				String eidPlaceholder = StringUtils.trimToNull(rloader.getString("log.inputuserplaceholder"));
-				String pwPlaceholder = StringUtils.trimToNull(rloader.getString("log.inputpasswordplaceholder"));
 
-				if (eidWording == null) eidWording = "eid";
-				if (pwWording == null) pwWording = "pw";
-				if (eidPlaceholder == null ) eidPlaceholder = "";
-				if (pwPlaceholder == null ) pwPlaceholder = "";
-				String loginWording = rloader.getString("log.login");
-
-				rcontext.put("loginPortalPath", ServerConfigurationService
-						.getString("portalPath"));
-				rcontext.put("loginEidWording", eidWording);
-				rcontext.put("loginPwWording", pwWording);
-				rcontext.put("loginWording", loginWording);
-				rcontext.put("eidPlaceholder", eidPlaceholder);
-				rcontext.put("pwPlaceholder", pwPlaceholder);
+				rcontext.put("loginPortalPath", ServerConfigurationService.getString("portalPath"));
 
 				// setup for the redirect after login
-				session.setAttribute(Tool.HELPER_DONE_URL, ServerConfigurationService
-						.getPortalUrl());
+				session.setAttribute(Tool.HELPER_DONE_URL, ServerConfigurationService.getPortalUrl());
 			}
 
 			if (displayUserloginInfo)

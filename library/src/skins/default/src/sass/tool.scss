@@ -26,7 +26,7 @@
 
 // Toggle global options
 $enable-gradients: false;
-$enable-shadows: true;
+//$enable-shadows: true;
 $enable-cssgrid: true;
 
 $offcanvas-box-shadow: 0 1rem 3rem rgba(0, 0, 0, .175);
@@ -41,11 +41,12 @@ $success: #7952b3;
 // Configuration
 @import "bootstrap/scss/functions";
 @import "bootstrap/scss/variables";
+@import "bootstrap/scss/maps";
 @import "bootstrap/scss/mixins";
-@import "bootstrap/scss/utilities";
+@import "bootstrap/scss/root";
 
 // Layout & components
-@import "bootstrap/scss/root";
+@import "bootstrap/scss/utilities";
 @import "bootstrap/scss/reboot";
 @import "bootstrap/scss/type";
 @import "bootstrap/scss/images";
@@ -106,7 +107,8 @@ $fa-font-path: "./fonts";
 //
 :root {
   --portal-nav-sidebar: 16rem;
-  --sakai-headerHeight: 4rem;
+  --sakai-headerHeight: 4.5rem;
+  font-size: 14px;
 }
 .portal-container {
   display: grid;
