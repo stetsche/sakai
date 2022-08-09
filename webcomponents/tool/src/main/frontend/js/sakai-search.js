@@ -90,51 +90,50 @@ class SakaiSearch extends SakaiElement {
   render() {
 
     return html`
-    <div class="input-group position-relative" role="search">
-    <input type="search"
+    <form class="input-group position-relative" onsubmit="return false">
+      <input type="search"
         class="sakaiSearch form-control"
         autocomplete="off"
         id="sakai-search-input"
+        pattern=".{3,}" title="${this.i18n.search_min_length}"
         placeholder="${this.i18n.search_placeholder}"
         @keydown=${this.search}
         @click=${this.handleSearchClick}
         value=${this.searchTerms}
-        aria-label="${this.i18n.search_placeholder}" />
-        <button class="btn btn-primary" type="button" id="sakai-search-button"  @click=${this.handleButtonClick}>Search Sakai</button>
-    </div>
+        aria-label="${this.i18n.search_placeholder}" 
+      />
+      <button class="btn btn-primary" type="submit" id="sakai-search-button"  @click=${this.handleButtonClick}>
+        Search Sakai
+      </button>
+    </form>
   ${this.noResults ? html`
-  <li class="list-group-item d-flex justify-content-between align-items-start">
-    <span class="no-results">No results found :(</span>
-  </li>  
+    <div class="list-group-item d-flex justify-content-between align-items-start">
+       <span class="no-results">No results found :(</span>
+    </div>
   ` : ""}
   ${this.results.length > 0 ? html`
     <button type="button" class="btn-close" aria-label="Close" @click=${this.closeResults}></button>
-      ${this.currentPageOfResults.map(r => html`
-      <li class="list-group-item d-flex justify-content-between align-items-start">
-        <a href="${r.url}" @click=${this.toggleField} @keydown=${this.handleKeydownOnResult}>
-          ${!this.tool ? html`
-          <div class="search-result-container">
-          <div class="me-auto">
-            <div class="fw-bold">
+  ${this.currentPageOfResults.map(r => html`
+    <div class="searchResults list-group">
+      <a class="list-group-item list-group-item-action" tabindex="0" tabindex="0" href="${r.url}" @click=${this.toggleField} @keydown=${this.handleKeydownOnResult}>
+        ${!this.tool ? html`
+          <div class="fw-bold">
             <i class="search-result-tool-icon ${this.iconMapping[r.tool]}" title="${this.toolNameMapping[r.tool]}"></i>
             <span class="search-result-toolname">${this.toolNameMapping[r.tool]}</span>
             <span>${this.i18n.from_site}</span>
             <span class="search-result-site-title">${r.siteTitle}</span>
-            </div>
-          ` : ""}
-            ${!this.tool ? html`
-            <span class="search-result-title-label">${this.i18n.search_result_title}</span>
-            ` : ""}
-            <span class="search-result-title">${r.title}</span>
           </div>
-          </div>
-          <div class="search-result">${unsafeHTML(r.searchResult)}</div>
-        </a>
-        </li>
+        ` : ""}
+        ${!this.tool ? html`
+          <span class="search-result-title-label">${this.i18n.search_result_title}</span>
+        ` : ""}
+          <span class="search-result-title">${r.title}</span>
+            <div class="search-result">${unsafeHTML(r.searchResult)}</div>
+      </a>
       `)}
-      ${this.pages > 1 ? html`
-      <sakai-pager count="${this.pages}" current"1" @page-selected=${this.pageSelected}></sakai-pager>
-      ` : ""}
+       ${this.pages > 1 ? html`
+        <sakai-pager count="${this.pages}" current"1" @page-selected=${this.pageSelected}></sakai-pager>
+       ` : ""}
     </div>
   ` : ""}
 `;
@@ -154,7 +153,7 @@ class SakaiSearch extends SakaiElement {
 
   handleSearchClick(e) {
 
-    if (e.target.selectionStart <= 0) {
+    if (e.target.selectionStart <= 2) {
       e.preventDefault();
       e.target.setSelectionRange(2, 2);
       return false;
@@ -171,7 +170,7 @@ class SakaiSearch extends SakaiElement {
 
     this.closeResults();
 
-    if (keycode == "13" && e.target.value.length > 4) {
+    if (keycode == "13" && e.target.value.length > 2) {
       const terms = e.target.value.substring(0, e.target.selectionStart);
       if (!this.tool) {
         sessionStorage.setItem("searchterms", terms);
@@ -196,27 +195,25 @@ class SakaiSearch extends SakaiElement {
           this.results.forEach(r => { if (r.title.length === 0) r.title = r.tool; });
           this.initSetsOfResults(this.results);
           this.updateComplete.then(() => {
-
-            this.querySelector(".sakai-search-results").style.width = "400px";
-
-            const firstResult = document.querySelector(".search-result-container a");
-            firstResult && firstResult.focus();
-
-            document.querySelectorAll(".search-result-container").forEach(el => {
-
+            this.querySelector("a").focus();
+            this.querySelector("a").classList.add("active");
+            document.querySelectorAll(".searchResults").forEach(el => {
               el.addEventListener("keydown", ke => {
-
                 ke.stopPropagation();
                 switch (ke.code) {
                   case "ArrowDown":
-                    if (el.nextElementSibling.classList.contains("search-result-container")) {
+                    if (el.nextElementSibling.classList.contains("searchResults")) {
                       el.nextElementSibling.querySelector("a").focus();
+                      el.nextElementSibling.querySelector("a").classList.add("active");
+                      el.querySelector("a").classList.remove("active");
                       ke.preventDefault();
                     }
                     break;
                   case "ArrowUp":
-                    if (el.previousElementSibling.classList.contains("search-result-container")) {
+                    if (el.previousElementSibling.classList.contains("searchResults")) {
                       el.previousElementSibling.querySelector("a").focus();
+                      el.previousElementSibling.querySelector("a").classList.add("active");
+                      el.querySelector("a").classList.remove("active");
                       ke.preventDefault();
                     }
                     break;
