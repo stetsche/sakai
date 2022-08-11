@@ -95,7 +95,8 @@ class SakaiSearch extends SakaiElement {
         class="sakaiSearch form-control"
         autocomplete="off"
         id="sakai-search-input"
-        pattern=".{3,}" title="${this.i18n.search_min_length}"
+        pattern=".{${this.i18n.search_min_length_value},}" 
+        title="${this.i18n.search_min_length.replace("{}", this.i18n.search_min_length_value)}"
         placeholder="${this.i18n.search_placeholder}"
         @keydown=${this.search}
         @click=${this.handleSearchClick}
@@ -115,7 +116,7 @@ class SakaiSearch extends SakaiElement {
     <button type="button" class="btn-close" aria-label="Close" @click=${this.closeResults}></button>
   ${this.currentPageOfResults.map(r => html`
     <div class="searchResults list-group">
-      <a class="list-group-item list-group-item-action" tabindex="0" tabindex="0" href="${r.url}" @click=${this.toggleField} @keydown=${this.handleKeydownOnResult}>
+      <a class="list-group-item list-group-item-action text-truncate" tabindex="0" href="${r.url}" @click=${this.toggleField} @keydown=${this.handleKeydownOnResult}>
         ${!this.tool ? html`
           <div class="fw-bold">
             <i class="search-result-tool-icon ${this.iconMapping[r.tool]}" title="${this.toolNameMapping[r.tool]}"></i>
