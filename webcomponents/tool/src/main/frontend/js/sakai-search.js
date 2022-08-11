@@ -10,6 +10,7 @@ class SakaiSearch extends SakaiElement {
     super();
 
     this.pageSize = 10;
+    this.searchMinLengthValue = 3;
 
     this.iconMapping = {
       "announcement": "icon-sakai--sakai-announcements",
@@ -95,8 +96,8 @@ class SakaiSearch extends SakaiElement {
         class="sakaiSearch form-control"
         autocomplete="off"
         id="sakai-search-input"
-        pattern=".{${this.i18n.search_min_length_value},}" 
-        title="${this.i18n.search_min_length.replace("{}", this.i18n.search_min_length_value)}"
+        pattern=".{${this.searchMinLengthValue},}" 
+        title="${this.i18n.search_min_length.replace("{}", this.searchMinLengthValue)}"
         placeholder="${this.i18n.search_placeholder}"
         @keydown=${this.search}
         @click=${this.handleSearchClick}
@@ -171,7 +172,7 @@ class SakaiSearch extends SakaiElement {
 
     this.closeResults();
 
-    if (keycode == "13" && e.target.value.length > 2) {
+    if (keycode == "13" && e.target.value.length > this.searchMinLengthValue - 1;) {
       const terms = e.target.value.substring(0, e.target.selectionStart);
       if (!this.tool) {
         sessionStorage.setItem("searchterms", terms);
