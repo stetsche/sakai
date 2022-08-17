@@ -1,73 +1,4 @@
-<!-- START VM includeSiteNav.vm -->
-##This is a work in progress!
-#macro(siteExample $velocityCount $siteId $fullTitle)
-    <li class="site-list-item mb-1">
-        <div class="site-list-item-head d-flex align-items-stretch pe-2">
-            <button class="btn btn-nav btn-site rounded-end text-start collapsed border-0 me-1 d-flex flex-grow-1" data-bs-toggle="collapse" data-bs-target="#site-${velocityCount}-pages" aria-expanded="false" aria-controls="site-${velocityCount}-pages">
-                <i class="btn-site-carret" aria-hidden="true"></i><span>${fullTitle}</span>
-            </button>
-            <button data-pin-site="${siteId}" data-pinned="false" title="Pin site" class="site-opt-pin btn btn-site-opt bi bi-pin"></button>
-        </div>
-        <div id="site-${velocityCount}-pages" class="site-list-item-collapse collapse">
-            <p class="site-desc text-truncate fst-italic ps-4 pt-2 mb-0">Short site description</p>
-            <ul class="site-page-list nav flex-column py-1">
-                <li class="nav-item"><a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-speedometer2" aria-hidden="true"></i>Dashboard</a></li>
-                <li class="nav-item"><a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-megaphone" aria-hidden="true"></i>Announcements</a></li>
-                <li class="nav-item"><a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-newspaper" aria-hidden="true"></i>Assignments</a></li>
-                <li class="nav-item">
-                    <div class="d-inline-flex align-items-stretch">
-                        <button class="btn btn-nav btn-subsite rounded-end text-start collapsed border-0 ps-4" data-bs-toggle="collapse" data-bs-target="#site-${velocityCount}-lessons" aria-expanded="false" aria-controls="site-${velocityCount}-lessons">
-                            <i class="btn-site-carret" aria-hidden="true"></i><span>Lessons</span>
-                        </button>
-                    </div>
-                    <div id="site-${velocityCount}-lessons" class="collapse">
-                        <ul class="nav flex-column pe-2">
-                            <li class="nav-item">
-                                <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-book" aria-hidden="true"></i>Main View</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Part 0</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Part 1</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Part 2</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Part 3</a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-                <li class="nav-item"><a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-card-text" aria-hidden="true"></i>Tests & Quizzes</a></li>
-                <li class="nav-item">
-                    <div class="d-inline-flex align-items-stretch">
-                        <button class="btn btn-nav btn-subsite rounded-end text-start collapsed border-0 ps-4" data-bs-toggle="collapse" data-bs-target="#site-${velocityCount}-subpages" aria-expanded="false" aria-controls="site-${velocityCount}-subpages">
-                            <i class="btn-site-carret" aria-hidden="true"></i>Subsites
-                        </button>
-                    </div>
-                    <div id="site-${velocityCount}-subpages" class="collapse">
-                        <ul class="nav flex-column">
-                            <li class="nav-item">
-                                <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Subsite 1</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Subsite 2</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>Subsite 3</a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-                <li class="nav-item"><a class="btn btn-nav rounded-end ps-4" href="#"><i class="me-2 bi bi-gear" aria-hidden="true"></i>Site Settings</a></li>
-            </ul>
-        </div>
-    </li>
-#end
-
-#macro(siteActual $index $site $isExpanded $isCurrentSite)
+#macro( siteListItem $index $site $isExpanded $isCurrentSite)
 
     #if ($site.isPinned)
         #set ($pinTitle = $rloader.sitenav_btn_unpin)
@@ -83,9 +14,13 @@
         #set ($isCollapsedClass = "collapsed")
     #end
 
-    <li class="site-list-item mb-1">
+    #if ($isCurrentSite)
+        #set ($currentSiteClass = "is-current-site")
+    #end
+
+    <li class="site-list-item mb-1 $!{currentSiteClass}">
         <div class="site-list-item-head d-flex align-items-stretch pe-2">
-            <button class="btn btn-nav btn-site rounded-end text-start border-0 me-1 d-flex flex-grow-1 $!{isCollapsedClass}" data-bs-toggle="collapse" data-bs-target="#site-${index}-pages" aria-expanded="false" aria-controls="site-${index}-pages">
+            <button class="btn btn-nav btn-site rounded-end text-start border-0 me-1 d-flex flex-grow-1 $!{isCollapsedClass}" data-bs-toggle="collapse" data-bs-target="#site-${index}-pages" aria-expanded="${isExpanded}" aria-controls="site-${index}-pages">
                 <i class="btn-site-carret" aria-hidden="true"></i><span>${site.title}</span>
             </button>
             #if ($loggedIn)
@@ -99,9 +34,9 @@
             <ul class="site-page-list nav flex-column py-1">
             #foreach ( $page in $site.pages )
                 #if ($isCurrentSite)
-                    #set($pageUrl = $page.resetUrl)
+                    #set ($pageUrl = $page.resetUrl)
                 #else
-                    #set($pageUrl = $page.url)
+                    #set ($pageUrl = $page.url)
                 #end
                 <li class="nav-item">
                     <a class="btn btn-nav rounded-end ps-4" href="${pageUrl}">
@@ -137,6 +72,7 @@
     </li>
 #end
 
+<!-- START VM includeSiteNav.vm -->
 <aside id="${portalCssPrefix}-nav-sidebar" class="d-none ${portalCssPrefix}-nav-sidebar overflow-auto" tabindex="-1" data-bs-backdrop="true" aria-labelledby="">
     <div class="offcanvas-header d-md-none">
         <h2 class="offcanvas-title">${rloader.sitenav_title}</h2>
@@ -149,7 +85,7 @@
                 <div class="sites-section">
                     <h3 class="mb-2 pt-3 ps-3 fs-5">${rloader.sitenav_title_current}</h3>
                     <ul class="mb-0 list-unstyled">
-                        #siteActual( "current", $superSites.currentSite, false, true)
+                        #siteListItem("current", $superSites.currentSite, false, true)
                     </ul>
                 </div>
             #end
@@ -159,7 +95,7 @@
                     <ul class="mb-0 list-unstyled">
                         #foreach ( $site in $superSites.pinnedSites)
                             #if ($site.id != $currentSiteId)
-                                #siteActual( $velocityCount, $site, false, false)
+                                #siteListItem("pin-${velocityCount}", $site, false, false)
                             #end
                         #end
                     </ul>
@@ -171,7 +107,7 @@
                     <ul class="mb-0 list-unstyled">
                         #foreach ( $site in $superSites.recentSites)
                             #if ($site.id != $currentSiteId)
-                                #siteActual( $velocityCount, $site, false, false)
+                                #siteListItem("rec-${velocityCount}", $site, false, false)
                             #end
                         #end
                     </ul>
@@ -190,7 +126,7 @@
                 <div class="sites-section">
                     <h3 class="visually-hidden mb-2 pt-3 ps-3 fs-5">${rloader.sitenav_title_current}</h3>
                     <ul class="pt-2 mb-0 list-unstyled">
-                        #siteActual( "gateway", $superSites.gatewaySite, true, true)
+                        #siteListItem("gateway", $superSites.gatewaySite, true, true)
                     </ul>
                 </div>
             #end
