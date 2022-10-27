@@ -133,5 +133,61 @@
         </div>
     {{/if}}
 
-    </div> <!-- /roster-table-row -->
+    {{#if ../viewCandidateDetails}}
+        {{#if studentNumber}}
+        <div class="roster-table-cell roster-student-number-cell">
+            <div class="roster-mobile-label">{{tr 'facet_studentNumber'}}</div>
+            <span class="roster-student-number">{{studentNumber}}</span>
+        </div>
+        {{/if}}
+        {{#if hasAdditionalInfo}}
+            {{!-- Only vibile when printing Cards view --}}
+            {{#if hasSpecialNeeds}}
+            <div class="roster-table-cell roster-special-needs-cell roster-print-cards-only">
+                <div class="roster-mobile-label">{{tr 'facet_specialNeeds'}}</div>
+                <ul class="roster-special-needs">
+                    {{#each specialNeeds}}
+                    <li>{{this}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+            {{/if}}
+            {{#if hasAdditionalNotes}}
+            <div class="roster-table-cell roster-additional-notes-cell roster-print-cards-only">
+                <div class="roster-mobile-label">{{tr 'facet_additionalNotes'}}</div>
+                <ul class="roster-additional-notes">
+                    {{#each additionalNotes}}
+                    <li>{{this}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+            {{!------------------END--------------------}}
+            {{!--Only visible when printing List view --}}
+            {{/if}}
+            {{#if hasSpecialNeeds}}
+            <div class="roster-table-cell roster-special-needs-cell roster-print-list-only">
+                <div>{{tr 'facet_specialNeeds'}}:</div>
+                <ul class="roster-special-needs">
+                    {{#each specialNeeds}}
+                    <li>{{this}}</li>
+                    {{/each}}
+                </ul>
+                <div>{{tr 'facet_additionalNotes'}}:</div>
+                <ul class="roster-additional-notes">
+                    {{#each additionalNotes}}
+                    <li>{{this}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+            {{!------------------END--------------------}}
+            {{/if}}
+            <div class="roster-table-cell roster-additional-info-cell">
+                <button class="roster-table-button additional-info" data-user-id="{{userId}}">
+                    <span class="roster-card-button-icon fa fa-info-circle"></span>
+                    <span>{{tr 'additionalInfo_button_text'}}</span>
+                </button>
+            </div>
+        {{/if}}
+    {{/if}}
+    </div>
 {{/each}}

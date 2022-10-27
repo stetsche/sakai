@@ -36,6 +36,7 @@ package org.sakaiproject.roster.api;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import lombok.Getter;
@@ -74,6 +75,12 @@ public class RosterMember {
 	private String credits;
 	@Getter @Setter
 	private String pronunciation;
+	@Getter @Setter
+	private String studentNumber;
+	@Getter @Setter
+	private List<String> specialNeeds;
+	@Getter @Setter
+	private List<String> additionalNotes;
 	@Getter
 	private Map<String, String> groups = new HashMap<String, String>();
 	@Getter @Setter

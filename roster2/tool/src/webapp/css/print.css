@@ -4,8 +4,16 @@
     display: none;
 }
 
-.roster-table {
+
+.roster-print-list-only,
+.roster-print-cards-only {
+    display: none !important;
+}
+    .roster-table {
     width: 100%
+}
+.roster-table .roster-additional-info-cell {
+    display: none !important;
 }
 .roster-table .roster-table-header-group {
     display: none;
@@ -28,6 +36,9 @@
 }
 .roster-table .roster-member:nth-child(odd) {
     background: #FAFAFA;
+}
+.view_mode_cards .roster-print-cards-only {
+    display: block !important;
 }
 .view_mode_cards #roster-members, .view_mode_photogrid #roster-members {
     display: -webkit-flex;
@@ -85,7 +96,6 @@
 }
 .view_mode_cards .roster-table-row {
     width: 340px;
-    max-height: 128px;
 }
 .view_mode_cards .roster-table-row .roster-table-cell .roster-mobile-label {
     display: inline;
@@ -142,6 +152,9 @@
 }
 .view_mode_photogrid .roster-hide-names {
     display: none;
+}
+.view_mode_spreadsheet .roster-print-list-only {
+    display: table-cell !important;
 }
 .view_mode_spreadsheet .roster-table {
     display: table;
@@ -209,6 +222,7 @@
     display: block;
 }*/
 
-.Mrphs-sakai-site-roster2 .view_mode_cards .roster-table .roster-member.roster-table-row, .Mrphs-sakai-site-roster2 .view_mode_photogrid .roster-table .roster-member.roster-table-row {
+.Mrphs-sakai-site-roster2 .view_mode_cards .roster-table .roster-member.roster-table-row,
+.Mrphs-sakai-site-roster2 .view_mode_photogrid .roster-table .roster-member.roster-table-row {
     page-break-inside: avoid;
 }

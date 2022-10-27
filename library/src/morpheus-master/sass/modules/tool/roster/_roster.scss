@@ -98,6 +98,11 @@
     .roster-table {
         width: 100%;
 
+        .roster-print-cards-only,
+        .roster-print-list-only {
+            display: none !important;
+        }
+
         .roster-table-header-group {
             display: none;
         }
@@ -160,6 +165,18 @@
         .roster-member:nth-child(odd){
             background: $tool-tab-background-color;
         }
+
+        .roster-table-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            word-break: normal;
+
+            &.additional-info {
+                gap: 7px;
+            }
+        }
     }
 
     .view_mode_cards, .view_mode_photogrid {
@@ -201,7 +218,6 @@
     .view_mode_cards {
         .roster-table-row {
             width: 340px;
-            max-height: 128px;
 
             .roster-table-cell .roster-mobile-label {
                 display: inline;
@@ -213,7 +229,12 @@
                 margin-right: 5px;
             }
 
-            .roster-name-cell, .roster-userId-cell, .roster-role-cell, .roster-groups-cell, .roster-email-cell {
+            .roster-email-cell,
+            .roster-groups-cell,
+            .roster-name-cell,
+            .roster-role-cell,
+            .roster-student-number-cell,
+            .roster-userId-cell {
                 @include display-flex();
                 @include align-items(center);
                 @include justify-content(space-between);
@@ -251,7 +272,13 @@
                 white-space: nowrap;
             }
 
-            .roster-groups-cell, .roster-email-cell, .roster-mobile-label {
+            .roster-additional-info-cell,
+            .roster-additional-notes-cell,
+            .roster-email-cell,
+            .roster-groups-cell,
+            .roster-mobile-label,
+            .roster-special-needs-cell,
+            .roster-student-number-cell {
                 display: none;
             }
         }
@@ -313,10 +340,20 @@
                     display: none;
                 }
             }
+
+            .roster-special-needs-cell,
+            .roster-additional-notes-cell {
+                display: none !important;
+            }
         }
     }
     // end spreadsheet view styles
 
+    .modal {
+        .close {
+            opacity: 1;
+        }
+    }
     @media #{$phone} {
         input#roster-spreadsheet-view-radio, label[for=roster-spreadsheet-view-radio] {
             display: none;

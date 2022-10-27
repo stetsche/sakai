@@ -34,6 +34,20 @@
             {{#if viewUserProperty}}
             <div class="roster-table-cell">{{tr 'facet_userProperties'}}</div>
             {{/if}}
+            {{#if viewCandidateDetails}}
+                {{#if anyStudentNumberPresent}}
+            <div class="roster-table-cell">{{tr 'facet_studentNumber'}}</div>
+                {{/if}}
+                {{#if anySpecialNeedsPresent}}
+            <div class="roster-table-cell roster-special-needs-cell">{{tr 'facet_specialNeeds'}}</div>
+                {{/if}}
+                {{#if anyAdditionalNotesPresent}}
+            <div class="roster-table-cell roster-additional-notes-cell">{{tr 'facet_additionalNotes'}}</div>
+                {{/if}}
+                {{#if anyAdditionalInfoPresent}}
+            <div class="roster-table-cell roster-additional-info-cell">{{tr 'facet_additionalInfo'}}</div>
+                {{/if}}
+            {{/if}}
         </div>
     </div>
     <div id="roster-members" class="roster-table-row-group"></div>
