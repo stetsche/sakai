@@ -740,7 +740,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					link.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.importitem.tooltip")));
 				}
 			}
-			
+
+			String toolCompleteUrl = myUrl() + "/portal/site/" + simplePageBean.getCurrentSiteId() + "/tool-reset/" + toolManager.getCurrentPlacement().getId();
+			String encodedToolUrl = Base64.getEncoder().encodeToString(toolCompleteUrl.getBytes());
+			String validateClassUrl = ServerConfigurationService.getString("url.validar.clase.virtual") + "?p=" + encodedToolUrl;
+			UILink linkValidateClass = UIInternalLink.make(tofill, "validate-class-link", messageLocator.getMessage("simplepage.validate_virtual_class"), validateClassUrl);
+
 			// Checks to see that user can edit and that this is either a top level page,
 			// or a top level student page (not a subpage to a student page)
 			if(simplePageBean.getEditPrivs() == 0 && (pageItem.getPageId() == 0)) {
