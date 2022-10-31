@@ -33,6 +33,7 @@ import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.StringHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
@@ -257,6 +258,17 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 
 						final Label title = new Label("title", assignment.getName());
 						assignmentItem.add(title);
+
+						if (gradeInfo.getGrade() != null) {
+							String linkNotasParciales = serverConfigService.getString("url.notas.parciales.estudiantes") +
+							"?user=" + studentUuid + "&id=" + assignment.getId() + "&type=" + GradeSummaryTablePanel.this.getUserRole();
+
+							String labelNotasParciales = getString("label.gradeitem.checkscores");
+
+							assignmentItem.add(new ExternalLink("linkNotasEst", linkNotasParciales, labelNotasParciales));
+						} else {
+							assignmentItem.add(new ExternalLink("linkNotasEst", "", ""));
+						}
 
 						final BasePage page = (BasePage) getPage();
 
