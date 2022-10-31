@@ -116,6 +116,11 @@
                     <wicket:message key="label.due"/> 
                     <span>${dueDate}</span>
                 </div>
+                <div class="gb-due-date">
+                    <a href="${settings.urlNotasParcialesProf}?id=${assignmentId}">
+                        <wicket:message key="label.gradeitem.checkscores" />
+                    </a> 
+               </div>
                 <div class="gb-grade-item-flags">
                     {if released}
                         <span class="gb-flag-released" wicket:message="title:label.gradeitem.released"></span>
