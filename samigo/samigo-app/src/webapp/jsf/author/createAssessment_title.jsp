@@ -106,6 +106,42 @@
     </h:form>
     <!-- end content -->
 </div>
+<div class="alert alert-info">
+    <div class=" container-fluid">
+        <h3>Tipo de Ex&aacute;menes</h3>
+        <hr>
+        <div class="row">
+            <ul class="col-sm-6">
+                <li>
+                    <h4>Prueba cronometrada:</h4>
+                    <p>Esta plantilla permite configurar un cron&oacute;metro que se activa desde que el estudiante abre el examen, finalizado este tiempo el examen se cierra y env&iacute;a autom&aacute;ticamente.</p>
+                </li>
+                <li>
+                    <h4>Examen </h4>
+                    <p>Esta plantilla posee todos los men&uacute;s generales, excepto opciones: cron&oacute;metro y clave de acceso. El examen se env&iacute;a autom&aacute;ticamente finalizada la fecha de cierre.</p>
+                </li>
+                <li>
+                    <h4>Encuesta </h4>
+                    <p>Esta plantilla no permite asignar puntuaci&oacute;n a las respuestas. El examen NO se env&iacute;a autom&aacute;ticamente. </p>
+                </li>
+            </ul>
+            <ul class="col-sm-6">
+                <li>
+                    <h4>Prueba</h4>
+                    <p>Esta plantilla cuenta con un men&uacute; (opcional) para configurar una clave de acceso al examen. El examen se env&iacute;a autom&aacute;ticamente finalizada la fecha de cierre.</p>
+                </li>
+                <li>
+                    <h4>Conjunto de problemas  </h4>
+                    <p>Esta plantilla permite habilitar m&aacute;s de un env&iacute;o por usuario y configurar c&oacute;mo se validar&aacute; la puntuaci&oacute;n al evaluar. El examen se env&iacute;a autom&aacute;ticamente finalizada la fecha de cierre.</p>
+                </li>
+                <li>
+                    <h4>Evaluaci&oacute;n Formativa </h4>
+                    <p>Esta plantilla no cuenta con opci&oacute;n para enviar puntaje al libro de calificaciones. El examen NO se env&iacute;a autom&aacute;ticamente. </p>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
 </body>
 </html>
 </f:view>
