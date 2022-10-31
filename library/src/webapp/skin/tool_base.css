@@ -906,3 +906,9 @@ blockquote p {
 	opacity: 1;
 	border-color: var(--sakai-background-color-1);
 }
+
+/* UNAP Custom changes */
+.featherlight .featherlight-content 
+{
+	min-width: 350px !important;
+}
