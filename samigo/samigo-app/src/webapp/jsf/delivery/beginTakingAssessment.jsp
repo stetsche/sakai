@@ -85,6 +85,8 @@
 
 <div>
 <h:panelGrid columns="1" border="0">
+    <h1>Importante</h1>
+    <p>Selecciona la opción <b>Guardar</b> cada vez que contestas una pregunta, esto con el objetivo de prevenir pérdida de información en el caso de fallas en la conexión.</p>
     <!--  Due Message -->
     <h:panelGroup rendered="#{delivery.firstTimeTaking}">
         <h:panelGroup rendered="#{(delivery.dueDate != null && delivery.dueDate ne '')}">
@@ -99,7 +101,8 @@
     </h:panelGroup>
     
 	<h:outputText value="#{deliveryMessages.begin_assessment_msg_no_due}" rendered="#{(delivery.dueDate==null || delivery.dueDate eq '') && !delivery.firstTimeTaking && !delivery.hasTimeLimit}" escape="false"/>
-    
+
+    El acceso para responder el examen será:
     <h:outputText value=" "/>
     <h:outputText value=" "/>
 
@@ -209,6 +212,16 @@
     <h:outputLabel for="baPassword" value="#{deliveryMessages.password}" rendered="#{delivery.settings.password ne ''}" />
     <h:inputSecret id="baPassword" value="#{delivery.password}" size="20" rendered="#{delivery.settings.password ne ''}" />
 </h:panelGrid>
+
+<br>
+<h1> Recomendaciones </h1>
+<h2>¿Cómo evitar problemas al realizar pruebas en línea?</h2>
+<h4><p>* Abra solo una ventana y un navegador</p>
+  <p>* Guarde sus respuestas con frecuencia</p>
+  <p>* No utilice los botones Atrás y Adelante de su navegador</p>
+  <p>* Complete el examen con prontitud</p>
+  <p>* Es posible que se agote el tiempo de espera después de una cierta cantidad de inactividad</p>
+  <p>* Utilice una conexión de red confiable cuando sea posible</p></h4>
 
  </div></div>
 
