@@ -1,0 +1,185 @@
+// CUSTOM UNAP THEME
+
+// Colors
+$brand-main: #0069B1;
+$brand-secondary: #009CA6;
+$brand-dark: #0F3E57;
+$brand-light: #CEDBE1;
+$grey-light: #D9DBDB;
+$grey-dark: #3F4040 ;
+
+
+:root {
+
+    // Define brand colors in hsl format
+    @include defineColorHSL(--sakai-brand, 204, 100%, 35%);
+
+    @include defineColorHSL(--sakai-brand-light, 199, 24%, 85%);
+
+    @include defineColorHSL(--sakai-grey-light, 80, 3%, 85%);
+
+    @include defineColorHSL(--sakai-text-color, 180, 1%, 25%);
+
+    --sakai-white: #fff;
+
+    // Text colors
+    --sakai-text-color-1: var(--sakai-text-color);
+    --sakai-text-color-2: var(--sakai-text-color--darker-1);
+    --sakai-text-color-3: var($brand-dark);
+    --sakai-text-color-dimmed: var(--sakai-text-color--lighter-1);
+    --sakai-text-color-disabled: var(--sakai-text-color--lighter-3);
+
+    // Header background colors
+    --top-header-background: linear-gradient(#{$brand-secondary}, #{$brand-main});
+    --logo-background-color: transparent;
+
+    // Set aula virtual logo for header and login
+    --logo: url(#{$skin-path}images/logo-aula-virtual.svg);
+
+    // SITES MENU
+    // Default state - not selected
+    --sites-nav-menu-item-background: var(--sakai-white);
+    --sites-nav-menu-items-border-color: #{$brand-dark};
+    // Hover
+    --sites-nav-menu-item-hover-background: var(--sakai-brand-light--lighter-5);
+    --sites-nav-menu-items-hover-border-color: var(--sites-nav-menu-items-border-color);
+    --sites-nav-menu-item-hover-icon-background: var(--sakai-brand-light--lighter-2);
+    // Active
+    --sites-nav-menu-item-active-background: var(--sakai-brand-light--lighter-4);
+    --sites-nav-menu-items-active-border-color: var(--sites-nav-menu-items-border-color);
+    --sites-nav-menu-item-active-icon-background: var(--sakai-brand-light);
+    // Tool menu dropdown
+    --sites-nav-submenu-border-color: var(--sites-nav-menu-items-border-color);
+
+    // Active/Current site
+    --sites-nav-menu-item-selected-background: var(--sakai-brand-light);
+    --sites-nav-menu-item-selected-color: #{$brand-dark};
+    --sites-nav-menu-items-selected-border-color: #{$brand-dark};
+    // Hover
+    --sites-nav-menu-item-selected-hover-background: var(--sakai-brand-light--darker-1);
+    --sites-nav-menu-item-selected-hover-color: var(--sites-nav-menu-item-selected-color);
+    --sites-nav-menu-items-selected-hover-border-color: #{$brand-dark};
+    --sites-nav-menu-item-selected-hover-icon-background: var(--sites-nav-menu-item-selected-active-background);
+    // Active
+    --sites-nav-menu-item-selected-active-background: var(--sakai-brand-light--darker-2);
+    --sites-nav-menu-item-selected-active-color: var(--sites-nav-menu-item-selected-color);
+    --sites-nav-menu-items-selected-active-border-color: var(--sites-nav-menu-item-selected-active-background);
+    --sites-nav-menu-item-selected-active-icon-background: var(--sakai-brand-light--darker-3);
+    // Tool menu dropdown (submenu)
+    --sites-nav-submenu-selected-border-color: var(--sites-nav-menu-items-selected-border-color);
+
+    // TOOL MENU
+    --tool-menu-background-color: var(--sakai-brand-light);
+    // Normal state
+    --tool-menu-item-background-color: var(--sakai-brand-light);
+    // Hover
+    --tool-menu-item-hover-background-color: var(--sakai-brand-light--darker-1);
+    // Active
+    --tool-menu-item-active-background-color: var(--sakai-brand-light--darker-2);
+    // Hidden - normal state
+    --tool-menu-item-hidden-background-color: var(--sakai-white);
+    // Hidden - hover
+    --tool-menu-item-hidden-hover-background-color: var(--sakai-brand-light--lighter-5);
+    // Hidden - active
+    --tool-menu-item-hidden-active-background-color: var(--sakai-brand-light--lighter-4);
+    // Selected - normal state
+    --tool-menu-item-selected-background-color: var(--sakai-white);
+    // Selected - hover
+    --tool-menu-item-selected-hover-background-color: var(--sakai-brand-light--lighter-5);
+    // Selected - active
+    --tool-menu-item-selected-active-background-color: var(--sakai-brand-light--lighter-4);
+    // Tool menu collapse button - normal state
+    --tool-menu-collapse-background-color: var(--sakai-background-color-1);
+    // Tool menu collapse - hover
+    --tool-menu-collapse-hover-background-color: var(--sakai-brand-light--lighter-5);
+    // Tool menu collapse - active
+    --tool-menu-collapse-active-background-color: var(--sakai-brand-light--lighter-4);
+    // Tool menu collapse - minimized
+    --tool-menu-collapse-min-background-color: var(--tool-menu-collapse-background-color);
+    // Tool menu collapse - minimized - hover
+    --tool-menu-collapse-min-hover-background-color: var(--tool-menu-collapse-hover-background-color);
+    // Tool menu collapse - minimized - active
+    --tool-menu-collapse-min-active-background-color: var(--tool-menu-collapse-active-background-color);
+
+    // Background color of profile dropdown (reset)
+    --profile-menu-background-color: var(--sakai-background-color-2);
+
+    // Background color at the title of overview widgets (reset)
+    --overview-portlet-title-background-color: var(--sakai-background-color-2);
+
+    // Background color of tool tabs (reset)
+    --tool-tab-background-color: var(--sakai-background-color-1);
+
+    // Calendar customization
+    --sakai-calendar-today-border-color: var(--sakai-brand-light);
+    --sakai-calendar-today-background-color: var(--sakai-brand-light);
+    --sakai-calendar-today-text-color: var(--sakai-text-color-1);
+    --sakai-calendar-event-border-color: var(--sakai-primary-color-3);
+    --sakai-calendar-event-background-color: var(--sakai-primary-color-1);
+    //--sakai-calendar-event-hover-background-color: var(--sakai-primary-color-2);
+    --sakai-calendar-event-text-color: var(--sakai-white);
+    --sakai-calendar-event-indicator-color: var(--sakai-white);
+}
+
+:root.sakaiUserTheme-dark {
+
+    // SITES MENU
+    // Default state - not selected
+    --sites-nav-menu-item-background: var(--button-background);
+    --sites-nav-menu-items-border-color: var(--button-border-color);
+    // Hover
+    --sites-nav-menu-item-hover-background: var(--button-hover-background);
+    --sites-nav-menu-items-hover-border-color: var(--button-border-color);
+    --sites-nav-menu-item-hover-icon-background: var(--button-active-background);
+    // Active
+    --sites-nav-menu-item-active-background: var(--button-active-background);
+    --sites-nav-menu-items-active-border-color: var(--button-border-color);
+    --sites-nav-menu-item-active-icon-background: var(--sakai-greyblue--darker-2);
+    // Tool menu dropdown
+    //--sites-nav-submenu-border-color: #{$brand-dark};
+
+    // Active/Current site
+    --sites-nav-menu-item-selected-background: var(--sakai-active-color-1);
+    --sites-nav-menu-item-selected-color: var(--sakai-white);
+    --sites-nav-menu-items-selected-border-color: var(--sites-nav-menu-item-selected-background);
+    // Hover
+    --sites-nav-menu-item-selected-hover-background: var(--sakai-active-color-2);
+    --sites-nav-menu-items-selected-hover-border-color: var(--sites-nav-menu-item-selected-hover-background);
+    // Active
+    --sites-nav-menu-item-selected-active-background: var(--sakai-active-color-3);
+    --sites-nav-menu-items-selected-active-border-color: var(--sites-nav-menu-item-selected-active-background);
+    --sites-nav-menu-item-selected-active-icon-background: var(--sakai-brand--lighter-2);
+
+    // Tool menu dropdown
+    --top-header-background: linear-gradient(#{$brand-main}, var(--sakai-background-color-1));
+
+    // TOOL MENU
+    --tool-menu-background-color: var(--sakai-background-color-1);
+    // Normal state
+    --tool-menu-item-background-color: var(--sakai-background-color-1);
+    // Hover
+    --tool-menu-item-hover-background-color: var(--sakai-background-color-2);
+    // Active
+    --tool-menu-item-active-background-color: var(--sakai-background-color-3);
+    // Hidden - normal state
+    --tool-menu-item-hidden-background-color: var(--sakai-background-color-2);
+    // Hidden - hover
+    --tool-menu-item-hidden-hover-background-color: var(--sakai-background-color-3);
+    // Hidden - active
+    --tool-menu-item-hidden-active-background-color: var(--sakai-background-color-4);
+    // Selected - normal state
+    --tool-menu-item-selected-background-color: var(--sakai-active-color-1);
+    // Selected - hover
+    --tool-menu-item-selected-hover-background-color: var(--sakai-active-color-2);
+    // Selected - active
+    --tool-menu-item-selected-active-background-color: var(--sakai-active-color-3);
+    // Tool menu collapse button - normal state
+    --tool-menu-collapse-background-color: var(--sakai-background-color-2);
+    // Tool menu collapse - hover
+    --tool-menu-collapse-hover-background-color: var(--sakai-background-color-3);
+    // Tool menu collapse - active
+    --tool-menu-collapse-active-background-color: var(--sakai-background-color-4);
+
+    // Calendar customization
+    --sakai-calendar-today-background-color: var(--sakai-brand-light--darker-4);
+}

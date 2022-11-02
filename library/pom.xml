@@ -350,7 +350,7 @@
 			<properties>
 				<sakai.skin.source>morpheus-master</sakai.skin.source>
 				<sakai.skin.target>morpheus-default</sakai.skin.target>
-				<sakai.skin.customization.file>src/${sakai.skin.source}/sass/examples/_customization_example_empty.scss</sakai.skin.customization.file>
+				<sakai.skin.customization.file>src/${sakai.skin.source}/sass/customization/_customization.scss</sakai.skin.customization.file>
 				<sakai.skin.outputStyle>compressed</sakai.skin.outputStyle>
 			</properties>
 			<build>
@@ -406,6 +406,9 @@
 										</resource>
 										<resource>
 										  <directory>${basedir}/src/${sakai.skin.source}/bootstrap-sass-${bootstrap-version}/assets/fonts/</directory>
+										</resource>
+										<resource>
+										  <directory>${basedir}/src/${sakai.skin.source}/fonts/</directory>
 										</resource>
 									</resources>
 								</configuration>

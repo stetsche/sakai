@@ -40,7 +40,7 @@ body.is-logged-out{
 		}
 
 		.#{$namespace}headerLogo--institution{
-			width: $tool-menu-width;
+			width: $logo-wrapper-width;
 			height: 100%; // align vertically center
 			background: var(--logo) no-repeat center center;
 			background-size: var(--logo-width) var(--logo-height);
@@ -204,7 +204,7 @@ body.is-logged-out{
 	.#{$namespace}userData{
 		border-bottom: 1px solid var(--tool-border-color);
 		margin-bottom: 0.5em;
-		background-color: var(--tool-menu-background-color);
+		background-color: var(--profile-menu-background-color);
 	}
 
 	.#{$namespace}userNav__submenuitem--profile-and-image{
@@ -645,7 +645,7 @@ body.is-logged-out{
 		}
 
 		ul{
-			background-color: var(--tool-tab-background-color);
+			background-color: var(--profile-menu-background-color);
 			text-align: left;
 			padding: 0 0 0 0;
 			margin: 0.48em 1em 0 0.9em;
@@ -866,12 +866,14 @@ body.is-logged-out{
 			padding: 0;
 			border-radius: $sites-nav-menu-item-border-radius;
 			background: var(--sites-nav-menu-item-background);
+			border: 1px solid;
+			border-color: var(--sites-nav-menu-items-border-color);
 
 			&:hover {
 				box-shadow: var(--elevation-2dp);
 				transition: $active-transition-hover;
 				background: var(--sites-nav-menu-item-hover-background);
-				border-color: var(--sites-nav-menu-item-hover-border-color);
+				border-color: var(--sites-nav-menu-items-hover-border-color);
 				a {
 					background: var(--sites-nav-menu-item-hover-background);
 					border-color: var(--sites-nav-menu-item-hover-border-color);
@@ -881,7 +883,7 @@ body.is-logged-out{
 				box-shadow: var(--elevation-1dp);
 				transition: $active-transition-active;
 				background: var(--sites-nav-menu-item-active-background);
-				border-color: var(--sites-nav-menu-item-active-border-color);
+				border-color: var(--sites-nav-menu-items-active-border-color);
 				a {
 					background: var(--sites-nav-menu-item-active-background);
 					border-color: var(--sites-nav-menu-item-active-border-color);
@@ -968,7 +970,7 @@ body.is-logged-out{
 				position: absolute;
 				padding: $standard-spacing 0;
 				top: $sites-nav-submenu-top;
-				left: 0;
+				left: -1px;
 				z-index: 99;
 				display: none;
 				min-width: calc(100% + (#{$standard-spacing} * 2));	// prevent rounded corner visual bugs by forcing submenu to be larger than site title
@@ -1052,10 +1054,11 @@ body.is-logged-out{
 			// Current site is selected:
 			&.is-selected {
 				background: var(--sites-nav-menu-item-selected-background);
+				border-color: var(--sites-nav-menu-items-selected-border-color);
 
 				&:hover {
 					background: var(--sites-nav-menu-item-selected-hover-background);
-					border-color: var(--sites-nav-menu-item-selected-hover-border-color);
+					border-color: var(--sites-nav-menu-items-selected-hover-border-color);
 					a {
 						background: var(--sites-nav-menu-item-selected-hover-background);
 						border-color: var(--sites-nav-menu-item-selected-hover-border-color);
@@ -1064,7 +1067,7 @@ body.is-logged-out{
 
 				&:active {
 					background: var(--sites-nav-menu-item-selected-active-background);
-					border-color: var(--sites-nav-menu-item-selected-active-border-color);
+					border-color: var(--sites-nav-menu-items-selected-active-border-color);
 					a {
 						background: var(--sites-nav-menu-item-selected-active-background);
 						border-color: var(--sites-nav-menu-item-selected-active-border-color);

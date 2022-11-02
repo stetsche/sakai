@@ -1,6 +1,12 @@
 //////////////////////////////
 // MODULES: Styles that are layout independent 
 //////////////////////////////
+
+// Revemoe footerApp from UI
+##{$namespace}footerApp {
+	display: none !important;
+}
+
 @import "_chat_variables";
 	.#{$namespace}sakai-chat{
 		.panel-chat {
