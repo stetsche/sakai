@@ -1,4 +1,5 @@
 if (window.self !== window.top) {
+
   const observer = new MutationObserver(function() {
     if (document.body) {
       // It exists now
@@ -9,4 +10,5 @@ if (window.self !== window.top) {
     }
   });
   observer.observe(document.documentElement, {childList: true});
+
 }
