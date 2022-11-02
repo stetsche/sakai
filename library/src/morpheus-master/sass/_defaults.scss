@@ -35,6 +35,9 @@ $default-font-size-small: 12px !default;
 $default-font-weight: 400 !default;										// 400 or 700 as you wish
 $default-line-height: 1.42857 !default;											// 20px / 14px = 1.42857
 
+//Width of span in the header, where logo is applied as background
+$logo-wrapper-width: 148px !default;
+
 ////////////////////////////////////////////////////////////////////////////////////////
 // SAK-43981 ALL THEME RELATED VARIABLES HAVE BEEN MOVED TO morpheus-master/sass/themes
 // This includes variables related to the following:
@@ -247,6 +250,7 @@ $focus-outline-offset: 2px !default;
 $sakai-box-shadow-emulate-focus: 0px 0px 0px $focus-outline-width !default;
 
 $font-family: "Open Sans",sans-serif !default;
+$font-family: "Product Sans", "Open Sans", Times, serif;
 $header-font-family: $font-family !default;
 $header-font-weight: 700 !default;										// 400 or 700 as you wish
 
