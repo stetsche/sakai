@@ -1,0 +1,65 @@
+
+@import "themes/base";
+
+@import "themes/light";
+@import "themes/dark";
+
+@import "defaults";
+
+// Customization (theme) copied from morpheus master
+@import "master-customization";
+// Customization for gateway
+@import "customization";
+
+@import "base/bootstrap-defaults";
+@import "base/jquery-ui-defaults";
+@import "base/extendables";
+@import "base/defaults";
+@import "base/responsive";
+@import "base/icons";
+
+@import "modules/fonts/product-sans";
+@import "modules/main";
+@import "modules/footer";
+@import "modules/navigation/base";
+@import "modules/navigation/skipnav";
+@import "modules/navigation/breadCrumbs";
+@import "modules/toolmenu";
+@import "modules/tool/base";
+@import "modules/tool/elements";
+@import "modules/tool/menu";
+@import "modules/tool/table";
+
+@import "modules/content/base";
+
+@import "base/rtl";
+
+@import "modules/access/base";
+@import "modules/quicklinks/_quicklinks_variables.scss";
+@import "modules/quicklinks/_base";
+@import "modules/more-sites/base";
+@import "modules/timeout-alert/base";
+@import "modules/swapped-view/base";
+@import "modules/cookies/base";
+@import "modules/tutorial/base";
+@import "modules/profile-popup/base";
+@import "modules/reorderer/base";
+@import "modules/portal-search/base";
+@import "modules/pager/base";
+@import "modules/bullhorn-alerts/base";
+@import "modules/connection-manager/base";
+@import "modules/profile-popup/base";
+@import "modules/joinpage/base";
+@import "modules/editor/base";
+@import "modules/jumptotop/base";
+@import "modules/submission-messager/base";
+@import "modules/grader/base";
+@import "modules/button/base";
+@import "modules/dashboard/base";
+@import "modules/courselist/base";
+@import "modules/coursecard/base";
+@import "modules/icon/base";
+@import "modules/widget-panel/base";
+@import "modules/theme-switcher/base";
+@import "modules/multiselect/base";
+@import "modules/sakai-options-menu/sakai-options-menu";

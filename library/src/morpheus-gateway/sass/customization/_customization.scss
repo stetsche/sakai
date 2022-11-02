@@ -1,0 +1,48 @@
+// Customization for gateway
+
+$banner-height: 85px;
+$tool-menu-width: 100%;
+$tool-menu-item-border-radius: 0;
+$tool-menu-icon-on-left: false;
+$container-spacing: 0;
+$overview-portlet-border: 1px solid var(--sakai-border-color);
+$overview-portlet-border-radius: 0;
+$overview-portlet-title-font-size: 16;
+$tool-menu-padding: 0;
+
+:root {
+    // TOOL MENU
+    --tool-menu-background-color: var(--sakai-background-color-1);
+    // Normal state
+    --tool-menu-item-background-color: var(--tool-menu-background-color);
+    // Hover
+    --tool-menu-item-hover-background-color: var(--sakai-background-color-2);
+    // Active
+    --tool-menu-item-active-background-color: var(--sakai-background-color-3);
+    // Hidden - normal state
+    --tool-menu-item-hidden-background-color: var(--tool-menu-item-background-color);
+    // Hidden - hover
+    --tool-menu-item-hidden-hover-background-color: var(--tool-menu-item-hover-background-color);
+    // Hidden - active
+    --tool-menu-item-hidden-active-background-color: var(--tool-menu-item-active-background-color);
+    // Selected - normal state
+    --tool-menu-item-selected-text-color: var(--sakai-text-color-1);
+    --tool-menu-item-selected-background-color: var(--sakai-background-color-3);
+    // Selected - hover
+    --tool-menu-item-selected-hover-background-color: var(--sakai-background-color-4);
+    // Selected - active
+    --tool-menu-item-selected-active-background-color: var(--sakai-color-gray--lighter-5);
+
+    --divider-shadow: none;
+
+    --overview-portlet-shadow: none;
+    --overview-portlet-title-background-color: var(--sakai-background-color-1);
+
+    --login-button-color: var(--sakai-primary-color-1);
+
+    --divider-shadow-fixed: 0px 0px 8px 3px #696969;
+}
+
+:root.sakaiUserTheme-dark {
+    --login-button-color: var(--sakai-text-color-1);
+}

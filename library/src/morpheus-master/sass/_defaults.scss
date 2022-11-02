@@ -18,6 +18,10 @@ $standard-space: 4px !default; // the width of a keyboard space
 $standard-space-2x: 8px !default;
 $standard-space-3x: 12px !default;
 $standard-space-4x: 16px !default;
+
+// Spacing between (tool)containers on a page
+$container-spacing: $standard-spacing !default;
+
 // For the "More Sites" drawer, just use one column if there's not
 // enough room to show two side-by-side.
 $break-more-sites-single-column: 1200px !default;
@@ -34,6 +38,9 @@ $default-font-size: 14px !default;
 $default-font-size-small: 12px !default;
 $default-font-weight: 400 !default;										// 400 or 700 as you wish
 $default-line-height: 1.42857 !default;											// 20px / 14px = 1.42857
+
+//Width of span in the header, where logo is applied as background
+$logo-wrapper-width: 148px !default;
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // SAK-43981 ALL THEME RELATED VARIABLES HAVE BEEN MOVED TO morpheus-master/sass/themes
@@ -247,6 +254,7 @@ $focus-outline-offset: 2px !default;
 $sakai-box-shadow-emulate-focus: 0px 0px 0px $focus-outline-width !default;
 
 $font-family: "Open Sans",sans-serif !default;
+$font-family: "Product Sans", "Open Sans", Times, serif;
 $header-font-family: $font-family !default;
 $header-font-weight: 700 !default;										// 400 or 700 as you wish
 

@@ -1,0 +1,137 @@
+.content-primary {
+    padding: $standard-spacing * 2;
+    margin-bottom: $standard-spacing * 2;
+    color: var(--sakai-white);
+    background-color: var(--sakai-primary-color-1);
+    display: flex;
+    align-items: center;
+
+    @media (max-width: 720px) {
+        flex-direction: column;
+    }
+}
+
+.content-primary-text {
+    margin-top: $standard-spacing;
+    font-size: 16px;
+
+    p {
+        margin-top: $standard-spacing * 2;
+    }
+}
+
+.content-primary-images {
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   width: 300px;
+
+   img {
+       max-width: unset;
+   }
+}
+
+.content-secondary {
+    border: 1px solid var(--sakai-border-color);
+
+    .content-secondary-title {
+        padding: $standard-spacing;
+        border-bottom: 1px solid var(--sakai-border-color);
+        margin: 0;
+    }
+}
+
+
+.content-secondary-body {
+    padding: $standard-spacing;
+
+    &:not(:last-of-type) {
+        border-bottom: 1px solid var(--sakai-border-color);
+    }
+}
+
+.news {
+    display: flex;
+}
+
+.news-list {
+    list-style: none;
+    display: flex;
+    padding-left: 0;
+    flex-direction: column;
+    gap: $standard-space-2x;
+    width: 100%;
+}
+
+.news-list-item {
+    display: flex;
+    gap: $standard-space-2x;
+    margin-bottom: 0;
+    padding: $standard-spacing $standard-space-2x;
+    background-color: var(--sakai-background-color-3);
+
+    img {
+        height: 1.5em;
+    }
+
+    p {
+        margin-bottom: 0;
+    }
+}
+
+@media #{$nonPhone} {
+    .support {
+        display: grid;
+        grid-template-columns: 340px auto ;
+    }
+
+    .support-info {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        padding: $standard-spacing 0;
+    }
+
+    .support-text {
+        padding: 0 $standard-spacing;
+        
+        &:not(:first-of-type) {
+            border-left: 1px solid var(--sakai-border-color);
+        }
+    }
+}
+
+@media #{$phone} {
+    .support {
+        display: flex;
+        flex-direction: column;
+        gap: $standard-spacing;
+    }
+
+    .support-info {
+        display: flex;
+        flex-direction: column;
+        gap: $standard-spacing;
+    }
+
+    .support-text:not(:first-of-type) {
+        padding-top: $standard-spacing;
+        border-top: 1px solid var(--sakai-border-color);
+    }
+}
+
+.support-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: $standard-spacing;
+
+    h4 {
+        color: var(--sakai-primary-color-1);
+        text-transform: uppercase;
+        margin: 0;
+    }
+
+    p {
+        margin: 0;
+    }
+}
