@@ -97,7 +97,13 @@ body.is-logged-out{
 
 	&.is-fixed {
 		.#{$namespace}topHeader {
-			padding-top: $banner-height;
+			margin-top: $banner-height + 45px + $standard-spacing;
+		}
+		& + #pageBody > #toolMenuWrap {
+			border-top: 1px solid var(--tool-menu-background-color);
+			position: fixed;
+			top: $banner-height;
+			z-index: 1;
 		}
 		.#{$namespace}headerLogo {
 			position: fixed;
@@ -442,20 +448,20 @@ body.is-logged-out{
 				font-size: $default-font-size - 2px;
 			}
 		}
-		#submit{
-			margin: 0;
-			padding: 0.4em 1em;
-			font-size: $default-font-size;
-			position: relative;
-
-			@media #{$phone}
-			{
-				font-size: $default-font-size - 2px;
-				padding: 0.25em 1em;
-			}
+		.#{$namespace}loginForm__button {
+			width: 32px;
+			font-size: 28px;
+			padding: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: var(--login-button-color);
 		}
-		.#{$namespace}loginForm__button{
-			@extend .button;
+		.#{$namespace}loginForm__button,
+		.#{$namespace}loginForm__input {
+			height: 32px;
+			background-color: var(--sakai-background-color-1);
+			border-radius: 0;
 		}
 	}
 

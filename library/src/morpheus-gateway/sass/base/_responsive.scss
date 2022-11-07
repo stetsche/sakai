@@ -8,12 +8,6 @@ body{
 		}
 		
 		&.toolsNav--displayed{
-			// hide the tool body
-			.#{$namespace}pagebody {
-				#content {
-					display: none;
-				}
-			}
 			// make the banner stick to the top on scroll when the tool menu is visible
 			.#{$namespace}mainHeader {
 				position: absolute;
@@ -33,8 +27,6 @@ body{
 			#toolMenuWrap{
 				display: block;			// restore the tool menu that was removed when hidden to reduce the height of the page when it isn't visible
 				width: 100%;
-				min-height: auto; 		// to allow the bottom of the tool menu to appear when doesn't have too many tools
-				box-shadow: var(--elevation-4dp);
 				left: 0;
 				z-index: 1001;
 
@@ -76,6 +68,9 @@ body{
 				ul{
 					list-style: none;
 					padding:0;
+					display: flex;
+					flex-direction: column;
+					align-items: center;
 					li{
 						@if $tool-menu-icon-on-left {
 							display: block;
@@ -93,7 +88,9 @@ body{
 
 							.#{$namespace}toolsNav__menuitem--link {
 								background-color: var(--sites-nav-menu-item-background);
-
+								display: flex;
+								align-items: center;
+								justify-content: center;
 								&:hover,
 								&:focus,
 								&:active {
@@ -103,10 +100,11 @@ body{
 
 						}
 						@else {
-							border-left: 2px var(--sakai-background-color-2);
-							display: inline-block;
-							margin: -4px -4px 0px 0; //FIX for inline-block extra space.
-							width: calc( 25% - 1px );
+							width: calc( 100% - 1px );
+						}
+						a {
+							display: flex;
+							justify-content: center;
 						}
 						
 						&.#{$namespace}collapseTools{

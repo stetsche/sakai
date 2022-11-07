@@ -1,6 +1,7 @@
 .#{$namespace}pageColumns--single {
 	.#{$namespace}toolTitleNav__button_container {
-		@include display-flex;
+		display: none;
+		//@include display-flex;
 		@include align-items(center);
 		margin-top: -48px;			// position the buttons beside the tool title
 		
@@ -22,7 +23,11 @@
 		border: $overview-portlet-border;
 		border-radius: $overview-portlet-border-radius;
 		box-shadow: var(--overview-portlet-shadow);
-		margin-bottom: $standard-spacing;
+		margin-bottom: $container-spacing;
+
+		&:not(:last-child) {
+			border-bottom: 0;
+		}
 
 		&.#{$namespace}toolTitleNav.#{$namespace}container.#{$namespace}container--toolTitleNav {
 			border-top: 0;
@@ -40,14 +45,11 @@
 			border-bottom: $overview-portlet-border;
 			padding: $standard-spacing;
 		}
-
-		.#{$namespace}toolBody {
-			border-bottom: none;
-		}
 	}
 
 	.#{$namespace}toolTitleNav__button_container {
-		@include display-flex;
+		display: none;
+		//@include display-flex;
 		@include align-items(center);
 		margin: 0;		// to override the single column if both single and multiple classes apply to the same element
 
@@ -59,7 +61,7 @@
 	.#{$namespace}toolTitleNav{
 		.#{$namespace}toolTitleNav__title{
 			display: inline-block;
-			font-size: 1em;
+			font-size: $overview-portlet-title-font-size;
 			font-weight: 400;
 			color: var(--button-text-color);
 			margin: 0;
@@ -183,7 +185,6 @@
 
 .#{$namespace}toolBody{
 	background: var(--tool-background-color);
-	border-bottom: 1px solid var(--tool-border-color);
 	.portletMainIframe{
 		padding: $standard-spacing;
 		margin: 0 0 0 0;
@@ -194,9 +195,6 @@
 .portletBody
 {
 	padding: 0;
-	@media #{$phone}{
-		margin: 2.3em 0 0 0;
-	}
 	> * {
 		position: relative;
 	}

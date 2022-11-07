@@ -3,5 +3,7 @@
 	<input name="eid" id="eid" type="text" class="Mrphs-loginForm__input" placeholder="${eidPlaceholder}" autocomplete="username">
 	<label for="pw" class="Mrphs-loginForm__label">${loginPwWording}</label>
 	<input name="pw" id="pw" type="password" class="Mrphs-loginForm__input" placeholder="${pwPlaceholder}" autocomplete="current-password">
-	<input name="submit" id="submit" type="submit" value="${loginWording}" class="Mrphs-loginForm__button">
+	<button name="submit" id="submit" type="submit" title="${loginWording}" class="Mrphs-loginForm__button">
+		<span aria-hidden="true" class="fa fa-angle-double-right"></span>
+	</button>
 </form>
