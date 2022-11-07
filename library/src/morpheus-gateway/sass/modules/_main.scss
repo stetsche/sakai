@@ -21,7 +21,7 @@
 #pageBody{
 	@include align-items(stretch);
 	@include display-flex;
-	@include flex-direction(row);
+	@include flex-direction(column);
 	
 	> .#{$namespace}pagebody{
 		@include display-flex;
@@ -94,6 +94,8 @@ body.#{$namespace}container {
 	background-color: var(--sakai-background-color-1);
 	border-top: 1px solid var(--sakai-border-color);
 	transition:var(--sak-theme-switch-ease);
+	margin-top: 16px;
+    box-shadow: var(--divider-shadow-fixed);
 }
 
 .#{$namespace}noJs.js-warn-no-js {

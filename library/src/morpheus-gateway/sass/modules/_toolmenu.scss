@@ -10,11 +10,6 @@ body.is-logged-out{
 	.#{$namespace}mainHeader.is-maximized ~ #container #toolMenuWrap{
 		top: var(--header-size);
 	}
-	
-	#toolMenuWrap {
-		min-height: 100vh;				// alternative for browswers who cannot do calculations
-		min-height: calc(100vh - #{$banner-height});	// viewport minus the top banner when logged out
-	}
 }
 
 // Prevent tool menu collapsed styles being applied when using a mobile sized screen - an issue
@@ -69,7 +64,7 @@ body.is-logged-out{
 						min-height: 1.7em;
 						text-align: center;
 						border-radius: $tool-menu-item-collapsed-border-radius;
-						margin: $tool-menu-item-collapsed-margin; 
+						margin: $tool-menu-item-collapsed-margin;
 						&:hover, &:focus {
 							position: relative;
 							.#{$namespace}toolsNav__menuitem--title{
@@ -102,9 +97,6 @@ body.is-logged-out{
 									background: var(--tool-menu-item-hidden-hover-background-color);
 								}
 							}
-						}
-						span.#{$namespace}toolsNav__menuitem--title{
-							white-space: pre;
 						}
 					}
 					&.is-current{
@@ -195,16 +187,15 @@ body.is-logged-out{
 	#toolMenu {
 		position: relative;
 	}
+	box-shadow: var(--divider-shadow-fixed);
+	margin-bottom: $standard-spacing;
 	background: var(--tool-menu-background-color);
 	display: block;
 	min-width: $tool-menu-width;
 	width: $tool-menu-width;
-	min-height: 100vh;											// alternative for browswers who cannot do calculations
-	min-height: calc(100vh - (#{$banner-height} * 2));	// viewport minus the two top banners
 	@include flex-basis( $tool-menu-width );
 	padding: $tool-menu-padding;
 	text-align: center;
-	border-right: 1px solid var(--tool-border-color);
 	@include transition( left 0.25s linear 0s );
 	
 	@media #{$phone}{
@@ -311,20 +302,26 @@ nav#subSites{
 }
 
 #toolMenu, #subSites {
+	@media #{$nonPhone}{
+		padding: $standard-space $standard-space-4x;
+	}
 	ul{
-		padding: 0;
-		margin:  0;
+		margin-bottom: 0;
+		padding-left: 0;
 		list-style: none;
-		
-		@media #{$nonPhone}	{
-			margin-bottom: calc(#{$tool-menu-collapseButton-height} + 1em); // space at the bottom of the list to avoid the collapse button overlapping tools
-		}
-		
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+
 		li{
 			border-bottom: 1px solid var(--tool-menu-item-separator-color);
 
+			a {
+				padding: $standard-space-3x 0;
+			}
+
 			&.#{$namespace}collapseTools
 			{
+				display: none !important;
 				position: fixed;
 				bottom: 0;
 				left: 0;
@@ -434,8 +431,6 @@ nav#subSites{
 				} @else {
 					text-align: center;
 					padding: 0.5em 0.25em;
-					min-height: 3em;
-					line-height: 1.25;
 				}
 				
 				&:before{
@@ -460,15 +455,8 @@ nav#subSites{
 						color: var(--tool-menu-item-hover-icon-color);
 					}
 				}
-				&:hover {
-					box-shadow: var(--elevation-2dp);
-					transition: $active-transition-hover;
-				}
-				&:active {
-					box-shadow: var(--elevation-1dp);
-					transition: $active-transition-active;
-				}
 				&:focus {
+					z-index: 1;
 					outline:none;
 					box-shadow: $sakai-box-shadow-emulate-focus var(--focus-outline-color);
 					color: var(--tool-menu-item-active-text-color);
@@ -486,10 +474,10 @@ nav#subSites{
 						min-height: 4em;
 					}
 					@else {
-						border-width: 1px;
-						border-style: solid;
-						border-color: var(--tool-menu-hover-background-color);
-						height:  5.5em;
+						&:not(:last-child) {
+							border-bottom: 1px solid var(--sakai-border-color);
+						}
+						height:  3.5em;
 					}
 					overflow: hidden;
 				}
@@ -515,9 +503,7 @@ nav#subSites{
 						vertical-align: middle;
 						margin-left: $standard-spacing;
 					}
-					text-overflow: ellipsis;
-					white-space: pre;
-					overflow: hidden;
+					white-space: nowrap;
 				}
 				.#{$namespace}toolsNav__menuitem--status-block {
 					margin-right: 10px;
@@ -583,10 +569,6 @@ nav#subSites{
 
 					.#{$namespace}toolsNav__menuitem--icon{
 						color: var(--tool-menu-item-selected-icon-color);
-					}
-
-					.#{$namespace}toolsNav__menuitem--title{
-						font-weight: 700;
 					}
 
 					&:hover{
@@ -690,12 +672,6 @@ body {
 
 			&.has-lessons-sub-pages {
 				> .Mrphs-toolsNav__menuitem--link {
-					&.is-current, &.is-parent-of-current {
-						.#{$namespace}toolsNav__menuitem--title {
-							font-weight: bold !important;
-						}
-					}
-
 					&:hover {
 						background-color: var(--tool-menu-item-hover-background-color);
 					}

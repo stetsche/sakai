@@ -1,4 +1,5 @@
 .#{$namespace}siteHierarchy{
+	display: none !important;	
 	background: var(--tool-background-color);
 	min-height: $hierarchy-size;
 	transition:var(--sak-theme-switch-ease);
@@ -21,7 +22,6 @@
 
 	// Show the breadcrumbs on a separate row (when there are parent sites)
 	@media #{$nonPhone}{
-		@include display-flex;
 		@include flex-direction(column);		// so parent sites will appear above tool name
 		@include align-items(flex-start);
 		@include flex-wrap(wrap);

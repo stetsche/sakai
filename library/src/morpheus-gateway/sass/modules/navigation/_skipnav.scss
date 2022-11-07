@@ -47,6 +47,7 @@
 
 			// Sites row
 			&.#{$namespace}skipNav__menuitem.#{$namespace}skipNav__menuitem--worksite {
+				display: none !important;
 				background: var(--sites-nav-background);
 				position: relative;
 				border-bottom: 1px solid var(--sites-nav-menu-item-border-color);
@@ -94,7 +95,16 @@
 				}
 				
 				a.#{$namespace}skipNav--toolName {
-					color: var(--link-color);
+					flex-grow: 1;
+					flex-grow: 1;
+					text-align: center;
+					// Add width of context menu as margin to center current tool
+					margin-right: 70px;
+					font-size: 16px;
+					// Hide icon
+					span:before {
+						display: none;
+					}
 				}
 				a.manage-overview-link-mobile {
 					display: inline-block;
