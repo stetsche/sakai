@@ -238,7 +238,7 @@ public class SimpleLdapCandidateAttributeMapper extends SimpleLdapAttributeMappe
 	private void addStudentNumberProperty(String number, ResourceProperties userEditProperties)
 	{
 		String studentNumber = number;
-		if (scs.getBoolean(AttributeMappingConstants.SYSTEM_PROP_ENCRYPT_NUMERIC_ID, true))
+		if (scs.getBoolean(AttributeMappingConstants.SYSTEM_PROP_ENCRYPT_CANDIDATE_DETAILS, false))
 		{
 			studentNumber = encryption.encrypt(studentNumber, studentNumberLength);
 		}
