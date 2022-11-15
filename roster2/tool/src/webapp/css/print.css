@@ -156,6 +156,13 @@
 .view_mode_spreadsheet .roster-print-list-only {
     display: table-cell !important;
 }
+.view_mode_spreadsheet .roster-table-header-group .roster-additional-info-cell {
+    display: table-cell !important;
+}
+.view_mode_spreadsheet .roster-table-header-group .roster-additional-notes-cell,
+.view_mode_spreadsheet .roster-table-header-group .roster-special-needs-cell {
+    display: none !important;
+}
 .view_mode_spreadsheet .roster-table {
     display: table;
     border-spacing: 5px;
