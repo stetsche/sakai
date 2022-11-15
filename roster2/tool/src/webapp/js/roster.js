@@ -447,7 +447,6 @@ roster.renderMembership = function (options) {
         $(window).off('scroll.roster');
       }
 
-      console.log(members);
       roster.members = members;
 
       roster.renderMembers(members, $('#roster-members'), enrollmentsMode);
