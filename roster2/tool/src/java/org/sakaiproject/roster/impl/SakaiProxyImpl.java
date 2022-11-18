@@ -829,18 +829,16 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		// remove null values from map
 		userPropertiesMap.values().removeIf(Objects::isNull);
 
-        log.info("candidateDP: '{}'", candidateDetailProvider);
-		if (candidateDetailProvider != null && candidateDetailProvider.isSpecialNeedsEnabled(site)) {
-			rosterMember.setSpecialNeeds(candidateDetailProvider.getSpecialNeeds(user, site).orElse(null));
-            log.info("candidateDP: '{}'", rosterMember.getSpecialNeeds());
+		if (candidateDetailProvider != null && candidateDetailProvider.isInstitutionalNumericIdEnabled(site)) {
+			rosterMember.setStudentNumber(candidateDetailProvider.getInstitutionalNumericId(user, site).orElse(null));
 		}
 
 		if (candidateDetailProvider != null && candidateDetailProvider.isAdditionalNotesEnabled(site)) {
 			rosterMember.setAdditionalNotes(candidateDetailProvider.getAdditionalNotes(user, site).orElse(null));
 		}
 
-		if (candidateDetailProvider != null && candidateDetailProvider.isInstitutionalNumericIdEnabled(site)) {
-			rosterMember.setStudentNumber(candidateDetailProvider.getInstitutionalNumericId(user, site).orElse(null));
+		if (candidateDetailProvider != null && candidateDetailProvider.isSpecialNeedsEnabled(site)) {
+			rosterMember.setSpecialNeeds(candidateDetailProvider.getSpecialNeeds(user, site).orElse(null));
 		}
 
 		// filter values that are configured to be removed

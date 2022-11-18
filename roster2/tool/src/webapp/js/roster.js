@@ -416,9 +416,12 @@ roster.renderMembership = function (options) {
             m.formattedLastVisitTime = roster.i18n.no_visits_yet;
           }
         }
+        //Hide student number in UI for UDL
+        m.studentNumber = null;
 
         m.hasSpecialNeeds = m.specialNeeds && m.specialNeeds.length > 0;
-        m.hasAdditionalNotes = m.additionalNotes && m.additionalNotes.length > 0;
+        //Hide additional notes in UI for UDL
+        m.hasAdditionalNotes = false && m.additionalNotes && m.additionalNotes.length > 0;
         
         m.hasAdditionalInfo = m.hasSpecialNeeds || m.hasAdditionalNotes;
       });

@@ -1,6 +1,8 @@
 <!-- addditional info modal content -->
 {{#if hasSpecialNeeds}}
-<h5 class="roster-modal-label">{{tr 'facet_specialNeeds'}}</h5>
+{{!-- Hide special needs, since its in the modal title already
+<h5 class="roster-modal-label">{{tr 'facet_specialNeeds'}}</h5> 
+--}}
 <div class="roster-modal-value">
     <ul class="roster-special-needs">
         {{#each specialNeeds}}

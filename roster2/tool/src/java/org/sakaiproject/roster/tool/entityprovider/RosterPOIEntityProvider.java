@@ -476,22 +476,22 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 				row.add(member.getEmail());
 			}
 
-			if (this.sakaiProxy.getViewCandidateDetails(siteId)) {
-				row.add(member.getStudentNumber());
-			}
-
 			if (this.sakaiProxy.getViewUserProperty(siteId)) {
 				List<String> props = member.getUserProperties().entrySet().stream().map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.toList());
 				row.add(String.join("\n", props));
 			}
 
 			if (this.sakaiProxy.getViewCandidateDetails(siteId)) {
-				List<String> specialNeeds = member.getSpecialNeeds();
-				row.add(specialNeeds != null ? String.join("\n", specialNeeds) : "");
+				List<String> additionalNotes = member.getAdditionalNotes();
+				row.add(additionalNotes != null ? String.join("\n", additionalNotes) : "");
 			}
 
 			if (this.sakaiProxy.getViewCandidateDetails(siteId)) {
-				List<String> specialNeeds = member.getAdditionalNotes();
+				row.add(member.getStudentNumber());
+			}
+
+			if (this.sakaiProxy.getViewCandidateDetails(siteId)) {
+				List<String> specialNeeds = member.getSpecialNeeds();
 				row.add(specialNeeds != null ? String.join("\n", specialNeeds) : "");
 			}
 
@@ -613,20 +613,20 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 			header.add(rl.getString("facet_email"));
 		}
 
-		if (this.sakaiProxy.getViewCandidateDetails(siteId)) {
-			header.add(rl.getString("facet_studentNumber"));
-		}
-
 		if (this.sakaiProxy.getViewUserProperty(siteId)) {
 			header.add(rl.getString("facet_userProperties"));
 		}
 
 		if (this.sakaiProxy.getViewCandidateDetails(siteId)) {
-			header.add(rl.getString("facet_specialNeeds"));
+			header.add(rl.getString("facet_additionalNotes"));
 		}
 
 		if (this.sakaiProxy.getViewCandidateDetails(siteId)) {
-			header.add(rl.getString("facet_additionalNotes"));
+			header.add(rl.getString("facet_studentNumber"));
+		}
+
+		if (this.sakaiProxy.getViewCandidateDetails(siteId)) {
+			header.add(rl.getString("facet_specialNeeds"));
 		}
 
 		if (VIEW_OVERVIEW.equals(viewType)) {
