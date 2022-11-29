@@ -97,11 +97,9 @@ public class FallbackDetailProvider implements CandidateDetailProvider {
 	public Optional<String> getInstitutionalNumericId(User user, Site site)
 	{
 		log.debug("Getting student number from fallback provider");
-		if (user != null && isInstitutionalNumericIdEnabled(site))
-		{
-			return Optional.of(("no-student-number:" + user.getId()));
-		}
 		
+		// If no student number is available, return empty
+	
 		return Optional.empty();
 	}
 	
