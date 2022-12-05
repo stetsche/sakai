@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.user.detail;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -107,9 +108,9 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 
 		if (StringUtils.isNotEmpty(siteLanguage)) {
 			siteLanguage = "_" + StringUtils.substring(siteLanguage, 0, 2);
-			List<String> propList = user.getProperties().getPropertyList(propName + siteLanguage);
-			if (propList != null) {
-				return propList; 
+			String prop = user.getProperties().getProperty(propName + siteLanguage);
+			if (prop != null) {
+				return propertyToList(prop);
 			}
 		}
 
@@ -117,13 +118,17 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 
 		if (StringUtils.isNotEmpty(userLanguage)) {
 			userLanguage = "_" + userLanguage;
-			List<String> propList = user.getProperties().getPropertyList(propName + userLanguage);
-			if (propList != null) {
-				return propList; 
+			String prop = user.getProperties().getProperty(propName + userLanguage);
+			if (prop != null) {
+				return propertyToList(prop);
 			}
 		}
 
-		return user.getProperties().getPropertyList(propName);
+		return propertyToList(user.getProperties().getProperty(propName));
+	}
+
+	private List<String> propertyToList(String prop) {
+		return Arrays.asList(StringUtils.split(prop, "\n"));
 	}
 
 	public Optional<List<String>> getAdditionalNotes(User user, Site site) {
