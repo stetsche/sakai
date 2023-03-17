@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.inject.Inject;
-
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
@@ -17,22 +15,19 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class JoinableSetReminderScheduleServiceImpl implements JoinableSetReminderScheduleService {
 
-    @Inject
-	private SiteService siteService;
+    @Setter private SiteService siteService;
 
-    @Inject
-    private UserDirectoryService userDirectoryService;
+    @Setter private UserDirectoryService userDirectoryService;
 
-    @Inject
-    private ScheduledInvocationManager scheduledInvocationManager;
+    @Setter private ScheduledInvocationManager scheduledInvocationManager;
 
-    @Inject
-    private UserNotificationProvider userNotificationProvider;
+    @Setter private UserNotificationProvider userNotificationProvider;
 
     private static final String COMPONENT_ID = "org.sakaiproject.sitemanage.api.JoinableSetReminderScheduleService";
 

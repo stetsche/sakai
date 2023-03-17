@@ -34,6 +34,7 @@
 			init-method="init"
 			destroy-method="destroy">
 	</bean>
+
 	
 	<bean id="org.sakaiproject.sitemanage.api.SectionFieldProvider"
 			class="org.sakaiproject.sitemanage.impl.SectionFieldProviderImpl"
@@ -66,6 +67,14 @@
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 		<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.api.EmailTemplateService"/>
 		<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+	</bean>
+
+	<bean id="org.sakaiproject.sitemanage.api.JoinableSetReminderScheduleService"
+			class="org.sakaiproject.sitemanage.impl.JoinableSetReminderScheduleServiceImpl">
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="scheduledInvocationManager" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="userNotificationProvider" ref="org.sakaiproject.sitemanage.api.UserNotificationProvider" />
 	</bean>
 	
 	<!--  Hibernate persistence -->
