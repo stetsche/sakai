@@ -23,8 +23,10 @@ package org.sakaiproject.site.api;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -1415,4 +1417,20 @@ public interface SiteService extends EntityProducer
 	 * @return true if the stealthed tool is present in the given site; false otherwise
 	 */
 	public boolean isStealthedToolPresent(Site site, String toolID);
+
+	/**
+	 * Get time zone info of the current user.
+	 *
+	 * @return user time zone info
+	 */
+	public TimeZone getUserTimeZone();
+
+	/**
+	 * Get datetime conversion from UTC to user's time zone.
+	 *
+	 * @param utcDate datetime
+	 * @param localeFormat send Locale if you need formatted output
+	 * @return datetime using user's time zone
+	 */
+	public String utcDateTimeToUserTimeZone(String utcDate, boolean localeFormat);
 }

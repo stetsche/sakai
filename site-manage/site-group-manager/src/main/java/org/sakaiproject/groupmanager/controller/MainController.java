@@ -15,6 +15,12 @@
  */
 package org.sakaiproject.groupmanager.controller;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -59,7 +65,7 @@ public class MainController {
     public String showIndex(Model model, HttpServletRequest request, HttpServletResponse response) {
         log.debug("showIndex()");
         
-        final Locale locale = sakaiService.getLocaleForCurrentSiteAndUser();
+        final Locale locale = sakaiService.getLocaleForCurrentSiteAndUser();    
         LocaleResolver localeResolver = RequestContextUtils.getLocaleResolver(request);
         localeResolver.setLocale(request, response, locale);
 
@@ -74,6 +80,12 @@ public class MainController {
         Map<String, String> groupMemberMap = new HashMap<String, String>();
         // Joinable sets for each group
         Map<String, String> groupJoinableSetMap = new HashMap<String, String>();
+        // Joinable set open dates for each group
+        Map<String, String> joinableSetOpenDateMap = new HashMap<String, String>();
+        // Joinable set close dates for each group
+        Map<String, String> joinableSetCloseDateMap = new HashMap<String, String>();
+        // In order to display or not the related columns
+        boolean anyJoinableSetDate = false;
         // Joinable sets size for each group
         Map<String, String> groupJoinableSetSizeMap = new HashMap<String, String>();
         // List of groups of the site, excluding the ones which GROUP_PROP_WSETUP_CREATED property is false.
@@ -103,9 +115,40 @@ public class MainController {
             groupMemberList.forEach(u -> stringJoiner.add(u.getDisplayName()));
             groupMemberMap.put(group.getId(), stringJoiner.toString());
             // Get the joinable sets and add them to the Map
-            groupJoinableSetMap.put(group.getId(), group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET));
+            String joinableSetName = group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
+            groupJoinableSetMap.put(group.getId(), joinableSetName);
+            // Get the datetimes associated to each joinable set
+            String joinableSetOpenDate = group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_OPEN_DATE);
+            String joinableSetCloseDate = group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_CLOSE_DATE);
+            // Convert them from UTC to user's timezone & lang format.
+            ZoneId userTimeZone = sakaiService.getUserTimeZone().toZoneId();
+            DateTimeFormatter pattern = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT).withLocale(locale);
+            // Open date
+            if (joinableSetOpenDate == null) {
+                joinableSetOpenDate = "";
+            } else {
+                LocalDateTime openDate = LocalDateTime.parse(joinableSetOpenDate);
+                ZonedDateTime utcOpenDate = ZonedDateTime.of(openDate, ZoneOffset.UTC);
+                LocalDateTime zonedOpenDate = LocalDateTime.ofInstant(utcOpenDate.toInstant(), userTimeZone);
+                joinableSetOpenDate = pattern.format(zonedOpenDate);
+            }
+            joinableSetOpenDateMap.put(joinableSetName, joinableSetOpenDate);
+            // Close date
+            if (joinableSetCloseDate == null) {
+                joinableSetCloseDate = "";
+            } else {
+                LocalDateTime closeDate = LocalDateTime.parse(joinableSetCloseDate);
+                ZonedDateTime utcCloseDate = ZonedDateTime.of(closeDate, ZoneOffset.UTC);
+                LocalDateTime zonedCloseDate = LocalDateTime.ofInstant(utcCloseDate.toInstant(), userTimeZone);
+                joinableSetCloseDate = pattern.format(zonedCloseDate);
+            }
+            joinableSetCloseDateMap.put(joinableSetName, joinableSetCloseDate);
+            // Is there any date?
+            if (!anyJoinableSetDate && (joinableSetOpenDate != null || joinableSetCloseDate != null)) {
+                anyJoinableSetDate = true;
+            }
             // Get the joinable sets and add them to the Map
-            groupJoinableSetSizeMap.put(group.getId(), group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_MAX) != null ? group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_MAX) : null);
+            groupJoinableSetSizeMap.put(group.getId(), group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_MAX));
 
             // Check if the group is locked for modify or all
             if (RealmLockMode.ALL.equals(group.getRealmLock()) || RealmLockMode.MODIFY.equals(group.getRealmLock())) {
@@ -135,6 +178,9 @@ public class MainController {
         model.addAttribute("lockedGroupsEntityMap", lockedGroupsEntityMap);
         model.addAttribute("groupMemberMap", groupMemberMap);
         model.addAttribute("groupJoinableSetMap", groupJoinableSetMap);
+        model.addAttribute("joinableSetOpenDateMap", joinableSetOpenDateMap);
+        model.addAttribute("joinableSetCloseDateMap", joinableSetCloseDateMap);
+        model.addAttribute("anyJoinableSetDate", anyJoinableSetDate);
         model.addAttribute("groupJoinableSetSizeMap", groupJoinableSetSizeMap);
         model.addAttribute("mainForm", new MainForm());
         log.debug("Listing {} groups for the site {}.", groupList.size(), site.getId());

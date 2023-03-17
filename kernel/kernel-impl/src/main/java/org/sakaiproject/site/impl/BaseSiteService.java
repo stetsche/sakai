@@ -23,6 +23,12 @@ package org.sakaiproject.site.impl;
 
 import java.io.PrintWriter;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,12 +37,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
+import java.util.TimeZone;
 import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -94,6 +102,7 @@ import org.sakaiproject.site.api.SiteTitleAdvisor;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.ActiveToolManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.PreferencesService;
@@ -172,6 +181,8 @@ public abstract class BaseSiteService implements SiteService, Observer
 
 	/** SAK-29138 - a site title advisor **/
 	protected SiteTitleAdvisor m_siteTitleAdvisor;
+
+	private static UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
@@ -3940,5 +3951,32 @@ public abstract class BaseSiteService implements SiteService, Observer
 		}
 
 		return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public TimeZone getUserTimeZone() {
+        return userTimeService.getLocalTimeZone();
+    }
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String utcDateTimeToUserTimeZone(String utcDate, boolean localeFormat) {
+		if (utcDate == null) {
+			return null;
+		}
+		ZoneId userTimeZone = userTimeService.getLocalTimeZone().toZoneId();
+		LocalDateTime openDate = LocalDateTime.parse(utcDate);
+		ZonedDateTime utcOpenDate = ZonedDateTime.of(openDate, ZoneOffset.UTC);
+		LocalDateTime zonedOpenDate = LocalDateTime.ofInstant(utcOpenDate.toInstant(), userTimeZone);
+
+		if (localeFormat) {
+			Locale locale = new ResourceLoader().getLocale();
+			DateTimeFormatter pattern = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT).withLocale(locale);
+			return pattern.format(zonedOpenDate);
+		}
+		return zonedOpenDate.toString();
 	}
 }

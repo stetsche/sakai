@@ -22,6 +22,8 @@
 package org.sakaiproject.site.cover;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.site.api.Site;
@@ -618,5 +620,27 @@ public class SiteService
 		if (service == null) { return false; }
 
 		return service.isStealthedToolPresent(site, toolID);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public static TimeZone getUserTimeZone() {
+
+		org.sakaiproject.site.api.SiteService service = getInstance();
+		if (service == null) { return null; }
+
+        return service.getUserTimeZone();
+    }
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String utcDateTimeToUserTimeZone(String utcDate, boolean localeFormat) {
+
+		org.sakaiproject.site.api.SiteService service = getInstance();
+		if (service == null) { return null; }
+
+		return service.utcDateTimeToUserTimeZone(utcDate, localeFormat);
 	}
 }

@@ -20,7 +20,7 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-sm-6 row">
-          <form id="createnewjoinableset-form" action="#" th:action="@{/saveJoinableSet}" th:object="${joinableSetForm}" method="post">
+          <form id="createnewjoinableset-form" action="#" th:action="@{/saveJoinableSet(groupId=${currentGroupId})}" th:object="${joinableSetForm}" method="post">
             <input type="hidden" th:if="${joinableSetForm.joinableSetId != null}" name="joinableSetId" th:value="${joinableSetForm.joinableSetId}"/>
               <div class="form-group" id="setName">
                 <label for="groupTitle" class="form-control-label" th:text="|* #{joinableset.setname}|">Set name:</label>
@@ -34,6 +34,28 @@
                 <label class="form-control-label" for="groupMaxMembers" th:text="|* #{joinableset.maxmembers}|" th:field="*{groupMaxMembers}">Max members per group:</label>
                 <input class="form-control" name="groupMaxMembers" id="groupMaxMembers" type="number" min="1" max="999" th:field="*{groupMaxMembers}"/>
               </div>
+              <div class="form-group">
+                  <label class="form-control-label" for="joinableOpenDate" th:text="|#{joinableset.label.opendate}:|">Opening date:</label>
+                  <input id="joinableOpenDate" type="datetime-local" class="form-control" name="joinableOpenDate" th:field="*{joinableOpenDate}"/>
+              </div>
+              <div class="form-group">
+                  <label class="form-control-label" for="joinableCloseDate" th:text="|#{joinableset.label.closedate}:|">Closing date:</label>
+                  <input id="joinableCloseDate" type="datetime-local" class="form-control" name="joinableCloseDate" th:field="*{joinableCloseDate}"/>
+              </div>
+              <div class="checkbox">
+                <label for="sendMail">
+                  <input class="form-control" name="sendMail" id="sendMail" type="checkbox" th:field="*{sendMail}"/>
+                  <span th:text="#{joinableset.checkbox.sendmail}">Send mail to participants indicating the opening and/or closing date</span>
+                </label>
+              </div>
+              <div class="checkbox">
+                <label for="sendReminder">
+                  <input class="form-control" name="sendReminder" id="sendReminder" type="checkbox" th:field="*{sendReminder}"/>
+                  <span th:if="${joinableSetForm.joinableSetId == null}" th:text="#{joinableset.checkbox.sendreminder}">Send a reminder to participants 24h before the closing date</span>
+                  <span th:if="${joinableSetForm.joinableSetId != null}" th:text="#{joinableset.checkbox.updatereminder}">Update the reminder sent 24h before the closing date</span>
+                </label>
+              </div>
+              <hr>
               <div class="checkbox" th:if="${joinableSetForm.joinableSetId == null}">
                 <label for="allowPreviewMembership">
                   <input class="form-control" name="allowPreviewMembership" id="allowPreviewMembership" type="checkbox" th:field="*{allowPreviewMembership}"/>

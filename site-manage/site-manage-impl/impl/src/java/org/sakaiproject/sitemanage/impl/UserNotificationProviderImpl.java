@@ -17,6 +17,7 @@ package org.sakaiproject.sitemanage.impl;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.Date;
@@ -28,6 +29,7 @@ import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitemanage.api.UserNotificationProvider;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
@@ -498,5 +500,19 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 			String message_body = rb.getFormattedMessage("java.siteImport.confirmation", new Object[]{siteTitle, link});
 			emailService.send(getSetupRequestEmailAddress(), toEmail, message_subject, message_body, headerTo, replyTo, null);
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void notifyAboutJoinableSet(String siteName, User user, Group joinableGroup, boolean isNew) {
+		log.warn("Method implemented on ETSUserNotificationProviderImpl");
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void notifyJSetDayLeft(String siteName, User user, String jSetName) {
+		log.warn("Method implemented on ETSUserNotificationProviderImpl");
 	}
 }

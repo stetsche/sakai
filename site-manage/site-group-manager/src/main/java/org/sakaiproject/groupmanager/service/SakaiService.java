@@ -15,12 +15,14 @@
  */
 package org.sakaiproject.groupmanager.service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TimeZone;
 
 import javax.inject.Inject;
 
@@ -33,12 +35,16 @@ import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.sitemanage.api.JoinableSetReminderScheduleService;
+import org.sakaiproject.sitemanage.api.UserNotificationProvider;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -76,6 +82,14 @@ public class SakaiService  {
 
     @Inject
     private UserDirectoryService userDirectoryService;
+
+    @Inject
+    private UserNotificationProvider userNotificationProvider;
+
+    @Inject
+    private JoinableSetReminderScheduleService jSetReminderScheduleService;
+
+    private UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
 
     private final String STATE_SITE_ID = "site.instance.id";
 
@@ -213,4 +227,16 @@ public class SakaiService  {
         
     }
 
+    public TimeZone getUserTimeZone() {
+        return userTimeService.getLocalTimeZone();
+    }
+
+    public void notifyAboutJoinableSet(String siteName, User user, Group joinableGroup, boolean isNew) {
+        userNotificationProvider.notifyAboutJoinableSet(siteName, user, joinableGroup, isNew);
+    }
+
+    public void scheduleReminder(Instant dateTime, String dataPair) {
+        System.out.println("- SCHEDULE 2");
+		jSetReminderScheduleService.scheduleJSetReminder(dateTime, dataPair);
+	}
 }

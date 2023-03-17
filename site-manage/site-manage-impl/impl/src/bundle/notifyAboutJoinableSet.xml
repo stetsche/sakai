@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<emailTemplates>
+	<emailTemplate>
+		<subject>Joinable Set&lt;#if isNew == "true"&gt; created&lt;#else&gt; updated&lt;/#if&gt;: ${jSetName}</subject>
+		<message>
+			Dear ${userName},
+
+			Joinable Set "${jSetName}" has been &lt;#if isNew == "true"&gt;created &lt;#else&gt;updated &lt;/#if&gt;on the following ${localSakaiName} site: ${siteName}.
+
+			It can have several associated groups, you can join one of them.
+			Each group title is composed by the Joinable Set name followed with a number (e.g ${jSetName} 1).
+			Each group has space for ${maxUsers} member(s).
+			&lt;#if openDate??&gt;
+
+			Available from: ${openDate}
+			&lt;/#if&gt;
+			&lt;#if closeDate??&gt;
+
+			Enrollment ends: ${closeDate}
+			&lt;/#if&gt;
+			&lt;#if canUnjoin == "true"&gt;
+
+			Ability to unjoin is active&lt;#if closeDate??&gt; until closing date&lt;/#if&gt;.
+			&lt;#else&gt;
+
+			Ability to unjoin is not active.
+			&lt;/#if&gt;
+
+		</message>
+		<locale></locale>
+	</emailTemplate>
+</emailTemplates>

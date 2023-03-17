@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<emailTemplates>
+	<emailTemplate>
+		<subject>Reminder: Joinable Set is closing soon</subject>
+		<message>
+			Dear ${userName},
+
+			Joinable Set "${jSetName}" will be closed in 24h.
+			You can join one of its associated groups until then.
+			Available on the following ${localSakaiName} site: ${siteName}. 
+
+		</message>
+		<locale></locale>
+	</emailTemplate>
+</emailTemplates>
