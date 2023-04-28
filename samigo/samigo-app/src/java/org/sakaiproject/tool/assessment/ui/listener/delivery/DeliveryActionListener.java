@@ -323,7 +323,12 @@ public class DeliveryActionListener
               break;
  
       case 4: // Grade assessment
-    	  	  String gradingData = ContextUtil.lookupParam("gradingData");
+              // If we are navigating to another students submission,
+              // we need to get the according gradingId from the bean
+              String gradingData = delivery.getNextAssessmentGradingId() != null
+                  ? delivery.getNextAssessmentGradingId().toString()
+                  : ContextUtil.lookupParam("gradingData");
+              delivery.setNextAssessmentGradingId(null);
               itemGradingHash = service.getStudentGradingData(gradingData);
               delivery.setAssessmentGradingId(Long.valueOf(gradingData));
               ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, false);

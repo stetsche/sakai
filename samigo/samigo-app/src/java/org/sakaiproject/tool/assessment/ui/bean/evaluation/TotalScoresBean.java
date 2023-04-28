@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1224,4 +1225,55 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 	public boolean getRestrictedDelete() {
 		return deleteRestrictedForCurrentSite;
 	}
+
+  public AgentResults previousAgent(String currentAgentId) {
+      log.debug("currentAgentId {}", currentAgentId);
+      log.debug("agents.size {}", agents.size());
+
+      if (StringUtils.isEmpty(currentAgentId) || agents == null) {
+        return null;
+      }
+
+      List<AgentResults> agentList = new LinkedList<>(agents);
+
+      int currentAgentIndex = -1;
+      for (int i = 0; i < agentList.size(); i++) {
+        if (StringUtils.equals(currentAgentId, agentList.get(i).getAgentId())) {
+          currentAgentIndex = i;
+          break;
+        }
+      }
+
+      // If current agent is not found or is the first item,
+      // or we don't have more then one item
+      // we don't have a previous agent
+      if (currentAgentIndex < 1 || agentList.size() < 2) {
+        return null;
+      }
+
+      return agentList.get(currentAgentIndex + 1);
+  }
+
+  public AgentResults nextAgent(AgentResults currentAgent) {
+      log.debug("currentAgent {}", currentAgent);
+      log.debug("currentAgent.id {}", currentAgent.getAgentId());
+      log.debug("agents.size {}", agents.size());
+
+      if (currentAgent == null || agents == null) {
+        return null;
+      }
+
+      List<AgentResults> agentList = new LinkedList<>(agents);
+
+      int currentIndex = agentList.indexOf(currentAgent);
+
+      // If current agent is not found or the last item
+      // or we don't have more then one item
+      // we don't have a next agent
+      if (currentIndex == -1 || currentIndex == agentList.size() - 1 || agentList.size() < 2) {
+        return null;
+      }
+
+      return agentList.get(currentIndex + 1);
+  }
 }

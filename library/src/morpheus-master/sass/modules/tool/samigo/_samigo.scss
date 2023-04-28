@@ -483,6 +483,28 @@
 	input[type="text"].hasDatepicker {
 		margin: 0 4px 4px 0;
 	}
+
+	// S2U-15 TODO Master merge: Remove this
+	// Just a polyfill B5 for Sakai 22
+	.b5 {
+		&.d-flex {
+			display: flex !important;
+		}
+
+		&.justify-content-between {
+			justify-content: space-between !important;
+		}
+
+		&.me-0 {
+			margin-right: 0;
+		}
+
+		//https://getbootstrap.com/docs/5.2/utilities/spacing/#maps
+		&.gap-1 {
+			gap: $standard-spacing * 0.25 !important;
+		}
+
+	}
 }
 
 .#{$namespace}sakai-samigo, .#{$namespace}toolBody--sakai-samigo {

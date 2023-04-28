@@ -29,10 +29,14 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
+
 import lombok.Getter;
 import lombok.Setter;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.osid.agent.Agent;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.tool.api.ToolSession;
@@ -62,8 +66,12 @@ public class StudentScoresBean implements Serializable {
   private String assessmentGradingId;
   private String itemId; // ID of the first item; used by QuestionScores
   private String email;
+  private String previousStudentId;
+  private String nextStudentId;
   private Long itemGradingIdForFilePicker;
-  
+
+  private SelectItem[] otherStudentsSubmissions;
+
   /**
    * Creates a new StudentScoresBean object.
    */
