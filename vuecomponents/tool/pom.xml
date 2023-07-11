@@ -104,7 +104,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>compile vue components to webcomponents bundl</id>
+                        <id>compile vue components to webcomponents bundle</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>

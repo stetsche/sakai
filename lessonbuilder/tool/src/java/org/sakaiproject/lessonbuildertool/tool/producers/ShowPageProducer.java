@@ -72,6 +72,7 @@ import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.BltiTool;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.GroupEntry;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.Status;
+import org.sakaiproject.lessonbuildertool.tool.entityproviders.LessonsEntityProvider;
 import org.sakaiproject.lessonbuildertool.tool.evolvers.SakaiFCKTextEvolver;
 import org.sakaiproject.lessonbuildertool.tool.view.CommentsGradingPaneViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.CommentsViewParameters;
@@ -4573,6 +4574,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UISelect.make(form, "assignment-dropdown", SimplePageBean.GRADES, "#{simplePageBean.dropDown}", SimplePageBean.GRADES[0]);
 		UIInput.make(form, "assignment-points", "#{simplePageBean.points}");
+
+		UIOutput.make(form, "common-condition-editor")
+				.decorate(new UIFreeAttributeDecorator("site-id", simplePageBean.getCurrentSiteId()))
+				.decorate(new UIFreeAttributeDecorator("tool-id", LessonsEntityProvider.TOOL_COMMON_ID));
+				//.decorate(new UIFreeAttributeDecorator("item-id", null));
+
+		UIOutput.make(form, "common-condition-picker")
+				.decorate(new UIFreeAttributeDecorator("site-id", simplePageBean.getCurrentSiteId()))
+				.decorate(new UIFreeAttributeDecorator("tool-id", LessonsEntityProvider.TOOL_COMMON_ID));
+				//.decorate(new UIFreeAttributeDecorator("item-id", null));
+
+		UIOutput.make(form, "confirmation-dialog")
+				.decorate(new UIFreeAttributeDecorator("message", "are you sure?"));
 
 		UICommand.make(form, "edit-item", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.editItem}");
 

@@ -1772,6 +1772,12 @@ $(document).ready(function() {
 			var row = $(this).parent().parent().parent();
 			var itemid = row.find(".current-item-id2").text();
 
+			const commonConditionEditor = document.getElementById("common-condition-editor");
+			commonConditionEditor.setAttribute("item-id", itemid);
+
+			const commonConditionPicker = document.getElementById("common-condition-picker");
+			commonConditionPicker.setAttribute("item-id", itemid);
+
 			var linkTextTag = row.find(".link-text");
 
 			// If data-original-name attr is present, use that instead
@@ -1972,6 +1978,7 @@ $(document).ready(function() {
 					fixitemshows();
 
 				}else {
+					// Assignment
 					$("#change-assignment-p").show();
 					$("#change-assignment").attr("href", 
 					     $("#change-assignment").attr("href").replace("itemId=-1", "itemId=" + itemid));

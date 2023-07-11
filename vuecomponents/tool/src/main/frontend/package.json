@@ -17,6 +17,7 @@
     "lodash": "^4.17.21",
     "node-fetch": "^3.3.1",
     "node-fetch-polyfill": "^2.0.6",
+    "npm": "^9.7.2",
     "vue": "^2.7.14",
     "vue-loader": "^17.0.1",
     "vue-multiselect": "^2.1.7"
