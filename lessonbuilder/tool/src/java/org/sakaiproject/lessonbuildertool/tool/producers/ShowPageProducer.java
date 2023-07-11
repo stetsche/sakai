@@ -4574,6 +4574,17 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UISelect.make(form, "assignment-dropdown", SimplePageBean.GRADES, "#{simplePageBean.dropDown}", SimplePageBean.GRADES[0]);
 		UIInput.make(form, "assignment-points", "#{simplePageBean.points}");
 
+		UIOutput.make(form, "assignment-condition-editor")
+				.decorate(new UIFreeAttributeDecorator("tool-id", "sakai.lessons"))
+				.decorate(new UIFreeAttributeDecorator("item-id", "1"));
+
+		UIOutput.make(form, "assignment-condition-picker")
+				.decorate(new UIFreeAttributeDecorator("tool-id", "sakai.lessons"))
+				.decorate(new UIFreeAttributeDecorator("collection-id", "1"));
+
+		UIOutput.make(form, "confirmation-dialog")
+				.decorate(new UIFreeAttributeDecorator("message", "are you sure?"));
+
 		UICommand.make(form, "edit-item", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.editItem}");
 
 		String indentOptions[] = {"0","1","2","3","4","5","6","7","8"};

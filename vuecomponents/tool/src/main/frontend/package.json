@@ -10,9 +10,16 @@
   },
   "main": "js/sakai-element.js",
   "dependencies": {
+    "@vuelidate/core": "^2.0.2",
+    "@vuelidate/validators": "^2.0.2",
+    "bootstrap": "^5.3.0",
+    "bootstrap-icons": "^1.10.5",
+    "bootstrap-vue": "^2.23.1",
     "cross-env": "^7.0.3",
+    "install": "^0.13.0",
     "node-fetch": "^3.3.1",
     "node-fetch-polyfill": "^2.0.6",
+    "npm": "^9.7.2",
     "vue": "^2.7.14",
     "vue-loader": "^17.0.1",
     "vue-multiselect": "^2.1.7"
@@ -28,6 +35,8 @@
     "fetch-mock": "^9.11.0",
     "postcss-loader": "^7.1.0",
     "raw-loader": "^4.0.2",
+    "sass": "^1.63.6",
+    "sass-loader": "^13.3.2",
     "style-loader": "^3.3.2",
     "vue-template-compiler": "^2.7.14"
   },

@@ -1,0 +1,16 @@
+.btn-primary {
+    --bs-btn-color: var(--button-primary-text-color);
+    --bs-btn-bg: var(--button-primary-background);
+    --bs-btn-border-color: var(--button-primary-border-color);
+    --bs-btn-hover-color: var(--button-primary-hover-text-color);
+    --bs-btn-hover-bg: var(--button-primary-hover-background);
+    //--bs-btn-focus-shadow-rgb: 49, 132, 253;
+    --bs-btn-hover-border-color: var(--button-primary-background);
+    --bs-btn-active-color: var(--button-primary-active-text-color);
+    --bs-btn-active-bg: var(--button-primary-active-background);
+    --bs-btn-active-border-color: var(--button-primary-active-border-color);
+    //--bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: var(--button-disabled-text-color);
+    --bs-btn-disabled-bg: var(--button-disabled-background);
+    --bs-btn-disabled-border-color: var(--button-disabled-border-color);
+}
