@@ -2718,6 +2718,10 @@ public class DeliveryBean implements Serializable {
         // derived property but JSF needs a setter to be happy
     }
 
+    public String getSebDownloadLink() {
+      return ServerConfigurationService.getString(SecureDeliverySeb.SEB_DOWNLOAD_LINK_PROPERTY, SecureDeliverySeb.SEB_DOWNLOAD_LINK_DEFAULT);
+    }
+
     /**
      * Ensure that the ExtendedTimeDeliveryService instance is making reference to the correct assessment.
      */
