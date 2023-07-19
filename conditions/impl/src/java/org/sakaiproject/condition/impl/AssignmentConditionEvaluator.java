@@ -13,17 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.conditions.impl.persistence;
+package org.sakaiproject.condition.impl;
 
-import org.hibernate.criterion.Restrictions;
-import org.sakaiproject.conditions.api.model.Condition;
-import org.sakaiproject.conditions.api.persistence.ConditionRepository;
-import org.sakaiproject.serialization.BasicSerializableRepository;
+import org.sakaiproject.condition.api.ConditionEvaluator;
+import org.sakaiproject.condition.api.model.Condition;
 
-public class ConditionRepositoryImpl extends BasicSerializableRepository<Condition, String> implements ConditionRepository {
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+public class AssignmentConditionEvaluator implements ConditionEvaluator {
 
 
-    public Condition findConditionForId(String conditionId) {
-        return (Condition) startCriteriaQuery().add(Restrictions.eq("id", conditionId)).uniqueResult();
+    @Override
+    public boolean evaluateCondition(Condition condition) {
+        log.info("evaluating...");
+        return true;
+    }
+
+    @Override
+    public boolean isConditionUsed(Condition condition) {
+        log.info("condition used???");
+        return false;
     }
 }

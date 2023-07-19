@@ -11,6 +11,7 @@ public class ConditionRestBean {
     private String id;
     private String toolId;
     private boolean met;
+    private String operator;
     private String type;
     private String attribute;
 }

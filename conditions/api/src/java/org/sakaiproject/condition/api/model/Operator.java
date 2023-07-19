@@ -1,4 +1,4 @@
-package org.sakaiproject.conditions.api.model;
+package org.sakaiproject.condition.api.model;
 
 public enum Operator {
     SMALLER_THEN,

@@ -1,28 +1,56 @@
 <template>
-  <div class="condition-editor mb-5">
-    CONDITION PICKER:
-    <div class="condition">
+  <div class="condition-picker mb-5">
+    <div class="saved-condition" v-if="savedCondition">
+      <b>Selected condition:</b>
+      <BCard class="mb-2">
+        Require the item <b>{{ savedItem.text }}</b> to have a score {{ savedCondition.type }} {{ savedCondition.attribute }} Points
+      </BCard>
+      <BButton @click="changeCondition" variant="primary">
+        <BSpinner v-if="saving" small aria-label="Removing condition as requirement" />
+        <BIcon v-else icon="trash" aria-hidden="true" />
+        Remove condition as requirement
+      </BButton>
+
+    </div>
+    <div class="condition" v-else>
+      <b>Select a condition, that is required for this item to be visible: {{ savedConditionId }}</b>
       <BFormGroup label="Lessons item" class="mb-2">
         <BFormSelect plain v-model="selectedItem" :options="itemOptions"></BFormSelect>
       </BFormGroup>
       <BFormGroup :disabled="!selectedItem" label="Condition" class="mb-2">
         <BFormSelect plain v-model="selectedCondition" :options="conditionOptions"></BFormSelect>
       </BFormGroup>
-      <BButton variant="primary" class="ms-auto">Set condition as Requirement</BButton>
+      <BButton @click="saveCondition" :disabled="!selectionValid" variant="primary">
+        <BSpinner v-if="saving" small aria-label="Saving condition as requirement" />
+        <BIcon v-else icon="save" aria-hidden="true" />
+        Save condition as Requirement
+      </BButton>
     </div>
   </div>
 </template>
 
 <style lang="scss">
-  @import "../../node_modules/bootstrap/dist/css/bootstrap.css";
+  @import "bootstrap/dist/css/bootstrap.css";
+  @import "bootstrap-vue/dist/bootstrap-vue-icons.min.css";
   @import "../bootstrap-styles/buttons.scss";
-
+  @import "../bootstrap-styles/card.scss";
 </style>
 
 <script>
-import { BListGroup, BListGroupItem, BFormSelect, BFormGroup, BButton } from 'bootstrap-vue';
+// Vue and plugins
+import Vue from 'vue';
+import { BootstrapVueIcons } from 'bootstrap-vue';
+
+// Components
+import { BButton, BCard, BFormGroup, BFormSelect, BIcon, BListGroup, BListGroupItem, BSpinner } from 'bootstrap-vue';
+
+// Mixins
 import i18nMixin from "../mixins/i18n-mixin.js";
+
+// Utils
 import { formatCondition } from "../util/condition-util.js";
+
+Vue.use(BootstrapVueIcons)
 
 const defaultSelectedCondition = null;
 const defaultSelectedItem = null;
@@ -35,6 +63,9 @@ export default {
     BFormSelect,
     BFormGroup,
     BButton,
+    BCard,
+    BIcon,
+    BSpinner,
   },
   mixins: [i18nMixin],
   props: {
@@ -46,6 +77,9 @@ export default {
       items: [],
       selectedItem: defaultSelectedItem,
       selectedCondition: defaultSelectedCondition,
+      savedConditionId: null,
+      saving: false,
+      loading: true,
     }
   },
   computed: {
@@ -56,8 +90,6 @@ export default {
           text: item.text,
         }
       });
-
-
     },
     conditionOptions() {
       if (this.selectedItem) {
@@ -71,14 +103,38 @@ export default {
         return null;
       }
     },
+    savedItem() {
+      if (!this.savedConditionId) return null;
+
+      return this.items.find(item => item.conditions.find(condition => condition.id == this.savedConditionId));
+    },
+    savedCondition() {
+      if (!this.savedItem) return null;
+
+      return this.savedItem.conditions.find(condition => condition.id == this.savedConditionId);
+    },
+    selectionValid() {
+      return this.selectedItem && this.selectedCondition;
+    }
   },
   methods: {
+    saveCondition() {
+      if (this.selectionValid) {
+        this.savedConditionId = this.selectedCondition;
+      }
+    },
+    changeCondition() {
+      this.savedConditionId = defaultSelectedItem;
+    },
   },
   async mounted() {
+    setTimeout(() => {
+      this.loading = false;
+    }, 10000)
     this.items = [
       {
         id: "1",
-        text: "answer this question",
+        text: "Quiz 1 [Open on: Apr 19, 2023, 11:15:00 AM] [Due on: Apr 26, 2023, 11:15:00 AM]",
         conditions: [
           {
             id: "a",
@@ -94,7 +150,7 @@ export default {
       },
       {
         id: "2",
-        text: "asdf",
+        text: "Quiz 2 [Open on: Apr 19, 2023, 11:15:00 AM] [Due on: Apr 26, 2023, 11:15:00 AM]",
         conditions: [
           {
             id: "c",
@@ -110,7 +166,7 @@ export default {
       },
       {
         id: "3",
-        text: "test [Open on: Apr 19, 2023, 11:15:00 AM] [Due on: Apr 26, 2023, 11:15:00 AM]",
+        text: "Quiz 3 [Open on: Apr 19, 2023, 11:15:00 AM] [Due on: Apr 26, 2023, 11:15:00 AM]",
         conditions: [
           {
             id: "e",

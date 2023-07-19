@@ -38,6 +38,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.sakaiproject.condition.api.ConditionService;
+import org.sakaiproject.condition.api.model.Condition;
 import org.sakaiproject.api.privacy.PrivacyManager;
 import java.util.Collections;
 import java.util.HashMap;
@@ -55,7 +57,6 @@ import lombok.extern.slf4j.Slf4j;
 public class ConditionController extends AbstractSakaiApiController {
 
 
-
     @Autowired
     private SecurityService securityService;
 
@@ -65,40 +66,62 @@ public class ConditionController extends AbstractSakaiApiController {
     @Autowired
     private UserDirectoryService userDirectoryService;
 
-    @GetMapping(value = "/sites/{siteId}/conditions/id", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ConditionRestBean> getCondition(@PathVariable String siteId) {
+    @Autowired
+    private ConditionService conditionService;
+
+    @GetMapping(value = "/sites/{siteId}/conditions/{conditionId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ConditionRestBean> getCondition(@PathVariable String siteId, @PathVariable String conditionId) {
         checkSakaiSession();
         checkSite(siteId);
 
-        return ResponseEntity.ok(ConditionRestBean.builder()
-                .id("uuid-id-id-uuid")
-                .toolId("sakai.samigo")
-                .met(true)
-                .build());
+        if (StringUtils.isNotBlank(conditionId)) {
+            Condition condition = conditionService.getCondition(conditionId);
+            if (condition != null) {
+                return ResponseEntity.ok(ConditionRestBean.builder()
+                        .id(conditionId)
+                        .toolId(condition.getToolId())
+                        .met(conditionService.evaluateCondition(condition))
+                        .build());
+            }
+        }
+        return ResponseEntity.badRequest().build();
     }
 
     @GetMapping(value = "/sites/{siteId}/conditions", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Set<ConditionRestBean>> getConditions(@PathVariable String siteId, @RequestParam String toolId, @RequestParam String itemId) {
+    public ResponseEntity<Set<ConditionRestBean>> getConditions(@PathVariable String siteId) {
         checkSakaiSession();
         checkSite(siteId);
+
+        // List<Condition> conditions = conditionService.getConditionsForSite(siteId);
+
+        // return ResponseEntity.ok(conditions.stream()
+        //         .map(condition -> ConditionRestBean.builder()
+        //                 .id(condition.getId())
+        //                 .toolId(condition.getToolId())
+        //                 .met(conditionService.evaluateCondition(condition))
+        //                 .build())
+        //         .collect(Collectors.toSet()));
+//     }
+
+//     public ResponseEntity<Set<ConditionRestBean>> createCondition(@PathVariable String siteId, @RequestParam String toolId, @RequestParam String itemId) {
+//         return ResponseEntity.ok(conditions);
 
         Set<ConditionRestBean> conditions = new HashSet<>(){{
                 add(ConditionRestBean.builder()
                         .id("uuid-id-id-uuid")
-                        .toolId(toolId)
+                        // .toolId(toolId)
                         .type("greater_then")
                         .attribute("10")
                         .met(true)
                         .build());
                 add(ConditionRestBean.builder()
                         .id("uuid-di-di-uuid")
-                        .toolId(toolId)
+                        // .toolId(toolId)
                         .type("smaller_then")
                         .attribute("5")
                         .met(false)
                         .build());
         }};
-
         return ResponseEntity.ok(conditions);
     }
 
@@ -112,14 +135,14 @@ public class ConditionController extends AbstractSakaiApiController {
                                 add(ConditionRestBean.builder()
                                         .id("uuid-id-id-uuid")
                                         .toolId(toolId)
-                                        .type("greater_then")
+                                        .operator("greater_then")
                                         .attribute("10")
                                         .met(true)
                                         .build());
                                 add(ConditionRestBean.builder()
                                         .id("uuid-di-di-uuid")
                                         .toolId(toolId)
-                                        .type("smaller_then")
+                                        .operator("smaller_then")
                                         .attribute("5")
                                         .met(false)
                                         .build());
@@ -132,14 +155,14 @@ public class ConditionController extends AbstractSakaiApiController {
                                 add(ConditionRestBean.builder()
                                         .id("uuid-id-id-uuid")
                                         .toolId(toolId)
-                                        .type("greater_then")
+                                        .operator("greater_then")
                                         .attribute("10")
                                         .met(true)
                                         .build());
                                 add(ConditionRestBean.builder()
                                         .id("uuid-di-di-uuid")
                                         .toolId(toolId)
-                                        .type("smaller_then")
+                                        .operator("smaller_then")
                                         .attribute("5")
                                         .met(false)
                                         .build());

@@ -1,0 +1,142 @@
+/**
+ * Copyright (c) 2023 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.sakaiproject.condition.impl;
+
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Map.Entry;
+
+import javax.transaction.Transactional;
+
+import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.condition.api.ConditionEvaluator;
+import org.sakaiproject.condition.api.ConditionService;
+import org.sakaiproject.condition.api.exception.UnsupportedToolIdException;
+import org.sakaiproject.condition.api.model.Condition;
+import org.sakaiproject.condition.api.persistence.ConditionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+
+@Slf4j
+public class ConditionServiceImpl implements ConditionService {
+
+
+    @Autowired
+    ConditionRepository conditionRepository;
+
+    @Setter
+    Map<String, ConditionEvaluator> conditionEvaluators;
+
+
+    @Override
+    public void init() {
+        log.info("Initializing Condition Service");
+
+        if (conditionEvaluators != null) {
+            for (Entry<String, ConditionEvaluator> conditionEvaluatorEntry : conditionEvaluators.entrySet()) {
+                log.info("Registered condition evaluator [{}] for tool with id [{}]",
+                        conditionEvaluatorEntry.getValue().getClass().getName(), conditionEvaluatorEntry.getKey());
+            }
+        } else {
+            log.error("Condition resolvers not set");
+        }
+    }
+
+    @Override
+    public Condition getCondition(String conditionId) {
+        if (StringUtils.isNotBlank(conditionId)) {
+            return conditionRepository.findConditionForId(conditionId);
+        } else {
+            log.error("Can not get condition with invalid id: [{}]", conditionId);
+            return null;
+        }
+    }
+
+    @Override
+    public List<Condition> getConditionsForSite(String siteId) {
+        if (StringUtils.isNotBlank(siteId)) {
+            return conditionRepository.findConditionsForSiteId(siteId);
+        } else {
+            log.error("Can not get conditions for site with blank id: [{}]", siteId);
+            return null;
+        }
+    }
+
+    @Override
+    @Transactional
+    public Condition saveCondition(Condition condition) {
+        if (condition != null) {
+            String toolId = condition.getToolId();
+            Condition originalCondition = getCondition(condition.getId());
+
+            if (originalCondition != null && isConditionUsed(originalCondition)
+                    && (toolId != originalCondition.getToolId()
+                            || condition.getItemId() != originalCondition.getItemId())) {
+                log.error("Can not update toolId or itemId of condition, it is still in use");
+                return originalCondition;
+            }
+
+            if (!isToolIdSupported(toolId)) {
+                throw new UnsupportedToolIdException(toolId);
+            }
+
+            return conditionRepository.save(condition);
+        } else {
+            log.error("Can not save condition as it is null");
+            return null;
+        }
+    }
+
+    @Override
+    @Transactional
+    public boolean deleteCondition(String conditionId) {
+        Condition condition = getCondition(conditionId);
+        if (condition != null) {
+            if (!getConditionEvaluator(condition).isConditionUsed(condition)) {
+                conditionRepository.delete(condition);
+            } else {
+                log.error("Can not delete condition, it is still in use");
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean evaluateCondition(Condition condition) {
+        return getConditionEvaluator(condition).evaluateCondition(condition);
+    }
+
+    @Override
+    public boolean isConditionUsed(Condition condition) {
+        return condition != null && getConditionEvaluator(condition).isConditionUsed(condition);
+    }
+
+    @Override
+    public boolean isToolIdSupported(String toolId) {
+        return toolId != null && conditionEvaluators.containsKey(toolId);
+    }
+
+    private ConditionEvaluator getConditionEvaluator(Condition condition) {
+        String toolId = condition.getToolId();
+        Optional<ConditionEvaluator> conditionEvaluator = Optional.ofNullable(conditionEvaluators.get(toolId));
+
+        return conditionEvaluator.orElseThrow(() -> new UnsupportedToolIdException(toolId));
+    }
+}

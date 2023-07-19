@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.conditions.impl;
+package org.sakaiproject.condition.api;
 
-import org.sakaiproject.conditions.api.ConditionEvaluator;
-import org.sakaiproject.conditions.api.model.Condition;
+import org.sakaiproject.condition.api.model.Condition;
 
-public class AssignmentConditionEvaluator implements ConditionEvaluator {
+public interface ConditionEvaluator {
 
 
-    public boolean evaluateCondition(Condition condition) {
-        return true;
-    }
+    public boolean evaluateCondition(Condition condition);
+
+    public boolean isConditionUsed(Condition condition);
 }

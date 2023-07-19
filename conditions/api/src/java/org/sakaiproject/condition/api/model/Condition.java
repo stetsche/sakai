@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.conditions.api.model;
+package org.sakaiproject.condition.api.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -31,14 +31,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Entity
-@Table(name = "CARDGAME_STAT_ITEM",
-        indexes = { @Index(name = "IDX_CARDGAME_STAT_ITEM_PLAYER_ID", columnList = "PLAYER_ID") })
+@Table(name = "CONDITION_T",
+        indexes = { @Index(name = "IDX_CONDITION_SITE_ID", columnList = "SITE_ID") })
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 public class Condition {
 
@@ -49,21 +50,36 @@ public class Condition {
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     private String id;
 
+    @NonNull
     @Column(name = "OPERATOR", nullable = false)
     @Enumerated(EnumType.STRING)
     private Operator operator;
 
-    @Column(name = "ARGUMENT", nullable = false)
+    @Column(name = "ARGUMENT", nullable = true)
     private String argument;
 
+    @Column(name = "SITE_ID", nullable = true)
+    private String siteId;
+
+    @NonNull
     @Column(name = "TOOL_ID", nullable = false)
     private String toolId;
 
+    @NonNull
     @Column(name = "ITEM_ID", nullable = false)
     private String itemId;
 
-
-    public String getReference() {
-        return "/condition/" + id;
+    public static ConditionBuilder builderOf(Condition condition) {
+        if (condition != null) {
+            return Condition.builder()
+                    .id(condition.getId())
+                    .operator(condition.getOperator())
+                    .argument(condition.getArgument())
+                    .siteId(condition.getSiteId())
+                    .toolId(condition.getToolId())
+                    .itemId(condition.getItemId());
+        } else {
+            return Condition.builder();
+        }
     }
 }

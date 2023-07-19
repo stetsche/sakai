@@ -13,17 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.conditions.api;
+package org.sakaiproject.condition.api.exception;
 
-import org.sakaiproject.conditions.api.model.Condition;
-
-public interface ConditionService {
+public class UnsupportedToolIdException extends RuntimeException {
 
 
-    public void init();
-
-    public boolean evaluateCondition(Condition condition);
-
-
-    public boolean createCondition(Condition condition);
+    public UnsupportedToolIdException(String toolId) {
+        super(String.format("No condition evaluator available for tool with id [%s]", toolId));
+    }
 }

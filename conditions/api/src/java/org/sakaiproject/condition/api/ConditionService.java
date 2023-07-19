@@ -13,12 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.conditions.api.exception;
+package org.sakaiproject.condition.api;
 
-public class ConditionEvaluatorUnavailableException extends RuntimeException {
+import java.util.List;
+
+import org.sakaiproject.condition.api.model.Condition;
+
+public interface ConditionService {
 
 
-    public ConditionEvaluatorUnavailableException(String toolId) {
-        super(String.format("No condition evaluator available for tool with id [%s]", toolId));
-    }
+    public void init();
+
+    public Condition getCondition(String conditionId);
+
+    public List<Condition> getConditionsForSite(String siteId);
+
+    public Condition saveCondition(Condition condition);
+
+    public boolean deleteCondition(String conditionId);
+
+    public boolean evaluateCondition(Condition condition);
+
+    public boolean isConditionUsed(Condition condition);
+
+    public boolean isToolIdSupported(String toolId);
 }

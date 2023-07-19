@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.conditions.api.persistence;
+package org.sakaiproject.condition.api.persistence;
 
-import org.sakaiproject.conditions.api.model.Condition;
+import java.util.List;
+
+import org.sakaiproject.condition.api.model.Condition;
 import org.sakaiproject.serialization.SerializableRepository;
 
 
@@ -23,4 +25,6 @@ public interface ConditionRepository extends SerializableRepository<Condition, S
 
 
     public Condition findConditionForId(String conditionId);
+
+    public List<Condition> findConditionsForSiteId(String siteId);
 }

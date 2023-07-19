@@ -1,6 +1,8 @@
 <template>
   <div ref="component" class="condition-editor">
+    <b>
     <label class="mb-2" for="create-condition">{{ labels.createCondition }}</label>
+    </b>
     <form id="create-condition" class="d-flex align-items-center gap-2">
       <span>Require this item to have a score</span>
       <div>
@@ -17,7 +19,7 @@
       </BButton>
     </form>
     <div class="mt-2" v-if="conditions.length > 0">
-      <div class="mb-2">{{ labels.labelExistingConditions }}</div>
+      <b class="mb-2">{{ labels.existingConditions }}</b>
       <BListGroup>
         <BListGroupItem class="d-flex align-items-center" v-for="condition in conditions" :key="condition.id">
           <span class="me-1">Require this item to have a score</span>
@@ -36,10 +38,11 @@
   </div>
 </template>
 
-<style>
+<style lang="scss">
   @import "bootstrap/dist/css/bootstrap.css";
+  @import "bootstrap-vue/dist/bootstrap-vue-icons.min.css";
   @import "../bootstrap-styles/buttons.scss";
-  @import 'bootstrap-vue/dist/bootstrap-vue-icons.min.css';
+  @import "../bootstrap-styles/form.scss";
 
   .condition {
     display: flex;
@@ -47,7 +50,7 @@
   }
 
   .attribute {
-    width: 4em;
+    width: 5em;
   }
 
   .badge-success {
@@ -56,6 +59,11 @@
 </style>
 
 <script>
+// Vue and plugins
+import Vue from 'vue';
+import { BootstrapVueIcons } from 'bootstrap-vue';
+
+// Components
 import {
   BButton,
   BFormGroup,
@@ -64,13 +72,15 @@ import {
   BIcon,
   BListGroup,
   BListGroupItem,
-  BootstrapVueIcons,
   BSpinner,
   BBadge,
 } from 'bootstrap-vue';
-import { getConditions } from "../api/conditions-api.js";
-import Vue from 'vue';
+
+// Mixins
 import i18nMixin from "../mixins/i18n-mixin.js";
+
+// API
+import { getConditions } from "../api/conditions-api.js";
 
 Vue.use(BootstrapVueIcons)
 
@@ -94,8 +104,8 @@ export default {
   props: {
     toolId: { type: String },
     itemId: { type: String },
-    labelCreateCondition: { type: String },
-    labelExistingConditions : { type: String },
+    labelCreateCondition: { type: String, default: null },
+    labelExistingConditions : { type: String, default: null },
   },
   data: function() {
     return {
@@ -162,23 +172,19 @@ export default {
     typeLabel(type) {
       return this.types.find(t => t.value === type)?.text ?? "";
     },
-    validateState(name) {
-      const { $dirty, $error } = this.form[name];
-      return $dirty ? !$error : null;
-    },
-    labels() {
-      return {
-        createCondition: this.labelCreateCondition ?? "Create new condition:",
-        existingConditions: this.labelExistingConditions ?? "Existing conditions:",
-      };
-    }
   },
   computed: {
     inputValid() {
       const value = this.form.attribute.trim();
       return value != ""
-          && Number(value) != NaN
-          && Number(value) >= 0;
+          ? Number(value) != NaN && Number(value) >= 0
+          : null;
+    },
+    labels() {
+      return {
+        createCondition: this.labelCreateCondition ?? "Create new condition based on this item:",
+        existingConditions: this.labelExistingConditions ?? "Existing conditions based on this item:",
+      };
     }
   },
   async mounted() {
