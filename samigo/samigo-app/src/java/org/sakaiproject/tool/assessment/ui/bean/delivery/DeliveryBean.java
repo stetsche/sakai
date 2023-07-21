@@ -2163,7 +2163,7 @@ public class DeliveryBean implements Serializable {
     if (isViaUrlLogin) {
       String secureDeliveryModuleId = publishedAssessment.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY);
 
-      if (secureDeliveryModuleId != null) {
+      if (secureDeliveryModuleId != null && !SecureDeliveryServiceAPI.NONE_ID.equals(secureDeliveryModuleId)) {
         validateSecureDeliveryPhase(Phase.ASSESSMENT_START);
 
         if (PhaseStatus.FAILURE.equals(secureDeliveryStatus)) {
@@ -2173,6 +2173,8 @@ public class DeliveryBean implements Serializable {
             return SamigoConstants.OUTCOME_DELIVERY_SECURE_DELIVERY_ERROR;
           }
         }
+      } else {
+        setSebSetup(false);
       }
     }
 
