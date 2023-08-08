@@ -15,15 +15,15 @@
     <div class="condition" v-else>
       <b>Select a condition, that is required for this item to be visible: {{ savedConditionId }}</b>
       <BFormGroup label="Lessons item" class="mb-2">
-        <BFormSelect plain v-model="selectedItem" :options="itemOptions"></BFormSelect>
+        <BFormSelect plain v-model="selectedItemOption" :options="itemOptions"></BFormSelect>
       </BFormGroup>
-      <BFormGroup :disabled="!selectedItem" label="Condition" class="mb-2">
-        <BFormSelect plain v-model="selectedCondition" :options="conditionOptions"></BFormSelect>
+      <BFormGroup :disabled="!selectedItemOption" label="Condition" class="mb-2">
+        <BFormSelect plain v-model="selectedConditionOption" :options="conditionOptions"></BFormSelect>
       </BFormGroup>
       <BButton @click="saveCondition" :disabled="!selectionValid" variant="primary">
         <BSpinner v-if="saving" small aria-label="Saving condition as requirement" />
-        <BIcon v-else icon="save" aria-hidden="true" />
-        Save condition as Requirement
+        <BIcon v-else icon="plus-circle" aria-hidden="true" />
+        Add condition as prerequisite
       </BButton>
     </div>
     <div class="mt-2" v-if="savedEntries?.length > 0">
@@ -113,37 +113,67 @@
       return {
         toolItems: defaultToolItems,
         rootCondition: defaultRootCondition,
-        selectedItem: defaultSelectedItem,
-        selectedCondition: defaultSelectedCondition,
+        selectedItemOption: defaultSelectedItem,
+        selectedConditionOption: defaultSelectedCondition,
         savedConditionId: null,
+        savedConditions: [],
         saving: false,
         loading: true,
       }
     },
     computed: {
-      itemOptions() {
-        console.log(JSON.parse(JSON.stringify(this.toolItems)));
+      availableToolItems() {
         return this.toolItems
-            .filter((item) => this.itemId ? item.id != this.itemId : true)
-            .map(item => {
-              return {
-                value: item.id,
-                text: item.name,
-              }
-            });
+            .filter((item) => this.itemId ? item.id != this.itemId : true);
+      },
+      disabledToolItems() {
+        return this.availableToolItems.filter((item) => this.savedConditions.find((sc) => item.conditions.includes(sc)));
+      },
+      itemOptions() {
+        return this.availableToolItems.map(item => {
+          return {
+            value: item.id,
+            text: item.name,
+            disabled: this.disabledToolItems.contains(item)
+          }
+        });
+      },
+      selectedToolItem() {
+        return this.selectedItemOption
+            ? this.availableToolItems.find((item) => item.id == this.selectedItemOption)
+            : null;
+      },
+      selectableConditions() {
+        return this.toolItems.filter((item) => this.itemId ? item.id != this.itemId : true);
       },
       conditionOptions() {
-        if (this.selectedItem) {
-          return this.toolItems.find(item => item.id === this.selectedItem).conditions.map(condition => {
-            return {
-              value: condition.id,
-              text: formatCondition(null, null, null, condition),
-            };
-          });
-        } else {
-          return null;
-        }
+        return this.selectedToolItem
+            ? this.selectedToolItem.conditions.map(condition => {
+                return {
+                  value: condition.id,
+                  text: formatCondition(null, null, null, condition),
+                  disabled: this.selectedConditions.contains(condition),
+                };
+              })
+            : null;
       },
+      selectedCondition() {
+        return this.selectedConditionOption
+            ? this.selectedToolItem.conditions.find((C) => c.id == this.selectedConditionOption)
+            : null;
+      },
+      // conditionOptions() {
+      //   if (this.selectedItemOption) {
+      //     return this.toolItems.find(item => item.id === this.selectedItemOption).conditions.map(condition => {
+      //       return {
+      //         value: condition.id,
+      //         text: formatCondition(null, null, null, condition),
+      //       };
+      //     });
+      //   } else {
+      //     return null;
+      //   }
+      // },
       savedEntries() {
         return this.rootCondition?.subConditions.map((condition) => {
           return {
@@ -163,36 +193,38 @@
         return this.savedItem.conditions.find(condition => condition.id == this.savedConditionId);
       },
       selectionValid() {
-        return this.selectedItem && this.selectedCondition;
+        return this.selectedItemOption && this.selectedConditionOption;
       }
     },
     methods: {
       saveCondition() {
         if (this.selectionValid) {
-          this.savedConditionId = this.selectedCondition;
+          this.savedConditionId = this.selectedConditionOption;
         }
       },
       changeCondition() {
         this.savedConditionId = defaultSelectedItem;
       },
-      onSubConditionRemoved(conditionId) {
-        // Remove condition form conditions
-        this.rootCondition.subConditions.splice(this.rootCondition.subConditions.findIndex((c) => c.id === conditionId), 1);
-      },
-      async removeSubCondition(condition) {
+      onRemoveSubCondition(condition) {
         // Set saving true for condition
         const index = this.rootCondition.subConditions.findIndex((c) => c.id === condition.id);
         this.rootCondition.subConditions.splice(index, 1, { ...condition, saving: true });
 
-        const alteredRootCondition = {
+        this.removeSubCondition(condition)
+            .then((rootCondition) => this.onSubConditionRemoved(rootCondition));
+      },
+      async removeSubCondition(condition) {
+
+        const modifiedRootCondition = {
           ...this.rootCondition,
           subConditions: this.rootCondition.subConditions.filter((c) => c.id != condition.id),
         };
 
-        const updatedRootCondition = await updateCondition(alteredRootCondition);
-
-        if (updatedRootCondition != null) {
-          this.rootCondition = updatedRootCondition;
+        return await updateCondition(modifiedRootCondition);
+      },
+      onSubConditionRemoved(rootCondition) {
+        if (rootCondition != null) {
+          this.rootCondition = rootCondition;
         } else {
           console.log("Condition not removed")
           this.rootCondition.subConditions.splice(index, 1, { ...condition, saving: false });
