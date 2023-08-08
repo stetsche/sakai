@@ -154,6 +154,7 @@ export default {
         this.saving = true;
 
         const condition = {
+          type: "POINTS",
           siteId: this.siteId,
           toolId: this.toolId,
           itemId: this.itemId,

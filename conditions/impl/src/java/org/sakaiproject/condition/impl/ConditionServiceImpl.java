@@ -25,11 +25,15 @@ import java.util.Map.Entry;
 
 import javax.transaction.Transactional;
 
+import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.condition.api.ConditionEvaluator;
 import org.sakaiproject.condition.api.ConditionService;
 import org.sakaiproject.condition.api.exception.UnsupportedToolIdException;
 import org.sakaiproject.condition.api.model.Condition;
+import org.sakaiproject.condition.api.model.ConditionType;
 import org.sakaiproject.condition.api.persistence.ConditionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -37,11 +41,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class ConditionServiceImpl implements ConditionService {
 
 
+    private static final String CONDITIONS_TOOL_ID = "sakai.conditions";
+
     @Autowired
-    ConditionRepository conditionRepository;
+    private ConditionRepository conditionRepository;
+
+    @Autowired
+    private SecurityService securityService;
 
     @Setter
-    Map<String, ConditionEvaluator> conditionEvaluators;
+    private Map<String, ConditionEvaluator> conditionEvaluators;
 
 
     @Override
@@ -81,7 +90,7 @@ public class ConditionServiceImpl implements ConditionService {
 
     @Override
     public List<Condition> getConditionsForItem(String siteId, String toolId, String itemId) {
-        log.info("getConditionsForSiteItem(siteId [{}], toolId [{}] itemId [{}]), ", siteId, toolId, itemId);
+        log.info("getConditionsForSiteItem(siteId [{}], toolId [{}] itemId [{}])", siteId, toolId, itemId);
         if (StringUtils.isNoneBlank(siteId, toolId, itemId)) {
             return conditionRepository.findConditionsForItem(siteId, toolId, itemId);
         } else {
@@ -92,24 +101,62 @@ public class ConditionServiceImpl implements ConditionService {
     }
 
     @Override
+    public Optional<Condition> getRootConditionForItem(String siteId, String toolId, String itemId) {
+        log.info("getRootConditionForItem(siteId [{}], toolId [{}] itemId [{}])", siteId, toolId, itemId);
+        if (StringUtils.isNoneBlank(siteId, toolId, itemId)) {
+            return Optional.ofNullable(conditionRepository.findRootConditionForItem(siteId, toolId, itemId));
+        } else {
+            log.error("Can not get root condition for invalid parameters: siteId [{}], toolId [{}] itemId [{}]",
+                    siteId, toolId, itemId);
+            return Optional.empty();
+        }
+    }
+
+    @Override
     @Transactional
     public Condition saveCondition(Condition condition) {
         if (condition != null) {
             String toolId = condition.getToolId();
             Condition originalCondition = getCondition(condition.getId());
 
-            if (originalCondition != null && isConditionUsed(originalCondition)
-                    && (toolId != originalCondition.getToolId()
-                            || condition.getItemId() != originalCondition.getItemId())) {
-                log.error("Can not update toolId or itemId of condition, it is still in use");
-                return originalCondition;
-            }
-
             if (!isToolIdSupported(toolId)) {
                 throw new UnsupportedToolIdException(toolId);
             }
 
-            return conditionRepository.save(condition);
+            if (originalCondition != null) {
+                if (isConditionUsed(originalCondition)
+                        && (toolId != originalCondition.getToolId()
+                                || condition.getItemId() != originalCondition.getItemId())) {
+                    log.error("Can not update toolId or itemId of condition, it is still in use");
+                    return originalCondition;
+                }
+
+                try {
+                    conditionRepository.update(condition);
+
+                    return getCondition(condition.getId());
+                } catch (Exception e) {
+                    log.error("Updating condition failed: {}", e.toString());
+
+                    return originalCondition;
+                }
+            } else {
+                if (ConditionType.ROOT.equals(condition.getType())
+                        && getRootConditionForItem(condition.getSiteId(), toolId, condition.getItemId()) != null) {
+                    log.error("Can not create another root condition for item with siteId [{}], toolId [{}] itemId [{}]",
+                        condition.getSiteId(), toolId, condition.getItemId());
+
+                    return null;
+                }
+
+                try {
+                    return conditionRepository.save(condition);
+                } catch (Exception e) {
+                    log.error("Saving condition failed: {}", e.toString());
+
+                    return null;
+                }
+            }
         } else {
             log.error("Can not save condition as it is null");
             return null;
@@ -134,7 +181,21 @@ public class ConditionServiceImpl implements ConditionService {
 
     @Override
     public boolean evaluateCondition(Condition condition, String userId) {
-        return getConditionEvaluator(condition).evaluateCondition(condition, userId);
+        if (condition != null && StringUtils.isNotBlank(userId)) {
+
+            securityService.pushAdvisor(SecurityAdvisor.ADVISOR_ALLOW_ALL);
+
+            boolean result = isParentCondition(condition)
+                ? evaluateSubConditions(condition, userId)
+                : getConditionEvaluator(condition).evaluateCondition(condition, userId);
+
+            securityService.popAdvisor(SecurityAdvisor.ADVISOR_ALLOW_ALL);
+
+            return result;
+        } else {
+            log.error("Can not evaluate condition due to invalid arguments: condition [{}], userId [{}]", condition, userId);
+            return false;
+        }
     }
 
     @Override
@@ -152,5 +213,32 @@ public class ConditionServiceImpl implements ConditionService {
         Optional<ConditionEvaluator> conditionEvaluator = Optional.ofNullable(conditionEvaluators.get(toolId));
 
         return conditionEvaluator.orElseThrow(() -> new UnsupportedToolIdException(toolId));
+    }
+
+    private boolean isParentCondition(Condition condition) {
+        return condition != null && (ConditionType.ROOT.equals(condition.getType())
+                        || (ConditionType.PARENT.equals(condition.getType())));
+    }
+
+    private boolean evaluateSubConditions(Condition condition, String userId) {
+        switch(condition.getOperator()) {
+            case AND:
+                for (Condition subCondition : condition.getSubConditions()) {
+                    if (!evaluateCondition(subCondition, userId)) {
+                        return false;
+                    }
+                }
+                return true;
+            case OR:
+                for (Condition subCondition : condition.getSubConditions()) {
+                    if (evaluateCondition(subCondition, userId)) {
+                        return true;
+                    }
+                }
+                return false;
+            default:
+                log.error("Unexpected operator [{}] for parent condition.");
+                return false;
+        }
     }
 }

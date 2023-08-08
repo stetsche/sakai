@@ -3,7 +3,7 @@
     <div class="saved-condition" v-if="savedCondition">
       <b>Selected condition:</b>
       <BCard class="mb-2">
-        Require the item <b>{{ savedItem.text }}</b> to have a score {{ savedCondition.type }} {{ savedCondition.argument }} Points
+        Require the item <b>{{ savedItem.name }}</b> to have a score {{ savedCondition.operator }} {{ savedCondition.argument }} Points
       </BCard>
       <BButton @click="changeCondition" variant="primary">
         <BSpinner v-if="saving" small aria-label="Removing condition as requirement" />
@@ -25,6 +25,24 @@
         <BIcon v-else icon="save" aria-hidden="true" />
         Save condition as Requirement
       </BButton>
+    </div>
+    <div class="mt-2" v-if="savedEntries?.length > 0">
+      <b class="mb-2">Saved conditions:</b>
+      <BListGroup>
+        <BListGroupItem class="d-flex align-items-center" v-for="savedEntry in savedEntries" :key="savedEntry.condition.id">
+          <span class="me-1">Require the item</span>
+          <b>{{ savedEntry.toolItem.name }}</b>
+          <span class="mx-1">to have a score</span>
+          <b>{{ savedEntry.condition.operator }} {{ savedEntry.condition.argument }}</b>
+          <span class="ms-1">Points</span>
+          <div class="d-flex ms-auto align-items-center">
+            <BButton @click="removeSubCondition(savedEntry.condition)" variant="link" title="Remove Condition">
+              <BIcon v-if="!savedEntry.saving" icon="trash" aria-hidden="true" font-scale="1.2" />
+              <BSpinner v-if="savedEntry.condition.saving" small aria-label="Removing condition" />
+            </BButton>
+          </div>
+        </BListGroupItem>
+      </BListGroup>
     </div>
   </div>
 </template>
@@ -58,10 +76,17 @@
 
   // Utils
   import { formatCondition } from "../utils/condition-utils.js";
+  import {
+    getRootCondition,
+    getToolItemsWithConditionsForLesson,
+    updateCondition,
+  } from '../api/conditions-api';
 
   // Use plugins
   Vue.use(BootstrapVueIcons)
 
+  const defaultToolItems = [];
+  const defaultRootCondition = null;
   const defaultSelectedCondition = null;
   const defaultSelectedItem = null;
 
@@ -79,12 +104,15 @@
     },
     mixins: [i18nMixin],
     props: {
-      toolId: { type: String },
-      collectionId: { type: String }    // const conditions = await getConditions(this.toolId, this.itemId);
+      siteId: { operator: String },
+      toolId: { operator: String },
+      itemId: { operator: String },
+      lessonId: { operator: String },
     },
     data: function() {
       return {
-        items: [],
+        toolItems: defaultToolItems,
+        rootCondition: defaultRootCondition,
         selectedItem: defaultSelectedItem,
         selectedCondition: defaultSelectedCondition,
         savedConditionId: null,
@@ -94,16 +122,19 @@
     },
     computed: {
       itemOptions() {
-        return this.items.map(item => {
-          return {
-            value: item.id,
-            text: item.text,
-          }
-        });
+        console.log(JSON.parse(JSON.stringify(this.toolItems)));
+        return this.toolItems
+            .filter((item) => this.itemId ? item.id != this.itemId : true)
+            .map(item => {
+              return {
+                value: item.id,
+                text: item.name,
+              }
+            });
       },
       conditionOptions() {
         if (this.selectedItem) {
-          return this.items.find(item => item.id === this.selectedItem).conditions.map(condition => {
+          return this.toolItems.find(item => item.id === this.selectedItem).conditions.map(condition => {
             return {
               value: condition.id,
               text: formatCondition(null, null, null, condition),
@@ -113,10 +144,18 @@
           return null;
         }
       },
+      savedEntries() {
+        return this.rootCondition?.subConditions.map((condition) => {
+          return {
+            condition,
+            toolItem: this.toolItems.find((item) => item.id == condition.itemId) ?? null
+          }
+        })
+      },
       savedItem() {
         if (!this.savedConditionId) return null;
 
-        return this.items.find(item => item.conditions.find(condition => condition.id == this.savedConditionId));
+        return this.toolItems.find(item => item.conditions.find(condition => condition.id == this.savedConditionId));
       },
       savedCondition() {
         if (!this.savedItem) return null;
@@ -136,55 +175,45 @@
       changeCondition() {
         this.savedConditionId = defaultSelectedItem;
       },
+      onSubConditionRemoved(conditionId) {
+        // Remove condition form conditions
+        this.rootCondition.subConditions.splice(this.rootCondition.subConditions.findIndex((c) => c.id === conditionId), 1);
+      },
+      async removeSubCondition(condition) {
+        // Set saving true for condition
+        const index = this.rootCondition.subConditions.findIndex((c) => c.id === condition.id);
+        this.rootCondition.subConditions.splice(index, 1, { ...condition, saving: true });
+
+        const alteredRootCondition = {
+          ...this.rootCondition,
+          subConditions: this.rootCondition.subConditions.filter((c) => c.id != condition.id),
+        };
+
+        const updatedRootCondition = await updateCondition(alteredRootCondition);
+
+        if (updatedRootCondition != null) {
+          this.rootCondition = updatedRootCondition;
+        } else {
+          console.log("Condition not removed")
+          this.rootCondition.subConditions.splice(index, 1, { ...condition, saving: false });
+        }
+      },
+      async loadData() {
+        const conditionsPromise = getToolItemsWithConditionsForLesson(this.siteId, this.lessonId);
+        const rootConditionPromise = getRootCondition(this.siteId, this.toolId, this.itemId);
+
+        const [ conditions, rootCondition ] = await Promise.all([ conditionsPromise, rootConditionPromise ]);
+
+        this.toolItems = conditions ?? defaultToolItems;
+        this.rootCondition = rootCondition ?? defaultRootCondition;
+        console.log("rootCondition", rootCondition)
+      }
     },
     mounted() {
-      this.items = [
-        {
-          id: "1",
-          text: "Quiz 1 [Open on: Apr 19, 2023, 11:15:00 AM] [Due on: Apr 26, 2023, 11:15:00 AM]",
-          conditions: [
-            {
-              id: "a",
-              type: "SMALLER_THEN",
-              argument: "5",
-            },
-            {
-              id: "b",
-              type: "GREATER_THEN",
-              argument: "10",
-            },
-          ]
-        },
-        {
-          id: "2",
-          text: "Quiz 2 [Open on: Apr 19, 2023, 11:15:00 AM] [Due on: Apr 26, 2023, 11:15:00 AM]",
-          conditions: [
-            {
-              id: "c",
-              type: "SMALLER_THEN",
-              argument: "4",
-            },
-            {
-              id: "d",
-              type: "GREATER_THEN",
-              argument: "12",
-            },
-          ]
-        },
-        {
-          id: "3",
-          text: "Quiz 3 [Open on: Apr 19, 2023, 11:15:00 AM] [Due on: Apr 26, 2023, 11:15:00 AM]",
-          conditions: [
-            {
-              id: "e",
-              type: "GREATER_THEN",
-              argument: "8",
-            },
-          ]
-        },
-      ];
-      // const conditions = await getConditions(this.toolId, this.itemId);
-      // this.conditions = conditions ?? [];
+      this.loadData();
+
+      // Setup watcher to load fresh data when siteId, toolId, or itemId changes, debounced by 100ms
+      this.$watch((vm) => [vm.siteId, vm.toolId, vm.itemId], () => this.loadData());
     }
   };
 </script>

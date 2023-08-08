@@ -62,6 +62,9 @@ public interface SecurityAdvisor
 		public static final SecurityAdvice PASS = new SecurityAdvice("pass");
 	}
 
+	public static final SecurityAdvisor ADVISOR_ALLOW_ALL = (String userId, String function, String reference) ->
+			SecurityAdvisor.SecurityAdvice.ALLOWED;
+
 	/**
 	 * Can the current session user perform the requested function on the referenced Entity?
 	 * 

@@ -92,6 +92,11 @@ public class ConditionController extends AbstractSakaiApiController {
             ? conditionService.getConditionsForItem(siteId, toolId.get(), itemId.get())
             : conditionService.getConditionsForSite(siteId);
 
+        // ------
+        // boolean evaluation = conditionService.evaluateCondition(
+        //     conditionService.getCondition("88888888-36f3-4fd3-9ea0-42e89acf1da6"), "4e7e0d06-5d37-4157-ac23-88d1346edf22");
+        // log.info("evaluation {}", evaluation);
+        // ------
         return ResponseEntity.ok(conditions);
     }
 
@@ -115,8 +120,29 @@ public class ConditionController extends AbstractSakaiApiController {
     @PutMapping(value = "/sites/{siteId}/conditions/{conditionId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Condition> updateCondition(@PathVariable String siteId, @PathVariable String conditionId,
             @RequestBody Condition condition) {
-        // Update method not needed at the moment
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        checkSakaiSession();
+        checkSite(siteId);
+
+        log.info("updateCondition(...)");
+
+        Condition existingCondition = conditionService.getCondition(conditionId);
+
+        log.info("existingCondition {}", existingCondition);
+        log.info("cid1 {}", conditionId);
+        log.info("cid2 {}", condition.getId());
+        log.info("1 {}", existingCondition != null);
+        log.info("2 {}", StringUtils.equals(condition.getId(), conditionId));
+
+        if (existingCondition != null && StringUtils.equals(condition.getId(), conditionId)) {
+            Condition updatedCondition = conditionService.saveCondition(condition);
+
+        log.info("updatedCondition {}", updatedCondition);
+            if (updatedCondition != null) {
+                return ResponseEntity.ok(updatedCondition);
+            }
+        }
+
+        return ResponseEntity.badRequest().build();
     }
 
     @DeleteMapping(value = "/sites/{siteId}/conditions/{conditionId}", produces = MediaType.APPLICATION_JSON_VALUE)

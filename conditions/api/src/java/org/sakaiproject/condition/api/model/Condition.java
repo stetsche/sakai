@@ -15,6 +15,9 @@
  */
 package org.sakaiproject.condition.api.model;
 
+import java.util.List;
+import java.util.Set;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -22,6 +25,11 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -34,7 +42,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 @Entity
-@Table(name = "CONDITION_T",
+@Table(name = "COND_CONDITION",
         indexes = { @Index(name = "IDX_CONDITION_SITE_ID", columnList = "SITE_ID") })
 @Data
 @Builder
@@ -51,9 +59,14 @@ public class Condition {
     private String id;
 
     @NonNull
+    @Column(name = "TYPE", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ConditionType type;
+
+    @NonNull
     @Column(name = "OPERATOR", nullable = false)
     @Enumerated(EnumType.STRING)
-    private Operator operator;
+    private ConditionOperator operator;
 
     @Column(name = "ARGUMENT", nullable = true)
     private String argument;
@@ -69,10 +82,17 @@ public class Condition {
     @Column(name = "ITEM_ID", nullable = false)
     private String itemId;
 
+    @OneToMany
+    @JoinTable(name = "COND_PARENT_CHILD",
+            joinColumns = { @JoinColumn(name = "PARENT_ID", referencedColumnName = "ID") },
+            inverseJoinColumns = { @JoinColumn(name="CHILD_ID", referencedColumnName = "ID") })
+    private Set<Condition> subConditions;
+
     public static ConditionBuilder builderOf(Condition condition) {
         if (condition != null) {
             return Condition.builder()
                     .id(condition.getId())
+                    .type(condition.getType())
                     .operator(condition.getOperator())
                     .argument(condition.getArgument())
                     .siteId(condition.getSiteId())

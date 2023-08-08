@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.condition.api.model.Condition;
+import org.sakaiproject.condition.api.model.ConditionType;
 import org.sakaiproject.condition.api.persistence.ConditionRepository;
 import org.sakaiproject.serialization.BasicSerializableRepository;
 
@@ -48,5 +49,15 @@ public class ConditionRepositoryImpl extends BasicSerializableRepository<Conditi
                 .add(Restrictions.eq("toolId", toolId))
                 .add(Restrictions.eq("itemId", itemId))
                 .list();
+    }
+
+    @Override
+    public Condition findRootConditionForItem(String siteId, String toolId, String itemId) {
+        return (Condition) startCriteriaQuery()
+                .add(Restrictions.eq("siteId", siteId))
+                .add(Restrictions.eq("toolId", toolId))
+                .add(Restrictions.eq("itemId", itemId))
+                .add(Restrictions.eq("type", ConditionType.ROOT))
+                .uniqueResult();
     }
 }

@@ -41,6 +41,8 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.condition.api.ConditionService;
+import org.sakaiproject.condition.api.model.Condition;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
@@ -462,6 +464,7 @@ public class SimplePageBean {
     @Setter private UserDirectoryService userDirectoryService;
     @Setter private FormattedText formattedText;
     @Setter private UserTimeService userTimeService;
+    @Setter private ConditionService conditionService;
 
     private LessonEntity forumEntity = null;
     	public void setForumEntity(Object e) {
@@ -5530,6 +5533,19 @@ public class SimplePageBean {
 		    }
 		} finally {
 			popAdvisor(advisor);
+		}
+
+		log.info("conditionService {}", conditionService);
+		log.info("currentSiteId {}", currentSiteId);
+		log.info("currentUserId {}", currentUserId);
+		if (conditionService != null) {
+			Condition rootCondition = conditionService.getRootConditionForItem(currentSiteId, LESSONBUILDER_ID,
+					Long.toString(item.getId())).orElse(null);
+
+			log.info("rootCondition {}", rootCondition);
+			if (rootCondition != null) {
+				return conditionService.evaluateCondition(rootCondition, currentUserId);
+			}
 		}
 
 		try {

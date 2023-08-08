@@ -15,10 +15,18 @@
  */
 package org.sakaiproject.condition.impl;
 
+import java.util.Optional;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.condition.api.ConditionEvaluator;
 import org.sakaiproject.condition.api.exception.UnsupportedToolIdException;
 import org.sakaiproject.condition.api.model.Condition;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.expression.spel.support.ReflectivePropertyAccessor.OptimalPropertyAccessor;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,6 +40,9 @@ public class LessonsConditionEvaluator implements ConditionEvaluator {
     @Autowired
     private AssignmentConditionEvaluator assignmentConditionEvaluator;
 
+    @Autowired
+    @Qualifier("org.sakaiproject.lessonbuildertool.model.SimplePageToolDaoTarget")
+    private SimplePageToolDao lessonService;
 
     @Override
     public boolean evaluateCondition(Condition condition, String userId) {
@@ -47,13 +58,52 @@ public class LessonsConditionEvaluator implements ConditionEvaluator {
     }
 
     private Condition getAdjustedCondition(Condition condition) {
-        String itemId = "2";
-        String toolId = ASSIGNMENT_TOOL_ID;
+        return getLessonItem(condition.getItemId()).map(lessonItem -> {
+                String toolId, itemId;
 
-        return Condition.builderOf(condition)
-                .toolId(toolId)
-                .itemId(itemId)
-                .build();
+                switch (lessonItem.getType()) {
+                    case SimplePageItem.ASSIGNMENT:
+                        toolId = ASSIGNMENT_TOOL_ID;
+                        itemId = parseItemIdFromRef(lessonItem.getSakaiId());
+                        break;
+                    default:
+                        toolId = null;
+                        itemId = null;
+                        break;
+                }
+
+                return Condition.builderOf(condition)
+                    .toolId(toolId)
+                    .itemId(itemId)
+                    .build();
+        }).orElse(null);
+    }
+
+    private Optional<SimplePageItem> getLessonItem(String itemId) {
+        if (NumberUtils.isParsable(itemId)) {
+            return Optional.ofNullable(lessonService.findItem(Long.parseLong(itemId)));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private String parseItemIdFromRef(String ref) {
+        String [] refParts = StringUtils.split(ref, '/');
+
+        if (ref != null && refParts.length >= 2) {
+            switch (refParts[0]) {
+                case "assignment":
+                case "sam_pub":
+                    return refParts[1];
+                default:
+                    log.error("Unhandled reference [{}]", ref);
+                    break;
+            }
+        } else {
+            log.error("Invalid reference [{}]", ref);
+        }
+
+        return null;
     }
 
     private ConditionEvaluator getItemEvaluator(String toolId) {

@@ -26,6 +26,8 @@ public interface ConditionRepository extends SerializableRepository<Condition, S
 
     public Condition findConditionForId(String conditionId);
 
+    public Condition findRootConditionForItem(String siteId, String toolId, String itemId);
+
     public List<Condition> findConditionsForSite(String siteId);
 
     public List<Condition> findConditionsForItem(String siteId, String toolId, String itemId);

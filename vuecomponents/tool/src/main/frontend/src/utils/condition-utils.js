@@ -2,11 +2,13 @@ const conditionOperators = [
     "SMALLER_THEN",
     "EQUAL_AS",
     "GREATER_THEN",
+    "AND",
+    "OR",
 ];
 
 export function formatCondition(i18n, toolId, type, condition) {
 
- return "Require a score " + condition.type + " " + condition.attribute + " Points";
+    return "Require a score " + condition.operator + " " + condition.argument + " Points";
 }
 
 export function isValidCondition(condition) {
@@ -15,8 +17,12 @@ export function isValidCondition(condition) {
 
     const { operator, argument, siteId, toolId, itemId } = condition;
 
-    return conditionOperators.includes(operator)
-            && !!argument && !!siteId && !!toolId && !!itemId;
+    if (!conditionOperators.includes(operator)) {
+        console.error("Invalid condition operator:", operator);
+        return false;
+    }
+
+    return !!siteId && !!toolId && !!itemId;
 }
 
 export default {

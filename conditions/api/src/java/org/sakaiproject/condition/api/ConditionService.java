@@ -16,6 +16,7 @@
 package org.sakaiproject.condition.api;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.sakaiproject.condition.api.model.Condition;
 
@@ -29,6 +30,8 @@ public interface ConditionService {
     public List<Condition> getConditionsForSite(String siteId);
 
     public List<Condition> getConditionsForItem(String siteId, String toolId, String itemId);
+
+    public Optional<Condition> getRootConditionForItem(String siteId, String toolId, String itemId);
 
     public Condition saveCondition(Condition condition);
 
