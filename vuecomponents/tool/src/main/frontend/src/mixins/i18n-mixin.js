@@ -12,9 +12,14 @@ export default {
           console.error("I18n strings could not be retrieved -", reason);
         });
     },
+    insert(translation, ...inserts) {
+      inserts?.forEach((insert, index) => translation = translation?.replace(`{${index}}`, insert));
+
+      return translation;
+    }
   },
   created() {
-    this.getI18nProps(this.i18nProps || this.$options.name);
+    this.getI18nProps(this.i18nBundleName || this.$options.name);
   },
   data() {
     return { i18n: {} };

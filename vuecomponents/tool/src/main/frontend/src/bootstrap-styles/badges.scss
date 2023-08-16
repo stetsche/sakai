@@ -1,3 +1,9 @@
 .badge-success {
-    background-color: var(--successBanner-bordercolor);
+    --bs-badge-color: var(--successBanner-color);
+    background-color: var(--successBanner-bgcolor);
+}
+
+.badge-info {
+    --bs-badge-color: var(--infoBanner-color);
+    background-color: var(--infoBanner-bgcolor);
 }

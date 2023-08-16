@@ -1,18 +1,29 @@
 package org.sakaiproject.webapi.beans;
 
-import lombok.Builder;
+import java.lang.reflect.InvocationTargetException;
+
+import org.apache.commons.beanutils.BeanUtils;
+import org.sakaiproject.condition.api.model.Condition;
+
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
-@Builder
+//@EqualsAndHashCode(callSuper = true)
 public class ConditionRestBean {
 
 
-    private String id;
-    private String toolId;
-    private String itemId;
-    private boolean met;
-    private String operator;
-    private String type;
-    private String attribute;
+    private boolean used;
+
+
+    public ConditionRestBean(Condition condition, boolean used) {
+        // try {
+        //     BeanUtils.copyProperties(this, condition);
+        // } catch (IllegalAccessException | InvocationTargetException e) {
+        //     // Do nothing
+        // }
+
+        this.used = used;
+
+    }
 }

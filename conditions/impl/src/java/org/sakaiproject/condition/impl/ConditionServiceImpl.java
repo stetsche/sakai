@@ -125,9 +125,10 @@ public class ConditionServiceImpl implements ConditionService {
 
             if (originalCondition != null) {
                 if (isConditionUsed(originalCondition)
-                        && (toolId != originalCondition.getToolId()
-                                || condition.getItemId() != originalCondition.getItemId())) {
-                    log.error("Can not update toolId or itemId of condition, it is still in use");
+                        && (!StringUtils.equals(toolId, originalCondition.getToolId())
+                                || !StringUtils.equals(condition.getItemId(), originalCondition.getItemId()))) {
+                    log.error("Can not update toolId or itemId of condition with id [{}], it is still in use",
+                             condition.getId());
                     return originalCondition;
                 }
 
@@ -142,7 +143,7 @@ public class ConditionServiceImpl implements ConditionService {
                 }
             } else {
                 if (ConditionType.ROOT.equals(condition.getType())
-                        && getRootConditionForItem(condition.getSiteId(), toolId, condition.getItemId()) != null) {
+                        && getRootConditionForItem(condition.getSiteId(), toolId, condition.getItemId()).isPresent()) {
                     log.error("Can not create another root condition for item with siteId [{}], toolId [{}] itemId [{}]",
                         condition.getSiteId(), toolId, condition.getItemId());
 
@@ -200,7 +201,9 @@ public class ConditionServiceImpl implements ConditionService {
 
     @Override
     public boolean isConditionUsed(Condition condition) {
-        return condition != null && getConditionEvaluator(condition).isConditionUsed(condition);
+        return condition != null
+                && condition.getSubConditions() != null
+                && condition.getSubConditions().size() > 0;
     }
 
     @Override

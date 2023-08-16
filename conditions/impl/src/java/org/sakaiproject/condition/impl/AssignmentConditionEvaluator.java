@@ -63,29 +63,32 @@ public class AssignmentConditionEvaluator implements ConditionEvaluator {
                     .map(Double::parseDouble)
                     .collect(Collectors.toList());
 
-            BigDecimal highestGrade = BigDecimal.valueOf(submissionGrades.stream().sorted(Comparator.reverseOrder()).findFirst().orElse(null));
+            if (submissionGrades.isEmpty()) {
+                log.debug("No graded submission present => false");
+
+                return false;
+            }
+
+            BigDecimal highestGrade = BigDecimal.valueOf(submissionGrades.stream().sorted(Comparator.reverseOrder()).findFirst().get());
             BigDecimal conditionGrade = new BigDecimal(condition.getArgument());
 
-            log.debug("{} {} {}", highestGrade, condition.getOperator(), conditionGrade);
-
-            if (highestGrade != null) {
-                switch (condition.getOperator()) {
-                    case SMALLER_THEN:
-                        result = ComparableUtils.is(highestGrade).lessThan(conditionGrade);
-                        break;
-                    case GREATER_THEN:
-                        result = ComparableUtils.is(highestGrade).greaterThan(conditionGrade);
-                        break;
-                    case EQUAL_AS:
-                        result = ComparableUtils.is(highestGrade).equalTo(conditionGrade);
-                        break;
-                    default:
-                        break;
-                }
+            switch (condition.getOperator()) {
+                case SMALLER_THAN:
+                    result = ComparableUtils.is(highestGrade).lessThan(conditionGrade);
+                    break;
+                case GREATER_THAN:
+                    result = ComparableUtils.is(highestGrade).greaterThan(conditionGrade);
+                    break;
+                case EQUAL_TO:
+                    result = ComparableUtils.is(highestGrade).equalTo(conditionGrade);
+                    break;
+                default:
+                    break;
             }
+
+            log.debug("{} {} {} => {}", highestGrade, condition.getOperator(), conditionGrade, result);
         }
 
-        log.info("result: [{}]", result);
         return Boolean.TRUE.equals(result);
     }
 

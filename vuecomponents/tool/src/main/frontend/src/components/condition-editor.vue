@@ -1,35 +1,41 @@
 <template>
   <div ref="component" class="condition-editor">
     <b>
-    <label class="mb-2" for="create-condition">{{ labels.createCondition }} (item:{{ this.itemId }})</label>
+    <label class="mb-2" for="create-condition">{{ labels.createCondition }}</label>
     </b>
-    <form id="create-condition" class="d-flex align-items-center gap-2">
-      <span>Require this item to have a score</span>
-      <div>
-        <BFormSelect class="form-select" v-model="form.type" :options="types" :disabled="saving"></BFormSelect>
+    <form id="create-condition" class="d-flex flex-column flex-lg-row gap-2">
+      <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-2">
+        <span>{{ i18n["form_require_item_points"] }}</span>
+        <div class="flex-grow-1 flex-lg-grow-0">
+          <BFormSelect class="form-select" v-model="form.type" :options="operators" :disabled="saving"></BFormSelect>
+        </div>
       </div>
-      <BFormGroup>
-        <BFormInput type="text" class="argument" v-model="form.argument" :disabled="saving" />
-      </BFormGroup>
-      <span>Points</span>
-      <BButton class="ms-auto" variant="primary" @click="addCondition" :disabled="!inputValid || saving">
-        <BIcon v-if="!saving" icon="plus-circle" aria-hidden="true" />
-        <BSpinner v-if="saving" small aria-label="Saving condition" />
-        Add condition
-      </BButton>
+      <div class="d-flex align-items-center gap-2 flex-grow-1">
+        <BFormGroup>
+          <BFormInput type="text" class="argument" v-model="form.argument" :disabled="saving" />
+        </BFormGroup>
+        <span>Points</span>
+        <BButton class="ms-auto" variant="primary" @click="addCondition" :disabled="!inputValid || saving">
+          <BIcon v-if="!saving" icon="plus-circle" aria-hidden="true" />
+          <BSpinner v-if="saving" small :aria-label="i18n['saving_condition']" />
+          {{ i18n["add_condition"] }}
+        </BButton>
+      </div>
     </form>
     <div class="mt-2" v-if="conditions.length > 0">
       <b class="mb-2">{{ labels.existingConditions }}</b>
       <BListGroup>
         <BListGroupItem class="d-flex align-items-center" v-for="condition in conditions" :key="condition.id">
-          <span class="me-1">Require this item to have a score</span>
+          <ConditionText :condition="condition" />
+          <!-- <span class="me-1">{{ i18n["form_require_item_points"] }}</span>
           <b>{{ typeLabel(condition.type) }} {{ condition.argument }}</b>
-          <span class="ms-1">Points</span>
+          <span class="ms-1">{{ i18n["points"] }}</span> -->
           <div class="d-flex ms-auto align-items-center">
-            <BBadge v-if="condition.new" variant="success">NEW</BBadge>
-            <BButton @click="removeCondition(condition)" variant="link" title="Remove Condition">
+            <BBadge v-if="condition.hasParent" variant="info">{{ i18n["tag_in_use"] }}</BBadge>
+            <BBadge v-else variant="info">{{ i18n["tag_unused"] }}</BBadge>
+             <BButton @click="removeCondition(condition)" variant="link" :title="i18n['remove_condition']" :disabled="condition.hasParent">
               <BIcon v-if="!condition.saving" icon="trash" aria-hidden="true" font-scale="1.2" />
-              <BSpinner v-if="condition.saving" small aria-label="Removing condition" />
+              <BSpinner v-if="condition.saving" small :aria-label="i18n['removing_condition']" />
             </BButton>
           </div>
         </BListGroupItem>
@@ -72,6 +78,8 @@ import {
   BBadge,
 } from 'bootstrap-vue';
 
+import ConditionText from "./condition-text.vue";
+
 // Mixins
 import i18nMixin from "../mixins/i18n-mixin.js";
 
@@ -83,14 +91,12 @@ import {
 } from "../api/conditions-api.js";
 
 import {
-  isValidCondition,
+  formatOperator, nonParentConditionFilter, nonRootConditionFilter,
 } from "../utils/condition-utils.js";
-// Libs
-import { debounce } from "lodash";
 
 Vue.use(BootstrapVueIcons)
 
-const defaultType = "GREATER_THEN";
+const defaultType = "GREATER_THAN";
 const defaultArgument = "";
 
 export default {
@@ -105,8 +111,9 @@ export default {
     BListGroupItem,
     BSpinner,
     BBadge,
+    ConditionText,
   },
-  //mixins: [i18nMixin],
+  mixins: [ i18nMixin ],
   props: {
     siteId: { type: String },
     toolId: { type: String },
@@ -116,26 +123,13 @@ export default {
   },
   data: function() {
     return {
+      i18nBundleName: "condition",
       saving: false,
       conditions: [],
       form: {
         type: defaultType,
         argument: defaultArgument,
       },
-      types: [
-        {
-          value: 'SMALLER_THEN',
-          text: 'smaller then'
-        },
-        {
-          value: 'EQUAL_AS',
-          text: 'equal to'
-        },
-        {
-          value: 'GREATER_THEN',
-          text: 'greater then'
-        }
-      ]
     }
   },
   methods: {
@@ -165,7 +159,7 @@ export default {
         const createdCondition = await createCondition(condition);
 
         if (createdCondition) {
-          this.onConditionSaved({...createdCondition, new: true });
+          this.onConditionSaved(createdCondition);
         } else {
           console.error("Condition not created");
           this.saving = false;
@@ -194,13 +188,24 @@ export default {
 
     },
     typeLabel(type) {
-      return this.types.find(t => t.value === type)?.text ?? "";
+      return this.operators.find(t => t.value === type)?.text ?? "";
     },
     async loadData() {
-      this.conditions = await getConditionsForItem(this.siteId, this.toolId, this.itemId) ?? [];
+      const conditions = await getConditionsForItem(this.siteId, this.toolId, this.itemId)
+      this.conditions = conditions != null
+          ? conditions.filter(nonRootConditionFilter).filter(nonParentConditionFilter)
+          : [];
     },
   },
   computed: {
+    operators() {
+      return [ "SMALLER_THAN", "EQUAL_TO", "GREATER_THAN" ].map((operator) => {
+        return {
+          value: operator,
+          text: formatOperator(this.i18n, operator)
+        }
+      });
+    },
     inputValid() {
       const value = this.form.argument.trim();
       return value != ""
@@ -209,8 +214,8 @@ export default {
     },
     labels() {
       return {
-        createCondition: this.labelCreateCondition ?? "Create new condition based on this item:",
-        existingConditions: this.labelExistingConditions ?? "Existing conditions based on this item:",
+        createCondition: this.labelCreateCondition ?? this.i18n["create_condition_for_this_item"],
+        existingConditions: this.labelExistingConditions ?? this.i18n["existing_conditions_for_this_item"],
       };
     }
   },

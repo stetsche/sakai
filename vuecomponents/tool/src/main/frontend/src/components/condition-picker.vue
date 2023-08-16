@@ -1,42 +1,31 @@
 <template>
-  <div class="condition-picker mb-5">
-    <div class="saved-condition" v-if="savedCondition">
-      <b>Selected condition:</b>
-      <BCard class="mb-2">
-        Require the item <b>{{ savedItem.name }}</b> to have a score {{ savedCondition.operator }} {{ savedCondition.argument }} Points
-      </BCard>
-      <BButton @click="changeCondition" variant="primary">
-        <BSpinner v-if="saving" small aria-label="Removing condition as requirement" />
-        <BIcon v-else icon="trash" aria-hidden="true" />
-        Remove condition as requirement
-      </BButton>
-
-    </div>
-    <div class="condition" v-else>
-      <b>Select a condition, that is required for this item to be visible: {{ savedConditionId }}</b>
+  <div class="condition-picker">
+    <div class="condition" v-if="conditionsSelectable">
+      <b>{{ i18n["pick_condition_as_prereq"] }}</b>
       <BFormGroup label="Lessons item" class="mb-2">
         <BFormSelect plain v-model="selectedItemOption" :options="itemOptions"></BFormSelect>
       </BFormGroup>
       <BFormGroup :disabled="!selectedItemOption" label="Condition" class="mb-2">
         <BFormSelect plain v-model="selectedConditionOption" :options="conditionOptions"></BFormSelect>
       </BFormGroup>
-      <BButton @click="saveCondition" :disabled="!selectionValid" variant="primary">
+      <BButton @click="onAddCondition" :disabled="!selectionValid" variant="primary">
         <BSpinner v-if="saving" small aria-label="Saving condition as requirement" />
         <BIcon v-else icon="plus-circle" aria-hidden="true" />
-        Add condition as prerequisite
+        {{ i18n["add_condition_as_prereq"] }}
       </BButton>
     </div>
+    <div class="condition" v-else>
+      <BAlert show variant="info" class="mb-2">
+        {{ i18n["no_condition_to_pick"] }}
+      </BAlert>
+    </div>
     <div class="mt-2" v-if="savedEntries?.length > 0">
-      <b class="mb-2">Saved conditions:</b>
+      <b class="mb-2">{{ i18n["existing_prereq_conditions"] }}</b>
       <BListGroup>
         <BListGroupItem class="d-flex align-items-center" v-for="savedEntry in savedEntries" :key="savedEntry.condition.id">
-          <span class="me-1">Require the item</span>
-          <b>{{ savedEntry.toolItem.name }}</b>
-          <span class="mx-1">to have a score</span>
-          <b>{{ savedEntry.condition.operator }} {{ savedEntry.condition.argument }}</b>
-          <span class="ms-1">Points</span>
+          <ConditionText :item="savedEntry.toolItem?.name" :condition="savedEntry.condition" />
           <div class="d-flex ms-auto align-items-center">
-            <BButton @click="removeSubCondition(savedEntry.condition)" variant="link" title="Remove Condition">
+            <BButton @click="onRemoveSubCondition(savedEntry.condition)" variant="link" title="Remove Condition">
               <BIcon v-if="!savedEntry.saving" icon="trash" aria-hidden="true" font-scale="1.2" />
               <BSpinner v-if="savedEntry.condition.saving" small aria-label="Removing condition" />
             </BButton>
@@ -50,6 +39,7 @@
 <style lang="scss">
   @import "bootstrap/dist/css/bootstrap.css";
   @import "bootstrap-vue/dist/bootstrap-vue-icons.min.css";
+  @import "../bootstrap-styles/alert.scss";
   @import "../bootstrap-styles/buttons.scss";
   @import "../bootstrap-styles/card.scss";
 </style>
@@ -61,6 +51,7 @@
 
   // Components
   import {
+    BAlert,
     BButton,
     BCard,
     BFormGroup,
@@ -71,12 +62,20 @@
     BSpinner
   } from 'bootstrap-vue';
 
+  import ConditionText from "./condition-text.vue";
+
   // Mixins
   import i18nMixin from "../mixins/i18n-mixin.js";
 
   // Utils
-  import { formatCondition } from "../utils/condition-utils.js";
   import {
+    formatCondition,
+    makeRootCondition,
+  } from "../utils/condition-utils.js";
+
+  // Api
+  import {
+    createCondition,
     getRootCondition,
     getToolItemsWithConditionsForLesson,
     updateCondition,
@@ -93,30 +92,32 @@
   export default {
     name: "condition-picker",
     components: {
-      BListGroup,
-      BListGroupItem,
-      BFormSelect,
-      BFormGroup,
+      BAlert,
       BButton,
       BCard,
+      BFormGroup,
+      BFormSelect,
       BIcon,
+      BListGroup,
+      BListGroupItem,
       BSpinner,
+      ConditionText,
     },
-    mixins: [i18nMixin],
+    mixins: [ i18nMixin ],
     props: {
-      siteId: { operator: String },
-      toolId: { operator: String },
-      itemId: { operator: String },
-      lessonId: { operator: String },
+      siteId: { type: String },
+      toolId: { type: String },
+      itemId: { type: String },
+      lessonId: { type: String },
     },
     data: function() {
       return {
+        i18nBundleName: "condition",
         toolItems: defaultToolItems,
         rootCondition: defaultRootCondition,
         selectedItemOption: defaultSelectedItem,
         selectedConditionOption: defaultSelectedCondition,
         savedConditionId: null,
-        savedConditions: [],
         saving: false,
         loading: true,
       }
@@ -127,16 +128,19 @@
             .filter((item) => this.itemId ? item.id != this.itemId : true);
       },
       disabledToolItems() {
-        return this.availableToolItems.filter((item) => this.savedConditions.find((sc) => item.conditions.includes(sc)));
+        return this.availableToolItems.filter((item) => item.conditions.filter((c) => this.isConditionSelectable(c)).length == 0);
       },
       itemOptions() {
         return this.availableToolItems.map(item => {
           return {
             value: item.id,
             text: item.name,
-            disabled: this.disabledToolItems.contains(item)
+            disabled: !!this.disabledToolItems.find((i) => i.id == item.id),
           }
         });
+      },
+      conditionsSelectable() {
+        return this.itemOptions.filter((sco) => !sco.disabled).length > 0;
       },
       selectedToolItem() {
         return this.selectedItemOption
@@ -152,14 +156,14 @@
                 return {
                   value: condition.id,
                   text: formatCondition(null, null, null, condition),
-                  disabled: this.selectedConditions.contains(condition),
+                  disabled: !!this.savedConditions.find((c) => c.id == condition.id),
                 };
               })
             : null;
       },
       selectedCondition() {
         return this.selectedConditionOption
-            ? this.selectedToolItem.conditions.find((C) => c.id == this.selectedConditionOption)
+            ? this.selectedToolItem.conditions.find((c) => c.id == this.selectedConditionOption)
             : null;
       },
       // conditionOptions() {
@@ -194,9 +198,45 @@
       },
       selectionValid() {
         return this.selectedItemOption && this.selectedConditionOption;
+      },
+      savedConditions() {
+        return this.rootCondition?.subConditions ?? [];
       }
     },
     methods: {
+      isConditionSelectable(condition) {
+        return !this.savedConditions.find((c) => c.id == condition.id);
+      },
+      async getOrCreateRootCondition() {
+        if (this.rootCondition == defaultRootCondition) {
+          this.rootCondition = await createCondition(makeRootCondition(this.siteId, this.toolId, this.itemId));
+        }
+
+        return this.rootCondition;
+      },
+      onAddCondition() {
+        this.addCondition({...this.selectedCondition}).then(
+            (rootCondition) => this.onSubConditionAdded(rootCondition),
+            (error) => this.onError(error)
+        );
+      },
+      async addCondition(condition) {
+        const modifiedRootCondition = { ...await this.getOrCreateRootCondition() };
+        modifiedRootCondition.subConditions.push(condition)
+
+        const updatedRootCondition = await updateCondition(modifiedRootCondition);
+
+        if (updatedRootCondition != null) {
+          return updatedRootCondition;
+        } else {
+          throw new Error("Condition could not be added");
+        }
+      },
+      onSubConditionAdded(rootCondition) {
+        this.selectedItemOption = null;
+        this.selectedConditionOption = null;
+        this.rootCondition = rootCondition;
+      },
       saveCondition() {
         if (this.selectionValid) {
           this.savedConditionId = this.selectedConditionOption;
@@ -210,25 +250,35 @@
         const index = this.rootCondition.subConditions.findIndex((c) => c.id === condition.id);
         this.rootCondition.subConditions.splice(index, 1, { ...condition, saving: true });
 
-        this.removeSubCondition(condition)
-            .then((rootCondition) => this.onSubConditionRemoved(rootCondition));
+        this.removeSubCondition(condition).then(
+            (rootCondition) => {
+              this.onSubConditionRemoved(rootCondition)
+            },
+            (error) => {
+              this.onError(error);
+              this.rootCondition.subConditions.splice(index, 1, { ...condition, saving: false });
+            }
+        );
       },
       async removeSubCondition(condition) {
-
         const modifiedRootCondition = {
           ...this.rootCondition,
           subConditions: this.rootCondition.subConditions.filter((c) => c.id != condition.id),
         };
 
-        return await updateCondition(modifiedRootCondition);
+        const updatedRootCondition = await updateCondition(modifiedRootCondition);
+
+        if (updatedRootCondition != null) {
+          return updatedRootCondition;
+        } else {
+          throw new Error("Condition could not be removed");
+        }
       },
       onSubConditionRemoved(rootCondition) {
-        if (rootCondition != null) {
-          this.rootCondition = rootCondition;
-        } else {
-          console.log("Condition not removed")
-          this.rootCondition.subConditions.splice(index, 1, { ...condition, saving: false });
-        }
+        this.rootCondition = rootCondition;
+      },
+      onError(error) {
+        console.error(error)
       },
       async loadData() {
         const conditionsPromise = getToolItemsWithConditionsForLesson(this.siteId, this.lessonId);
@@ -238,7 +288,6 @@
 
         this.toolItems = conditions ?? defaultToolItems;
         this.rootCondition = rootCondition ?? defaultRootCondition;
-        console.log("rootCondition", rootCondition)
       }
     },
     mounted() {

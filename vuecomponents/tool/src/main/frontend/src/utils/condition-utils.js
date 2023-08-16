@@ -1,7 +1,7 @@
 const conditionOperators = [
-    "SMALLER_THEN",
-    "EQUAL_AS",
-    "GREATER_THEN",
+    "SMALLER_THAN",
+    "EQUAL_TO",
+    "GREATER_THAN",
     "AND",
     "OR",
 ];
@@ -9,6 +9,10 @@ const conditionOperators = [
 export function formatCondition(i18n, toolId, type, condition) {
 
     return "Require a score " + condition.operator + " " + condition.argument + " Points";
+}
+
+export function formatOperator(i18n, operator) {
+    return i18n[operator.toLowerCase()];
 }
 
 export function isValidCondition(condition) {
@@ -24,6 +28,26 @@ export function isValidCondition(condition) {
 
     return !!siteId && !!toolId && !!itemId;
 }
+
+export function makeRootCondition(siteId, toolId, itemId) {
+    return {
+        type: "ROOT",
+        siteId,
+        toolId,
+        itemId,
+        operator: "AND",
+        argument: null,
+    }
+}
+
+export function nonRootConditionFilter(condition) {
+    return condition.type != "ROOT";
+}
+
+export function nonParentConditionFilter(condition) {
+    return condition.type != "PARENT";
+}
+
 
 export default {
     formatCondition,

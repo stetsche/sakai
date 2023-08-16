@@ -15,9 +15,11 @@
  */
 package org.sakaiproject.condition.api.model;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -27,12 +29,13 @@ import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.ManyToOne;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -82,11 +85,21 @@ public class Condition {
     @Column(name = "ITEM_ID", nullable = false)
     private String itemId;
 
-    @OneToMany
+    @JsonIgnore
+    @ManyToMany(mappedBy = "subConditions", cascade = CascadeType.ALL)
+    private Set<Condition> parentConditions;
+
+    @ManyToMany
     @JoinTable(name = "COND_PARENT_CHILD",
             joinColumns = { @JoinColumn(name = "PARENT_ID", referencedColumnName = "ID") },
             inverseJoinColumns = { @JoinColumn(name="CHILD_ID", referencedColumnName = "ID") })
     private Set<Condition> subConditions;
+
+    public Boolean getHasParent() {
+        return this.parentConditions != null
+                ? this.parentConditions.size() > 0
+                : null;
+    }
 
     public static ConditionBuilder builderOf(Condition condition) {
         if (condition != null) {
@@ -97,7 +110,9 @@ public class Condition {
                     .argument(condition.getArgument())
                     .siteId(condition.getSiteId())
                     .toolId(condition.getToolId())
-                    .itemId(condition.getItemId());
+                    .itemId(condition.getItemId())
+                    .parentConditions(condition.getParentConditions())
+                    .subConditions(condition.getSubConditions());
         } else {
             return Condition.builder();
         }

@@ -1,30 +1,21 @@
 import { allParamsNonNull, queryParams, fetchJson, fetchText } from "../utils/core-utils.js";
 import { isValidCondition } from "../utils/condition-utils.js";
+import { nonRootConditionFilter, nonParentConditionFilter } from "../utils/condition-utils.js";
 
 // Get conditions that are provided by the specified item
 export async function getConditionsForItem(siteId, toolId, itemId) {
-
     if (!allParamsNonNull(siteId, toolId, itemId)) return null;
 
-    const response = await fetch(`/api/sites/${siteId}/conditions${queryParams({ toolId, itemId })}`);
-
-    if (response.ok) {
-        return await response.json();
-    } else {
-        console.error("Conditions could not be fetched:", response.statusText);
-        return null;
-    }
+    return await fetchJson(`/api/sites/${siteId}/conditions${queryParams({ toolId, itemId })}`);
 }
 
 export async function getRootCondition(siteId, toolId, itemId) {
     const conditions = await getConditionsForItem(siteId, toolId, itemId);
 
-    console.log("c:",conditions)
     return conditions?.find((c) => c.type == "ROOT");
 }
 
 export async function getToolItemsWithConditionsForLesson(siteId, lessonId) {
-
     if (!allParamsNonNull(siteId, lessonId)) return null;
 
     const lessonPromise = fetchJson(`/direct/lessons/lesson/${lessonId}.json`);
@@ -42,7 +33,8 @@ export async function getToolItemsWithConditionsForLesson(siteId, lessonId) {
     return lesson.contentsList
             .map((lessonItem) => {
                 const itemConditions = conditions
-                        .filter((c) => !["ROOT", "PARENT"].includes(c.type))
+                        .filter(nonRootConditionFilter)
+                        .filter(nonParentConditionFilter)
                         .filter((C) => C.itemId == lessonItem.id);
                 return {
                     id: lessonItem.id,
@@ -65,7 +57,6 @@ export async function getToolItemsWithConditionsForLesson(siteId, lessonId) {
 
 // Get conditions that are available on the specified site
 export async function getConditionsForSite(siteId) {
-
     if (!allParamsNonNull(siteId)) return null;
 
     const response = await fetch(`/api/sites/${siteId}/conditions`)
@@ -81,7 +72,6 @@ export async function getConditionsForSite(siteId) {
 
 // Create condition
 export async function createCondition(condition) {
-
     if (typeof condition != "object" || !isValidCondition(condition)) return null;
 
     return await fetchJson(`/api/sites/${condition.siteId}/conditions`, {
@@ -95,14 +85,8 @@ export async function createCondition(condition) {
 
 // Create condition
 export async function updateCondition(condition) {
-    console.log("update");
-    console.log("cond", condition)
-    console.log("type", typeof condition)
-    console.log("valid", isValidCondition(condition))
-
     if (typeof condition != "object" || !isValidCondition(condition)) return null;
 
-    console.log("update2" );
     return await fetchJson(`/api/sites/${condition.siteId}/conditions/${condition.id}`, {
         method: "PUT",
         headers: {
@@ -114,14 +98,12 @@ export async function updateCondition(condition) {
 
 // Delete condition
 export async function deleteCondition({ id: conditionId, siteId}) {
-
     if (!allParamsNonNull(siteId, conditionId)) return null;
 
     return await fetchText(`/api/sites/${siteId}/conditions/${conditionId}`, {
         method: "DELETE",
     })
 }
-
 
 const ConditionsApi = {
     getConditionsForItem,

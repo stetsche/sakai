@@ -4583,7 +4583,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIOutput.make(form, "common-condition-picker")
 				.decorate(new UIFreeAttributeDecorator("site-id", simplePageBean.getCurrentSiteId()))
 				.decorate(new UIFreeAttributeDecorator("tool-id", LessonsEntityProvider.TOOL_COMMON_ID))
-				.decorate(new UIFreeAttributeDecorator("lesson-id", "2"));
+				.decorate(new UIFreeAttributeDecorator("lesson-id",
+						Long.valueOf(simplePageBean.getCurrentPageItem(null).getId()).toString()));
 				//.decorate(new UIFreeAttributeDecorator("item-id", null));
 
 		UIOutput.make(form, "confirmation-dialog")

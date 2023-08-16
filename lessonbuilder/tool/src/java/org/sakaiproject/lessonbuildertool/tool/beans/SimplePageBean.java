@@ -5538,14 +5538,12 @@ public class SimplePageBean {
 		log.info("conditionService {}", conditionService);
 		log.info("currentSiteId {}", currentSiteId);
 		log.info("currentUserId {}", currentUserId);
-		if (conditionService != null) {
-			Condition rootCondition = conditionService.getRootConditionForItem(currentSiteId, LESSONBUILDER_ID,
-					Long.toString(item.getId())).orElse(null);
+		Condition rootCondition = conditionService.getRootConditionForItem(currentSiteId, LESSONBUILDER_ID,
+				Long.toString(item.getId())).orElse(null);
 
-			log.info("rootCondition {}", rootCondition);
-			if (rootCondition != null) {
-				return conditionService.evaluateCondition(rootCondition, currentUserId);
-			}
+		log.info("rootCondition {}", rootCondition);
+		if (rootCondition != null) {
+			return conditionService.evaluateCondition(rootCondition, currentUserId);
 		}
 
 		try {
