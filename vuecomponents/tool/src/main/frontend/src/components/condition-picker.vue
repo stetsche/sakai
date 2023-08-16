@@ -42,6 +42,7 @@
   @import "../bootstrap-styles/alert.scss";
   @import "../bootstrap-styles/buttons.scss";
   @import "../bootstrap-styles/card.scss";
+  @import "../bootstrap-styles/form.scss";
 </style>
 
 <script>
@@ -166,18 +167,6 @@
             ? this.selectedToolItem.conditions.find((c) => c.id == this.selectedConditionOption)
             : null;
       },
-      // conditionOptions() {
-      //   if (this.selectedItemOption) {
-      //     return this.toolItems.find(item => item.id === this.selectedItemOption).conditions.map(condition => {
-      //       return {
-      //         value: condition.id,
-      //         text: formatCondition(null, null, null, condition),
-      //       };
-      //     });
-      //   } else {
-      //     return null;
-      //   }
-      // },
       savedEntries() {
         return this.rootCondition?.subConditions.map((condition) => {
           return {
