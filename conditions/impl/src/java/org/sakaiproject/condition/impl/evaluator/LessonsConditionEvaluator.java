@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.condition.impl;
+package org.sakaiproject.condition.impl.evaluator;
 
 import java.util.Optional;
 
@@ -26,13 +26,12 @@ import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.expression.spel.support.ReflectivePropertyAccessor.OptimalPropertyAccessor;
 
 import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
-public class LessonsConditionEvaluator implements ConditionEvaluator {
+public class LessonsConditionEvaluator extends BaseConditionEvaluator {
 
 
     private static final String ASSIGNMENT_TOOL_ID = "sakai.assignment";
@@ -49,12 +48,6 @@ public class LessonsConditionEvaluator implements ConditionEvaluator {
         Condition adjustedCondition = getAdjustedCondition(condition);
         return getItemEvaluator(adjustedCondition.getToolId())
                 .evaluateCondition(adjustedCondition, userId);
-    }
-
-    @Override
-    public boolean isConditionUsed(Condition condition) {
-        log.info("condition used???");
-        return false;
     }
 
     private Condition getAdjustedCondition(Condition condition) {

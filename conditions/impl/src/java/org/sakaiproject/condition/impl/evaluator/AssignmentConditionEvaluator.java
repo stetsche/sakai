@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.condition.impl;
+package org.sakaiproject.condition.impl.evaluator;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.compare.ComparableUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
-import org.sakaiproject.condition.api.ConditionEvaluator;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.condition.api.model.Condition;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -35,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class AssignmentConditionEvaluator implements ConditionEvaluator {
+public class AssignmentConditionEvaluator extends BaseConditionEvaluator {
 
 
     @Autowired
@@ -44,57 +42,38 @@ public class AssignmentConditionEvaluator implements ConditionEvaluator {
 
     @Override
     public boolean evaluateCondition(Condition condition, String userId) {
-        log.info("evaluating...");
-        Boolean result = null;
         Assignment assignment = getAssignment(condition.getItemId());
 
         if (assignment != null && NumberUtils.isParsable(condition.getArgument())) {
             String submitterId = assignmentService.getSubmitterIdForAssignment(assignment, userId);
-            log.info("submitterId {}", submitterId);
-            List<Double> submissionGrades = assignmentService.getSubmissions(assignment).stream()
+            List<Double> submissionScores = assignmentService.getSubmissions(assignment).stream()
                     // Filter by user
                     .filter(submission -> submission.getSubmitters().stream()
                             .filter(submissionSubmitter -> StringUtils.equals(submissionSubmitter.getSubmitter(), submitterId))
                             .findAny()
                             .isPresent())
+                    // Filter by grades that have been released to the student
+                    .filter(AssignmentSubmission::getGradeReleased)
                     // Map to grade
                     .map(submission -> assignmentService.getGradeForSubmitter(submission, submitterId))
+                    // Filter by valid values
                     .filter(NumberUtils::isParsable)
+                    // Map to double
                     .map(Double::parseDouble)
                     .collect(Collectors.toList());
 
-            if (submissionGrades.isEmpty()) {
+            if (submissionScores.isEmpty()) {
                 log.debug("No graded submission present => false");
 
                 return false;
             }
 
-            BigDecimal highestGrade = BigDecimal.valueOf(submissionGrades.stream().sorted(Comparator.reverseOrder()).findFirst().get());
-            BigDecimal conditionGrade = new BigDecimal(condition.getArgument());
+            BigDecimal highestScore = BigDecimal.valueOf(submissionScores.stream().sorted(Comparator.reverseOrder()).findFirst().get());
+            BigDecimal conditionScore = new BigDecimal(condition.getArgument());
 
-            switch (condition.getOperator()) {
-                case SMALLER_THAN:
-                    result = ComparableUtils.is(highestGrade).lessThan(conditionGrade);
-                    break;
-                case GREATER_THAN:
-                    result = ComparableUtils.is(highestGrade).greaterThan(conditionGrade);
-                    break;
-                case EQUAL_TO:
-                    result = ComparableUtils.is(highestGrade).equalTo(conditionGrade);
-                    break;
-                default:
-                    break;
-            }
-
-            log.debug("{} {} {} => {}", highestGrade, condition.getOperator(), conditionGrade, result);
+            return super.evaluateScore(highestScore, condition.getOperator(), conditionScore);
         }
 
-        return Boolean.TRUE.equals(result);
-    }
-
-    @Override
-    public boolean isConditionUsed(Condition condition) {
-        log.info("condition used???");
         return false;
     }
 

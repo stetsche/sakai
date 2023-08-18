@@ -25,7 +25,6 @@ import java.util.Map.Entry;
 
 import javax.transaction.Transactional;
 
-import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -40,8 +39,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Slf4j
 public class ConditionServiceImpl implements ConditionService {
 
-
-    private static final String CONDITIONS_TOOL_ID = "sakai.conditions";
 
     @Autowired
     private ConditionRepository conditionRepository;
@@ -119,7 +116,10 @@ public class ConditionServiceImpl implements ConditionService {
             String toolId = condition.getToolId();
             Condition originalCondition = getCondition(condition.getId());
 
-            if (!isToolIdSupported(toolId)) {
+            // Check if toolId is supported
+            // For a PARENT condition it can be null
+            if (!isToolIdSupported(toolId)
+                    && !(condition.getToolId() == null && ConditionType.PARENT.equals(condition.getType()))) {
                 throw new UnsupportedToolIdException(toolId);
             }
 
@@ -168,8 +168,9 @@ public class ConditionServiceImpl implements ConditionService {
     @Transactional
     public boolean deleteCondition(String conditionId) {
         Condition condition = getCondition(conditionId);
+
         if (condition != null) {
-            if (!getConditionEvaluator(condition).isConditionUsed(condition)) {
+            if (!isConditionUsed(condition)) {
                 conditionRepository.delete(conditionId);
                 return true;
             } else {
@@ -178,25 +179,6 @@ public class ConditionServiceImpl implements ConditionService {
         }
 
         return false;
-    }
-
-    @Override
-    public boolean evaluateCondition(Condition condition, String userId) {
-        if (condition != null && StringUtils.isNotBlank(userId)) {
-
-            securityService.pushAdvisor(SecurityAdvisor.ADVISOR_ALLOW_ALL);
-
-            boolean result = isParentCondition(condition)
-                ? evaluateSubConditions(condition, userId)
-                : getConditionEvaluator(condition).evaluateCondition(condition, userId);
-
-            securityService.popAdvisor(SecurityAdvisor.ADVISOR_ALLOW_ALL);
-
-            return result;
-        } else {
-            log.error("Can not evaluate condition due to invalid arguments: condition [{}], userId [{}]", condition, userId);
-            return false;
-        }
     }
 
     @Override
@@ -211,16 +193,31 @@ public class ConditionServiceImpl implements ConditionService {
         return toolId != null && conditionEvaluators.containsKey(toolId);
     }
 
-    private ConditionEvaluator getConditionEvaluator(Condition condition) {
-        String toolId = condition.getToolId();
-        Optional<ConditionEvaluator> conditionEvaluator = Optional.ofNullable(conditionEvaluators.get(toolId));
+    @Override
+    public boolean evaluateCondition(Condition condition, String userId) {
+        if (condition != null && StringUtils.isNotBlank(userId)) {
+            log.info("Evaluating condition {} for user with id [{}]", condition, userId);
 
-        return conditionEvaluator.orElseThrow(() -> new UnsupportedToolIdException(toolId));
-    }
+            securityService.pushAdvisor(SecurityAdvisor.ADVISOR_ALLOW_ALL);
 
-    private boolean isParentCondition(Condition condition) {
-        return condition != null && (ConditionType.ROOT.equals(condition.getType())
-                        || (ConditionType.PARENT.equals(condition.getType())));
+            boolean result;
+            try {
+                result = isParentCondition(condition)
+                    ? evaluateSubConditions(condition, userId)
+                    : getConditionEvaluator(condition).evaluateCondition(condition, userId);
+            } catch(Exception e) {
+                result = false;
+                log.error("Condition with id [{}] could not be evaluated: {}", condition.getId(), e.toString());
+            } finally {
+                securityService.popAdvisor(SecurityAdvisor.ADVISOR_ALLOW_ALL);
+            }
+
+            return result;
+        } else {
+            log.error("Can not evaluate condition due to invalid arguments: condition [{}], userId [{}]",
+                    condition, userId);
+            return false;
+        }
     }
 
     private boolean evaluateSubConditions(Condition condition, String userId) {
@@ -238,10 +235,22 @@ public class ConditionServiceImpl implements ConditionService {
                         return true;
                     }
                 }
-                return false;
+                return condition.getSubConditions().isEmpty();
             default:
-                log.error("Unexpected operator [{}] for parent condition.");
+                log.error("Unexpected operator [{}] for parent condition");
                 return false;
         }
+    }
+
+    private boolean isParentCondition(Condition condition) {
+        return condition != null && (ConditionType.ROOT.equals(condition.getType())
+                        || (ConditionType.PARENT.equals(condition.getType())));
+    }
+
+    private ConditionEvaluator getConditionEvaluator(Condition condition) {
+        String toolId = condition.getToolId();
+        Optional<ConditionEvaluator> conditionEvaluator = Optional.ofNullable(conditionEvaluators.get(toolId));
+
+        return conditionEvaluator.orElseThrow(() -> new UnsupportedToolIdException(toolId));
     }
 }

@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.condition.api.model;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -43,6 +44,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.ToString;
 
 @Entity
 @Table(name = "COND_CONDITION",
@@ -77,19 +79,17 @@ public class Condition {
     @Column(name = "SITE_ID", nullable = true)
     private String siteId;
 
-    @NonNull
-    @Column(name = "TOOL_ID", nullable = false)
+    @Column(name = "TOOL_ID", nullable = true)
     private String toolId;
 
-    @NonNull
-    @Column(name = "ITEM_ID", nullable = false)
+    @Column(name = "ITEM_ID", nullable = true)
     private String itemId;
 
     @JsonIgnore
     @ManyToMany(mappedBy = "subConditions", cascade = CascadeType.ALL)
     private Set<Condition> parentConditions;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "COND_PARENT_CHILD",
             joinColumns = { @JoinColumn(name = "PARENT_ID", referencedColumnName = "ID") },
             inverseJoinColumns = { @JoinColumn(name="CHILD_ID", referencedColumnName = "ID") })
@@ -116,5 +116,25 @@ public class Condition {
         } else {
             return Condition.builder();
         }
+    }
+
+    // Only show ids of parent-conditions in string representation of condition
+    @ToString.Include
+    private String parentConditions() {
+        return parentConditions != null
+                ? Arrays.deepToString(parentConditions.stream()
+                                .map(Condition::getId)
+                                .toArray(String[]::new))
+                : "null";
+    }
+
+    // Only show ids of sub-conditions in string representation of condition
+    @ToString.Include
+    private String subConditions() {
+        return subConditions != null
+                ? Arrays.deepToString(subConditions.stream()
+                                .map(Condition::getId)
+                                .toArray(String[]::new))
+                : "null";
     }
 }

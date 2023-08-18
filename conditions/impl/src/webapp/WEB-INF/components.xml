@@ -12,8 +12,8 @@
     <context:component-scan base-package="org.sakaiproject.condition"/>
     <tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
 
-    <bean id="assignmentConditionEvaluator" class="org.sakaiproject.condition.impl.AssignmentConditionEvaluator" />
-    <bean id="lessonsConditionEvaluator" class="org.sakaiproject.condition.impl.LessonsConditionEvaluator" />
+    <bean id="assignmentConditionEvaluator" class="org.sakaiproject.condition.impl.evaluator.AssignmentConditionEvaluator" />
+    <bean id="lessonsConditionEvaluator" class="org.sakaiproject.condition.impl.evaluator.LessonsConditionEvaluator" />
 
     <bean id="org.sakaiproject.condition.api.ConditionService"
             class="org.sakaiproject.condition.impl.ConditionServiceImpl" init-method="init">

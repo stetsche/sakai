@@ -23,6 +23,9 @@ import org.sakaiproject.condition.api.model.Condition;
 public interface ConditionService {
 
 
+    public static final String CONDITIONS_TOOL_ID = "sakai.conditions";
+
+
     public void init();
 
     public Condition getCondition(String conditionId);

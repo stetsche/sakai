@@ -15,18 +15,16 @@ export function formatOperator(i18n, operator) {
     return i18n[operator.toLowerCase()];
 }
 
-export function isValidCondition(condition) {
-
-    if (typeof condition != "object") return false;
-
-    const { operator, argument, siteId, toolId, itemId } = condition;
-
-    if (!conditionOperators.includes(operator)) {
-        console.error("Invalid condition operator:", operator);
-        return false;
+export function makeParentCondition(siteId, operator = "AND") {
+    return {
+        type: "PARENT",
+        siteId,
+        toolId: null,
+        itemId: null,
+        operator,
+        argument: null,
+        subConditions:[],
     }
-
-    return !!siteId && !!toolId && !!itemId;
 }
 
 export function makeRootCondition(siteId, toolId, itemId) {
@@ -37,6 +35,7 @@ export function makeRootCondition(siteId, toolId, itemId) {
         itemId,
         operator: "AND",
         argument: null,
+        subConditions:[],
     }
 }
 
@@ -48,8 +47,14 @@ export function nonParentConditionFilter(condition) {
     return condition.type != "PARENT";
 }
 
+export function andParentConditionFilter(condition) {
+    return condition.type == "PARENT" && condition.operator == "AND";
+}
+
+export function orParentConditionFilter(condition) {
+    return condition.type == "PARENT" && condition.operator == "OR";
+}
 
 export default {
     formatCondition,
-    isValidCondition,
 };

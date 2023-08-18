@@ -21,6 +21,4 @@ public interface ConditionEvaluator {
 
 
     public boolean evaluateCondition(Condition condition, String userId);
-
-    public boolean isConditionUsed(Condition condition);
 }

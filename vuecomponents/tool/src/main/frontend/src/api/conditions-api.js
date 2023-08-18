@@ -1,5 +1,4 @@
 import { allParamsNonNull, queryParams, fetchJson, fetchText } from "../utils/core-utils.js";
-import { isValidCondition } from "../utils/condition-utils.js";
 import { nonRootConditionFilter, nonParentConditionFilter } from "../utils/condition-utils.js";
 
 // Get conditions that are provided by the specified item
@@ -72,7 +71,7 @@ export async function getConditionsForSite(siteId) {
 
 // Create condition
 export async function createCondition(condition) {
-    if (typeof condition != "object" || !isValidCondition(condition)) return null;
+    if (typeof condition != "object") return null;
 
     return await fetchJson(`/api/sites/${condition.siteId}/conditions`, {
         method: "POST",
@@ -85,7 +84,7 @@ export async function createCondition(condition) {
 
 // Create condition
 export async function updateCondition(condition) {
-    if (typeof condition != "object" || !isValidCondition(condition)) return null;
+    if (typeof condition != "object") return null;
 
     return await fetchJson(`/api/sites/${condition.siteId}/conditions/${condition.id}`, {
         method: "PUT",

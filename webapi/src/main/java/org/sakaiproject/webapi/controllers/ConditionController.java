@@ -98,11 +98,14 @@ public class ConditionController extends AbstractSakaiApiController {
             @RequestBody Condition condition) {
         checkSakaiSession();
         checkSite(siteId);
+        log.info("condition {}", condition);
 
         Condition existingCondition = conditionService.getCondition(conditionId);
+        log.info("existingCondition {}", existingCondition);
 
         if (existingCondition != null && StringUtils.equals(condition.getId(), conditionId)) {
             Condition updatedCondition = conditionService.saveCondition(condition);
+            log.info("updatedCondition {}", updatedCondition);
 
             if (updatedCondition != null) {
                 return ResponseEntity.ok(updatedCondition);

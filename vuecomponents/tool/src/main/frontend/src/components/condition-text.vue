@@ -49,7 +49,7 @@
               return this.formatText(this.i18n["display_this_item_points"], ...commonParams);
             }
           default:
-            log.error(`Formatting of condition with type '${this.condition.type}' is not implemented`);
+            console.error(`Formatting of condition with type '${this.condition.type}' is not implemented`);
             return this.i18n["unknown_condition"];
         }
       },
