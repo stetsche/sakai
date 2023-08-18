@@ -55,7 +55,6 @@ import org.sakaiproject.tool.assessment.facade.QuestionPoolFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.api.FormattedText;
-import org.springframework.context.MessageSource;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;

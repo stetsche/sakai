@@ -91,7 +91,10 @@ import {
 } from "../api/conditions-api.js";
 
 import {
-  formatOperator, nonParentConditionFilter, nonRootConditionFilter,
+  CONDITION_OPERATORS,
+  formatOperator,
+  nonParentConditionFilter,
+  nonRootConditionFilter,
 } from "../utils/condition-utils.js";
 
 Vue.use(BootstrapVueIcons)
@@ -199,7 +202,7 @@ export default {
   },
   computed: {
     operators() {
-      return [ "SMALLER_THAN", "EQUAL_TO", "GREATER_THAN" ].map((operator) => {
+      return CONDITION_OPERATORS.map((operator) => {
         return {
           value: operator,
           text: formatOperator(this.i18n, operator)
@@ -220,6 +223,7 @@ export default {
     }
   },
   mounted() {
+    console.log({});
     this.loadData();
 
     // Setup watcher to load fresh data when siteId, toolId, or itemId changes, debounced by 100ms

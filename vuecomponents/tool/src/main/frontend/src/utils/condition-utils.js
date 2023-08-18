@@ -1,13 +1,17 @@
-const conditionOperators = [
+export const CONDITION_OPERATORS = [
     "SMALLER_THAN",
+    "SMALLER_THAN_OR_EQUAL_TO",
     "EQUAL_TO",
-    "GREATER_THAN",
+    "GREATER_THAN_OR_EQUAL_TO",
+    "GREATER_THAN"
+];
+
+export const PARENT_CONDITION_OPERATORS = [
     "AND",
     "OR",
 ];
 
 export function formatCondition(i18n, toolId, type, condition) {
-
     return "Require a score " + condition.operator + " " + condition.argument + " Points";
 }
 

@@ -19,11 +19,17 @@ public abstract class BaseConditionEvaluator implements ConditionEvaluator {
             case SMALLER_THAN:
                 result = ComparableUtils.is(userScore).lessThan(conditionScore);
                 break;
-            case GREATER_THAN:
-                result = ComparableUtils.is(userScore).greaterThan(conditionScore);
+            case SMALLER_THAN_OR_EQUAL_TO:
+                result = ComparableUtils.is(userScore).lessThanOrEqualTo(conditionScore);
                 break;
             case EQUAL_TO:
                 result = ComparableUtils.is(userScore).equalTo(conditionScore);
+                break;
+            case GREATER_THAN_OR_EQUAL_TO:
+                result = ComparableUtils.is(userScore).greaterThanOrEqualTo(conditionScore);
+                break;
+            case GREATER_THAN:
+                result = ComparableUtils.is(userScore).greaterThan(conditionScore);
                 break;
             default:
                 log.error("Invalid operator [{}] to evaluate score", conditionOperator);
