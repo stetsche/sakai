@@ -19,6 +19,7 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.condition.api.ConditionEvaluator;
 import org.sakaiproject.condition.api.exception.UnsupportedToolIdException;
 import org.sakaiproject.condition.api.model.Condition;
@@ -34,42 +35,61 @@ import lombok.extern.slf4j.Slf4j;
 public class LessonsConditionEvaluator extends BaseConditionEvaluator {
 
 
-    private static final String ASSIGNMENT_TOOL_ID = "sakai.assignment";
+    private static final String ASSESSMENT_TOOL_ID = "sakai.samigo";
+    private static final String ASSIGNMENT_TOOL_ID = AssignmentServiceConstants.SAKAI_ASSIGNMENT;
 
     @Autowired
     private AssignmentConditionEvaluator assignmentConditionEvaluator;
 
     @Autowired
+    private AssessmentConditionEvaluator assessmentConditionEvaluator;
+
+    @Autowired
     @Qualifier("org.sakaiproject.lessonbuildertool.model.SimplePageToolDaoTarget")
     private SimplePageToolDao lessonService;
 
+
     @Override
     public boolean evaluateCondition(Condition condition, String userId) {
-        Condition adjustedCondition = getAdjustedCondition(condition);
-        return getItemEvaluator(adjustedCondition.getToolId())
-                .evaluateCondition(adjustedCondition, userId);
-    }
+        if (!NumberUtils.isParsable(condition.getItemId())) {
+            log.error("Lesson item id [{}] associated with condition with id [{}] item is not parsable",
+                    condition.getItemId(), condition.getId());
+            return false;
+        }
 
-    private Condition getAdjustedCondition(Condition condition) {
-        return getLessonItem(condition.getItemId()).map(lessonItem -> {
-                String toolId, itemId;
+        SimplePageItem lessonItem = lessonService.findItem(Long.parseLong(condition.getItemId()));
 
-                switch (lessonItem.getType()) {
-                    case SimplePageItem.ASSIGNMENT:
-                        toolId = ASSIGNMENT_TOOL_ID;
-                        itemId = parseItemIdFromRef(lessonItem.getSakaiId());
-                        break;
-                    default:
-                        toolId = null;
-                        itemId = null;
-                        break;
-                }
+        if (lessonItem == null) {
+            log.error("Lesson item with id [{}] associated with condition with id [{}] not found",
+                    condition.getItemId(), condition.getId());
+            return false;
+        }
 
-                return Condition.builderOf(condition)
-                    .toolId(toolId)
-                    .itemId(itemId)
-                    .build();
-        }).orElse(null);
+        String toolId, itemId;
+        ConditionEvaluator conditionEvaluator;
+        switch (lessonItem.getType()) {
+            case SimplePageItem.ASSIGNMENT:
+                toolId = ASSIGNMENT_TOOL_ID;
+                itemId = parseItemIdFromRef(lessonItem.getSakaiId());
+                conditionEvaluator = assignmentConditionEvaluator;
+                break;
+            case SimplePageItem.ASSESSMENT:
+                toolId = ASSESSMENT_TOOL_ID;
+                itemId = parseItemIdFromRef(lessonItem.getSakaiId());
+                conditionEvaluator = assessmentConditionEvaluator;
+                break;
+            default:
+                log.error("Can not evaluate condition with id [{}] associated with lesson item of unhandled type [{}]",
+                        condition.getId(), lessonItem.getType());
+                return false;
+        }
+
+        Condition evaluationCondition = Condition.builderOf(condition)
+                .toolId(toolId)
+                .itemId(itemId)
+                .build();
+
+        return conditionEvaluator.evaluateCondition(evaluationCondition, userId);
     }
 
     private Optional<SimplePageItem> getLessonItem(String itemId) {

@@ -26,6 +26,7 @@ import java.util.Map.Entry;
 import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.condition.api.ConditionEvaluator;
@@ -76,7 +77,6 @@ public class ConditionServiceImpl implements ConditionService {
 
     @Override
     public List<Condition> getConditionsForSite(String siteId) {
-        log.info("getConditionsForSiteItem(siteId [{}])", siteId);
         if (StringUtils.isNotBlank(siteId)) {
             return conditionRepository.findConditionsForSite(siteId);
         } else {
@@ -87,7 +87,6 @@ public class ConditionServiceImpl implements ConditionService {
 
     @Override
     public List<Condition> getConditionsForItem(String siteId, String toolId, String itemId) {
-        log.info("getConditionsForSiteItem(siteId [{}], toolId [{}] itemId [{}])", siteId, toolId, itemId);
         if (StringUtils.isNoneBlank(siteId, toolId, itemId)) {
             return conditionRepository.findConditionsForItem(siteId, toolId, itemId);
         } else {
@@ -99,7 +98,6 @@ public class ConditionServiceImpl implements ConditionService {
 
     @Override
     public Optional<Condition> getRootConditionForItem(String siteId, String toolId, String itemId) {
-        log.info("getRootConditionForItem(siteId [{}], toolId [{}] itemId [{}])", siteId, toolId, itemId);
         if (StringUtils.isNoneBlank(siteId, toolId, itemId)) {
             return Optional.ofNullable(conditionRepository.findRootConditionForItem(siteId, toolId, itemId));
         } else {
@@ -196,7 +194,7 @@ public class ConditionServiceImpl implements ConditionService {
     @Override
     public boolean evaluateCondition(Condition condition, String userId) {
         if (condition != null && StringUtils.isNotBlank(userId)) {
-            log.info("Evaluating condition {} for user with id [{}]", condition, userId);
+            log.debug("Evaluating condition {} for user with id [{}]", condition, userId);
 
             securityService.pushAdvisor(SecurityAdvisor.ADVISOR_ALLOW_ALL);
 
@@ -207,7 +205,8 @@ public class ConditionServiceImpl implements ConditionService {
                     : getConditionEvaluator(condition).evaluateCondition(condition, userId);
             } catch(Exception e) {
                 result = false;
-                log.error("Condition with id [{}] could not be evaluated: {}", condition.getId(), e.toString());
+                log.error("Condition with id [{}] could not be evaluated: {}", condition.getId(),
+                        ExceptionUtils.getStackTrace(e));
             } finally {
                 securityService.popAdvisor(SecurityAdvisor.ADVISOR_ALLOW_ALL);
             }

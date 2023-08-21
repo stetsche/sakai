@@ -12,6 +12,7 @@
     <context:component-scan base-package="org.sakaiproject.condition"/>
     <tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
 
+    <bean id="assessmentConditionEvaluator" class="org.sakaiproject.condition.impl.evaluator.AssessmentConditionEvaluator" />
     <bean id="assignmentConditionEvaluator" class="org.sakaiproject.condition.impl.evaluator.AssignmentConditionEvaluator" />
     <bean id="lessonsConditionEvaluator" class="org.sakaiproject.condition.impl.evaluator.LessonsConditionEvaluator" />
 
@@ -20,6 +21,7 @@
         <property name="ConditionEvaluators">
             <util:map map-class="java.util.HashMap" key-type="java.lang.String"
                     value-type="org.sakaiproject.condition.api.ConditionEvaluator">
+                <entry key="sakai.assessment"><ref bean="assessmentConditionEvaluator" /></entry>
                 <entry key="sakai.assignment"><ref bean="assignmentConditionEvaluator" /></entry>
                 <entry key="sakai.lessonbuildertool"><ref bean="lessonsConditionEvaluator" /></entry>
             </util:map>

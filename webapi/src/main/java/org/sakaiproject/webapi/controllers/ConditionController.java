@@ -14,7 +14,7 @@
 package org.sakaiproject.webapi.controllers;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.webapi.beans.ConditionRestBean;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
