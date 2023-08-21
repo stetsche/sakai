@@ -8,6 +8,7 @@
 
   // Utils
   import {
+    CONDITION_BUNDLE_NAME,
     ConditionType,
     formatOperator
   } from "../utils/condition-utils.js";
@@ -21,7 +22,7 @@
     },
     data: function() {
       return {
-        i18nBundleName: "condition",
+        i18nBundleName: CONDITION_BUNDLE_NAME,
       }
     },
     methods: {

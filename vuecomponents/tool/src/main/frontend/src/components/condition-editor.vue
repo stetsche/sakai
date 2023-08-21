@@ -91,6 +91,7 @@ import {
 } from "../api/conditions-api.js";
 
 import {
+  CONDITION_BUNDLE_NAME,
   CONDITION_OPERATORS,
   ConditionType,
   formatOperator,
@@ -127,7 +128,7 @@ export default {
   },
   data: function() {
     return {
-      i18nBundleName: "condition",
+      i18nBundleName: CONDITION_BUNDLE_NAME,
       saving: false,
       conditions: [],
       form: {

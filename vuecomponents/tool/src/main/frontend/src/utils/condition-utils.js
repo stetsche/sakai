@@ -33,6 +33,8 @@ export const CONDITION_TYPES = [
     ConditionType.POINTS,
 ];
 
+export const CONDITION_BUNDLE_NAME = "condition";
+
 export function formatCondition(i18n, toolId, type, condition) {
     return "Require a score " + condition.operator + " " + condition.argument + " Points";
 }

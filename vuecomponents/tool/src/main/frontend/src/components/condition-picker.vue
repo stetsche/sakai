@@ -99,6 +99,7 @@
   // Utils
   import {
     andParentConditionFilter,
+    CONDITION_BUNDLE_NAME,
     formatCondition,
     makeParentCondition,
     makeRootCondition,
@@ -145,7 +146,7 @@
     },
     data: function() {
       return {
-        i18nBundleName: "condition",
+        i18nBundleName: CONDITION_BUNDLE_NAME,
         toolItems: defaultToolItems,
         rootCondition: defaultRootCondition,
         selectedItemOption: defaultSelectedItem,
