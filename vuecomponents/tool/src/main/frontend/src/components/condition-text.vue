@@ -7,7 +7,10 @@
   import i18nMixin from "../mixins/i18n-mixin.js";
 
   // Utils
-  import { formatOperator } from "../utils/condition-utils.js";
+  import {
+    ConditionType,
+    formatOperator
+  } from "../utils/condition-utils.js";
 
   export default {
     name: "condition-text",
@@ -40,7 +43,7 @@
     computed: {
       formattedText() {
         switch(this.condition.type) {
-          case "POINTS":
+          case ConditionType.POINTS:
             const commonParams = [ this.formattedOperator, this.condition.argument ];
 
             if (this.item) {

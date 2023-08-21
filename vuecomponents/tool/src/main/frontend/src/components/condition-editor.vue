@@ -92,6 +92,7 @@ import {
 
 import {
   CONDITION_OPERATORS,
+  ConditionType,
   formatOperator,
   nonParentConditionFilter,
   nonRootConditionFilter,
@@ -151,7 +152,7 @@ export default {
         this.saving = true;
 
         const condition = {
-          type: "POINTS",
+          type: ConditionType.POINTS,
           siteId: this.siteId,
           toolId: this.toolId,
           itemId: this.itemId,
