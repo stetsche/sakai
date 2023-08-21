@@ -27,9 +27,6 @@
       <BListGroup>
         <BListGroupItem class="d-flex align-items-center" v-for="condition in conditions" :key="condition.id">
           <ConditionText :condition="condition" />
-          <!-- <span class="me-1">{{ i18n["form_require_item_points"] }}</span>
-          <b>{{ typeLabel(condition.type) }} {{ condition.argument }}</b>
-          <span class="ms-1">{{ i18n["points"] }}</span> -->
           <div class="d-flex ms-auto align-items-center">
             <BBadge v-if="condition.hasParent" variant="info">{{ i18n["tag_in_use"] }}</BBadge>
             <BBadge v-else variant="info">{{ i18n["tag_unused"] }}</BBadge>
