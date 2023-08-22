@@ -56,16 +56,6 @@ export async function getToolItemsWithConditionsForLesson(siteId, lessonId) {
                 };
             })
             .filter((lessonItem) => lessonItem.conditions.length > 0);
-    // return conditions
-    //         .filter((condition) => condition.toolId == "sakai.lessonbuildertool")
-    //         .map((condition) => {
-    //             const lessonItem = lesson.contentsList
-    //                     .find((lessonItem) => lessonItem.id == condition.itemId);
-    //             return lessonItem
-    //                 ? { id: lessonItem.id, name: lessonItem.name, condition }
-    //                 : null;
-    //         })
-    //         .filter(allParamsNonNull);
 }
 
 // Get conditions that are available on the specified site
