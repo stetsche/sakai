@@ -2,10 +2,7 @@
   <div class="condition-picker">
     <div class="condition" v-if="conditionsSelectable">
       <b>{{ i18n["pick_condition_as_prereq"] }}</b>
-      <BFormGroup :label="i18n['item']" class="mb-2">
-        <BFormSelect plain v-model="selectedItemOption" :options="itemOptions"></BFormSelect>
-      </BFormGroup>
-      <BFormGroup :disabled="!selectedItemOption" :label="i18n['condition']" class="mb-2">
+      <BFormGroup :label="i18n['condition']" class="mb-2">
         <BFormSelect plain v-model="selectedConditionOption" :options="conditionOptions"></BFormSelect>
       </BFormGroup>
       <BFormGroup :label="i18n['conjunction']" class="mb-2">
@@ -149,7 +146,6 @@
         i18nBundleName: CONDITION_BUNDLE_NAME,
         toolItems: defaultToolItems,
         rootCondition: defaultRootCondition,
-        selectedItemOption: defaultSelectedItem,
         selectedConditionOption: defaultSelectedCondition,
         selectedConjunction: defaultSelectedConjunction,
         savedConditionId: null,
@@ -159,8 +155,7 @@
     },
     computed: {
       availableToolItems() {
-        return this.toolItems
-            .filter((item) => this.itemId ? item.id != this.itemId : true);
+        return this.toolItems.filter((item) => this.itemId ? item.id != this.itemId : true);
       },
       disabledToolItems() {
         return this.availableToolItems.filter((item) => item.conditions.filter((c) => this.isConditionSelectable(c)).length == 0);
@@ -177,29 +172,27 @@
       conditionsSelectable() {
         return this.itemOptions.filter((sco) => !sco.disabled).length > 0;
       },
-      selectedToolItem() {
-        return this.selectedItemOption
-            ? this.availableToolItems.find((item) => item.id == this.selectedItemOption)
-            : null;
-      },
       selectableConditions() {
         return this.toolItems.filter((item) => this.itemId ? item.id != this.itemId : true);
       },
       conditionOptions() {
-        return this.selectedToolItem
-            ? this.selectedToolItem.conditions.map(condition => {
-                return {
-                  value: condition.id,
-                  text: formatConditionText(this.i18n, condition, this.selectedToolItem.name),
-                  disabled: !!this.savedConditions.find((c) => c.id == condition.id),
-                };
-              })
-            : null;
+        return this.availableToolItems.map(toolItem => {
+          return {
+            label: toolItem.name,
+            options: toolItem.conditions.map(condition => {
+              return {
+                value: condition.id,
+                text: formatConditionText(this.i18n, condition, toolItem.name),
+                disabled: !!this.savedConditions.find((c) => c.id == condition.id),
+              };
+            }),
+          }
+        })
       },
       selectedCondition() {
-        return this.selectedConditionOption
-            ? this.selectedToolItem.conditions.find((c) => c.id == this.selectedConditionOption)
-            : null;
+        return this.availableToolItems
+            .flatMap(toolItem => toolItem.conditions)
+            .find((c) => c.id == this.selectedConditionOption) ?? null;
       },
       conjunctionOptions() {
         return [
@@ -255,7 +248,7 @@
         return this.savedItem.conditions.find(condition => condition.id == this.savedConditionId);
       },
       selectionValid() {
-        return this.selectedItemOption && this.selectedConditionOption;
+        return !!this.selectedConditionOption;
       },
       savedConditions() {
         return [
@@ -358,7 +351,6 @@
         this.rootCondition.subConditions.splice(parentConditionIndex , 1, updatedParentCondition);
       },
       onSubConditionAdded() {
-        this.selectedItemOption = defaultSelectedItem;
         this.selectedConditionOption = defaultSelectedCondition;
         this.selectedConjunction = defaultSelectedConjunction;
       },
