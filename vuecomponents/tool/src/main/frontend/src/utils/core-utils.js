@@ -35,8 +35,12 @@ export async function fetchData(responseHandler, ...params) {
     }
 }
 
-const CoreUtils = {
-    allParamsNonNull,
-};
+export function registerGlobalModule(moduleName, moduleObject) {
+    if (!window.modules) {
+        window.modules = {};
+    }
 
-export default CoreUtils;
+    window.modules[moduleName] = moduleObject;
+}
+
+export default "CoreUtils";

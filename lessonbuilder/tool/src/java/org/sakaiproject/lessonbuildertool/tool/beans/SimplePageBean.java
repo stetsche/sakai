@@ -43,6 +43,7 @@ import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.condition.api.ConditionService;
 import org.sakaiproject.condition.api.model.Condition;
+import org.sakaiproject.condition.api.model.ConditionType;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
@@ -74,6 +75,7 @@ import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResult;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswer;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponse;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderConstants;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.cc.CartridgeLoader;
 import org.sakaiproject.lessonbuildertool.cc.Parser;
@@ -2177,6 +2179,7 @@ public class SimplePageBean {
 
 		boolean deleted = simplePageToolDao.deleteItem(item);
 
+
 		if (updateSequence && deleted) {
 			// minimize opening for race conditions on sequence number by forcing new fetches
 			simplePageToolDao.setRefreshMode();
@@ -2188,6 +2191,13 @@ public class SimplePageBean {
 					it.setSequence(it.getSequence() - 1);
 					update(it);
 				}
+			}
+		}
+
+		// When a question item is deleted, remove assotiated Conditions
+		if (deleted && item.getType() == SimplePageItem.QUESTION) {
+			for (Condition condition : getItemConditions(item)) {
+				conditionService.deleteCondition(condition.getId());
 			}
 		}
 
@@ -7842,6 +7852,22 @@ public class SimplePageBean {
 
 		saveOrUpdate(item);
 
+		// Create a condition for every new question item
+		Long savedItemId = Long.valueOf(item.getId());
+		List<Condition> itemConditions = conditionService.getConditionsForItem(currentSiteId,
+				LessonBuilderConstants.TOOL_COMMON_ID, savedItemId.toString());
+
+		if (itemConditions.isEmpty() && savedItemId >= 0) {
+			Condition itemCondition = Condition.builder()
+					.siteId(currentSiteId)
+					.toolId(LessonBuilderConstants.TOOL_COMMON_ID)
+					.itemId(savedItemId.toString())
+					.type(ConditionType.COMPLETED)
+					.build();
+
+			conditionService.saveCondition(itemCondition);
+		}
+
 		if(questionType.equals("multipleChoice")) {
 			simplePageToolDao.syncQRTotals(item);
 		}
@@ -9222,5 +9248,16 @@ public class SimplePageBean {
 			status = "cancel";
 		}
 		return status;
+	}
+
+	public List<Condition> getItemConditions() {
+		return itemOk(itemId)
+				? getItemConditions(findItem(itemId))
+				: Collections.emptyList();
+	}
+
+	public List<Condition> getItemConditions(SimplePageItem item) {
+		return conditionService.getConditionsForItem(currentSiteId,
+				LessonBuilderConstants.TOOL_COMMON_ID, Long.valueOf(item.getId()).toString());
 	}
 }

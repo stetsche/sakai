@@ -100,7 +100,7 @@
   import {
     andParentConditionFilter,
     CONDITION_BUNDLE_NAME,
-    formatCondition,
+    formatConditionText,
     makeParentCondition,
     makeRootCondition,
     orParentConditionFilter,
@@ -190,7 +190,7 @@
             ? this.selectedToolItem.conditions.map(condition => {
                 return {
                   value: condition.id,
-                  text: formatCondition(null, null, null, condition),
+                  text: formatConditionText(this.i18n, condition, this.selectedToolItem.name),
                   disabled: !!this.savedConditions.find((c) => c.id == condition.id),
                 };
               })

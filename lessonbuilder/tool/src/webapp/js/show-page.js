@@ -1333,6 +1333,10 @@ $(document).ready(function() {
 			setupdialog($("#add-forum-summary-dialog"));
 			return false;
 		});
+
+		$('#question-required').click(function(event) {
+		});
+
 		$('.question-link').click(function(){
 			oldloc = $(this);
 			closeDropdowns();

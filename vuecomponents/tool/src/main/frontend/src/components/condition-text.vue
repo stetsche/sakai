@@ -9,8 +9,7 @@
   // Utils
   import {
     CONDITION_BUNDLE_NAME,
-    ConditionType,
-    formatOperator
+    formatConditionHtml,
   } from "../utils/condition-utils.js";
 
   export default {
@@ -25,41 +24,10 @@
         i18nBundleName: CONDITION_BUNDLE_NAME,
       }
     },
-    methods: {
-      isConditionType(type) {
-        return condition && condition.type == type;
-      },
-      formatText(text, ...inserts) {
-        let formattedText = text;
-
-        inserts?.forEach((insert, index) => {
-          const boldInsert = `<b>${insert}</b>`;
-
-          formattedText = formattedText?.replace(`{${index}}`, boldInsert);
-        });
-
-        return formattedText
-      },
-    },
     computed: {
       formattedText() {
-        switch(this.condition.type) {
-          case ConditionType.POINTS:
-            const commonParams = [ this.formattedOperator, this.condition.argument ];
-
-            if (this.item) {
-              return this.formatText(this.i18n["display_the_item_points"], this.item, ...commonParams);
-            } else {
-              return this.formatText(this.i18n["display_this_item_points"], ...commonParams);
-            }
-          default:
-            console.error(`Formatting of condition with type '${this.condition.type}' is not implemented`);
-            return this.i18n["unknown_condition"];
-        }
+        return formatConditionHtml(this.i18n, this.condition, this.item)
       },
-      formattedOperator() {
-        return this.condition.operator ? formatOperator(this.i18n, this.condition.operator) : "";
-      }
     },
   }
 </script>

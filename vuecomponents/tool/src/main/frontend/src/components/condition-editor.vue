@@ -222,7 +222,6 @@ export default {
     }
   },
   mounted() {
-    console.log({});
     this.loadData();
 
     // Setup watcher to load fresh data when siteId, toolId, or itemId changes, debounced by 100ms

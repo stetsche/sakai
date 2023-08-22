@@ -1,5 +1,19 @@
-import { allParamsNonNull, queryParams, fetchJson, fetchText } from "../utils/core-utils.js";
-import { nonRootConditionFilter, nonParentConditionFilter } from "../utils/condition-utils.js";
+import {
+    allParamsNonNull,
+    queryParams,
+    fetchJson,
+    fetchText,
+    registerGlobalModule
+} from "../utils/core-utils.js";
+
+import {
+    nonRootConditionFilter,
+    nonParentConditionFilter,
+    lessonItemName
+} from "../utils/condition-utils.js";
+
+// Self-import
+import * as ConditionsApi from "./conditions-api";
 
 // Get conditions that are provided by the specified item
 export async function getConditionsForItem(siteId, toolId, itemId) {
@@ -37,7 +51,7 @@ export async function getToolItemsWithConditionsForLesson(siteId, lessonId) {
                         .filter((C) => C.itemId == lessonItem.id);
                 return {
                     id: lessonItem.id,
-                    name: lessonItem.name,
+                    name: lessonItemName(lessonItem),
                     conditions: itemConditions,
                 };
             })
@@ -104,11 +118,6 @@ export async function deleteCondition({ id: conditionId, siteId}) {
     })
 }
 
-const ConditionsApi = {
-    getConditionsForItem,
-    getConditionsForSite,
-    createCondition,
-    deleteCondition,
-};
+registerGlobalModule("conditionApi", ConditionsApi)
 
 export default ConditionsApi;

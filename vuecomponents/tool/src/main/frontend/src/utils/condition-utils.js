@@ -1,3 +1,10 @@
+import {
+    registerGlobalModule,
+} from "./core-utils.js";
+
+// Self-import
+import * as ConditionsUtils from "./condition-utils.js";
+
 export const ConditionOperator = {
     SMALLER_THAN: "SMALLER_THAN",
     SMALLER_THAN_OR_EQUAL_TO: "SMALLER_THAN_OR_EQUAL_TO",
@@ -33,14 +40,66 @@ export const CONDITION_TYPES = [
     ConditionType.POINTS,
 ];
 
+export const LessonItemType = {
+    QUESTION: 11,
+};
+
 export const CONDITION_BUNDLE_NAME = "condition";
 
-export function formatCondition(i18n, toolId, type, condition) {
-    return "Require a score " + condition.operator + " " + condition.argument + " Points";
+export function formatConditionText(conditionI18n, condition, item) {
+    return formatCondition(formatText, conditionI18n, condition, item)
 }
 
-export function formatOperator(i18n, operator) {
-    return i18n[operator.toLowerCase()];
+export function formatConditionHtml(conditionI18n, condition, item) {
+    return formatCondition(formatHtml, conditionI18n, condition, item)
+}
+
+function formatCondition(formatter, conditionI18n, condition, item) {
+    console.log("formatting", condition)
+    switch(condition.type) {
+        case ConditionType.POINTS:
+            const commonInserts = [ formatOperator(conditionI18n, condition.operator), condition.argument ];
+            if (item) {
+                return formatter(conditionI18n["display_the_item_points"], item, ...commonInserts);
+            } else {
+                return formatter(conditionI18n["display_this_item_points"], ...commonInserts);
+            }
+        case ConditionType.COMPLETED:
+            if (item) {
+                return formatter(conditionI18n["display_the_item_completed"], item);
+            } else {
+                return formatter(conditionI18n["display_this_item_completed"]);
+            }
+        default:
+            console.error(`Formatting of condition with type '${condition.type}' is not implemented`);
+            return conditionI18n["unknown_condition"];
+    }
+}
+
+function formatText(template, ...inserts) {
+    let formattedText = template;
+
+    inserts?.forEach((insert, index) => {
+        formattedText = formattedText?.replace(`{${index}}`, insert);
+    });
+
+    return formattedText
+}
+
+function formatHtml(template, ...inserts) {
+    let formattedHtml = template;
+
+    inserts?.forEach((insert, index) => {
+        const boldInsert = `<b>${insert}</b>`;
+
+        formattedHtml = formattedHtml?.replace(`{${index}}`, boldInsert);
+    });
+
+    return formattedHtml
+}
+
+export function formatOperator(conditionI18n, operator) {
+    return conditionI18n[operator.toLowerCase()];
 }
 
 export function makeParentCondition(siteId, operator = ConditionOperator.OR) {
@@ -57,7 +116,7 @@ export function makeParentCondition(siteId, operator = ConditionOperator.OR) {
 
 export function makeRootCondition(siteId, toolId, itemId) {
     return {
-        type: "ROOT",
+        type: ConditionType.ROOT,
         siteId,
         toolId,
         itemId,
@@ -77,14 +136,23 @@ export function nonParentConditionFilter(condition) {
 
 export function andParentConditionFilter(condition) {
     return condition.type == ConditionType.PARENT
-            && condition.operator == ConditionOperator.AND;
+    && condition.operator == ConditionOperator.AND;
 }
 
 export function orParentConditionFilter(condition) {
     return condition.type == ConditionType.PARENT
-            && condition.operator == ConditionOperator.OR;
+    && condition.operator == ConditionOperator.OR;
 }
 
-export default {
-    formatCondition,
-};
+export function lessonItemName(lessonItem) {
+    switch(lessonItem.type) {
+        case LessonItemType.QUESTION:
+        return lessonItem.questionText ?? lessonItem.name;
+        default:
+        return lessonItem.name;
+    }
+}
+
+registerGlobalModule("conditionUtils", ConditionsUtils)
+
+export default ConditionsUtils;

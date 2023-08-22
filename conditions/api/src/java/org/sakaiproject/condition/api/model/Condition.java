@@ -16,9 +16,7 @@
 package org.sakaiproject.condition.api.model;
 
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -31,7 +29,6 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -50,7 +47,7 @@ import lombok.ToString;
 @Table(name = "COND_CONDITION",
         indexes = { @Index(name = "IDX_CONDITION_SITE_ID", columnList = "SITE_ID") })
 @Data
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
@@ -68,8 +65,7 @@ public class Condition {
     @Enumerated(EnumType.STRING)
     private ConditionType type;
 
-    @NonNull
-    @Column(name = "OPERATOR", nullable = false)
+    @Column(name = "OPERATOR", nullable = true)
     @Enumerated(EnumType.STRING)
     private ConditionOperator operator;
 
@@ -99,23 +95,6 @@ public class Condition {
         return this.parentConditions != null
                 ? this.parentConditions.size() > 0
                 : null;
-    }
-
-    public static ConditionBuilder builderOf(Condition condition) {
-        if (condition != null) {
-            return Condition.builder()
-                    .id(condition.getId())
-                    .type(condition.getType())
-                    .operator(condition.getOperator())
-                    .argument(condition.getArgument())
-                    .siteId(condition.getSiteId())
-                    .toolId(condition.getToolId())
-                    .itemId(condition.getItemId())
-                    .parentConditions(condition.getParentConditions())
-                    .subConditions(condition.getSubConditions());
-        } else {
-            return Condition.builder();
-        }
     }
 
     // Only show ids of parent-conditions in string representation of condition

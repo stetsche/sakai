@@ -1,7 +1,8 @@
 package org.sakaiproject.condition.api.model;
 
 public enum ConditionType {
-    POINTS,
+    COMPLETED,
     PARENT,
+    POINTS,
     ROOT,
 }

@@ -67,6 +67,7 @@ public class LessonsConditionEvaluator extends BaseConditionEvaluator {
 
         String toolId, itemId;
         ConditionEvaluator conditionEvaluator;
+
         switch (lessonItem.getType()) {
             case SimplePageItem.ASSIGNMENT:
                 toolId = ASSIGNMENT_TOOL_ID;
@@ -78,26 +79,34 @@ public class LessonsConditionEvaluator extends BaseConditionEvaluator {
                 itemId = parseItemIdFromRef(lessonItem.getSakaiId());
                 conditionEvaluator = assessmentConditionEvaluator;
                 break;
+            case SimplePageItem.QUESTION:
+                switch(condition.getType()) {
+                    case COMPLETED:
+                        return evaluateQuestion(lessonItem, userId);
+                    default:
+                        log.error("Can not evaluate condition with id [{}] and type [{}] associated with question "
+                                + "type lesson item, because the condition type is not supported for this item type",
+                                condition.getId(), condition.getType());
+                        return false;
+                }
             default:
                 log.error("Can not evaluate condition with id [{}] associated with lesson item of unhandled type [{}]",
                         condition.getId(), lessonItem.getType());
                 return false;
         }
 
-        Condition evaluationCondition = Condition.builderOf(condition)
+        // Condition to be evaluated by a different condition evaluator
+        Condition evaluationCondition = condition.toBuilder()
                 .toolId(toolId)
                 .itemId(itemId)
                 .build();
 
+        // Evaluate condition with assigned condition evaluator
         return conditionEvaluator.evaluateCondition(evaluationCondition, userId);
     }
 
-    private Optional<SimplePageItem> getLessonItem(String itemId) {
-        if (NumberUtils.isParsable(itemId)) {
-            return Optional.ofNullable(lessonService.findItem(Long.parseLong(itemId)));
-        } else {
-            return Optional.empty();
-        }
+    private boolean evaluateQuestion(SimplePageItem questionItem, String userId) {
+        return lessonService.findQuestionResponse(questionItem.getId(), userId) != null;
     }
 
     private String parseItemIdFromRef(String ref) {
