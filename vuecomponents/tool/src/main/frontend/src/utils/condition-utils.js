@@ -55,7 +55,6 @@ export function formatConditionHtml(conditionI18n, condition, item) {
 }
 
 function formatCondition(formatter, conditionI18n, condition, item) {
-    console.log("formatting", condition)
     switch(condition.type) {
         case ConditionType.POINTS:
             const commonInserts = [ formatOperator(conditionI18n, condition.operator), condition.argument ];
