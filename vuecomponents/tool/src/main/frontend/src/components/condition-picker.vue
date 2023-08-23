@@ -45,19 +45,6 @@
         </BListGroupItem>
       </BListGroup>
     </div>
-    <div class="mt-2" v-if="savedEntries?.length > 0">
-      <b class="mb-2">PARENTS (debug):</b>
-      <BListGroup>
-        <BListGroupItem class="d-flex align-items-center" v-for="savedEntry in savedEntries" :key="savedEntry.condition.id">
-          <ConditionText :item="savedEntry.toolItem?.name" :condition="savedEntry.condition" />
-          <div class="d-flex ms-auto align-items-center">
-            <BButton @click="onRemoveSubCondition(rootCondition, savedEntry.condition)" variant="link" :title="i18n['remove_condition']">
-              <BIcon icon="trash" aria-hidden="true" font-scale="1.2" />
-            </BButton>
-          </div>
-        </BListGroupItem>
-      </BListGroup>
-    </div>
   </div>
 </template>
 
@@ -207,14 +194,6 @@
         ]
 
       },
-      savedEntries() {
-        return this.rootCondition?.subConditions.map((condition) => {
-          return {
-            condition,
-            toolItem: this.toolItems.find((item) => item.id == condition.itemId) ?? null
-          }
-        })
-      },
       andEntities() {
         return this.rootCondition?.subConditions.find(andParentConditionFilter)?.subConditions.map((condition) => {
           return {
@@ -270,17 +249,10 @@
         return true;
       },
       async requireParentCondition(operator) {
-        await this.requireRootCondition();
-        console.log("OP:", this.operator);
-        console.log("AND",operator == "AND" , !this.rootCondition.subConditions.find(andParentConditionFilter));
-        console.log("OR",operator == "OR" , !this.rootCondition.subConditions.find(orParentConditionFilter));
-
         if ((operator == "AND" && !this.rootCondition.subConditions.find(andParentConditionFilter))
             || (operator == "OR" && !this.rootCondition.subConditions.find(orParentConditionFilter))) {
-          console.log("createCondition");
 
           const parentCondition = await createCondition(makeParentCondition(this.siteId, operator));
-          console.log("parentCondition", parentCondition);
 
           if (parentCondition) {
             const rootSubConditions = [ ...this.rootCondition.subConditions, parentCondition ];
@@ -289,42 +261,10 @@
           } else {
             return false;
           }
-
-          //this.$set(this.rootCondition, "subConditions", [...this.rootCondition.subConditions, makeParentCondition(operator)]);
-          //this.rootCondition.subConditions.push(makeParentCondition(operator))
         }
 
         return true;
       },
-      // async getOrCreateRootCondition() {
-      //   if (this.rootCondition == defaultRootCondition) {
-      //     this.rootCondition = await createCondition(makeRootCondition(this.siteId, this.toolId, this.itemId));
-      //   }
-
-      //   return this.rootCondition;
-      // },
-      // async getOrCreateAndParentCondition(operator) {
-      //   if(operator == "AND" && this.andParentCondition) {
-      //     return this.andParentCondition;
-      //   } else if (operator == "OR" && this.orParentCondition) {
-      //     return this.orParentCondition;
-      //   } else if ([ "AND", "OR"].includes(operator)) {
-      //   const modifiedRootCondition = await this.getOrCreateRootCondition();
-      //     modifiedRootCondition.subConditions.push(makeParentCondition(operator))
-
-      //     const updatedRootCondition = await updateCondition(modifiedRootCondition);
-
-      //     if (updatedRootCondition != null) {
-      //       this.rootCondition = updatedRootCondition;
-
-      //       return operator == "AND"
-      //           ? updatedRootCondition.subConditions.find(andParentConditionFilter) ?? null
-      //           : updatedRootCondition.subConditions.find(orParentConditionFilter) ?? null;
-      //     } else {
-      //       throw new Error(`${operator} parent condition could not be added`);
-      //     }
-      //   }
-      // },
       onAddSubCondition() {
         this.addSubCondition({...this.selectedCondition}).then(
             () => this.onSubConditionAdded(),
@@ -332,15 +272,11 @@
         );
       },
       async addSubCondition(condition) {
-        //const modifiedRootCondition = { ...await this.getOrCreateRootCondition() };
         await this.requireParentCondition(this.selectedConjunction);
 
         const parentCondition = this.selectedConjunction == "AND"
             ? this.rootCondition.subConditions.find(andParentConditionFilter)
             : this.rootCondition.subConditions.find(orParentConditionFilter);
-        //this.getOrCreateAndParentCondition(this.operator);
-
-        //const createdCondition = await createCondition(condition);
 
         const updatedParentCondition = await updateCondition({
           ...parentCondition,
@@ -370,12 +306,9 @@
 
         // Set saving true for condition
         this.removeSubCondition(parentCondition, condition).then(
-            () => {
-              //this.onSubConditionRemoved(rootCondition)
-            },
+            () => { },
             (error) => {
               this.onError(error);
-              //this.rootCondition.subConditions.splice(index, 1, { ...condition, saving: false });
             }
         );
       },
