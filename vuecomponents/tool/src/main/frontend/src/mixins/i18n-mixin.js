@@ -35,7 +35,6 @@ export default {
     }
   },
   created() {
-    console.log(this.i18nBundleName, this.$options.name);
     this.getI18nProps(this.i18nBundleName || this.$options.name);
   },
   data() {
