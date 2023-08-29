@@ -27,12 +27,14 @@ import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.condition.api.ConditionEvaluator;
 import org.sakaiproject.condition.api.ConditionService;
 import org.sakaiproject.condition.api.exception.UnsupportedToolIdException;
 import org.sakaiproject.condition.api.model.Condition;
+import org.sakaiproject.condition.api.model.ConditionOperator;
 import org.sakaiproject.condition.api.model.ConditionType;
 import org.sakaiproject.condition.api.persistence.ConditionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,6 +121,11 @@ public class ConditionServiceImpl implements ConditionService {
             if (!isToolIdSupported(toolId)
                     && !(condition.getToolId() == null && ConditionType.PARENT.equals(condition.getType()))) {
                 throw new UnsupportedToolIdException(toolId);
+            }
+
+            if (!isConditionValid(condition)) {
+                log.error("Invalid condition can not be saved");
+                return originalCondition;
             }
 
             if (originalCondition != null) {
@@ -251,5 +258,25 @@ public class ConditionServiceImpl implements ConditionService {
         Optional<ConditionEvaluator> conditionEvaluator = Optional.ofNullable(conditionEvaluators.get(toolId));
 
         return conditionEvaluator.orElseThrow(() -> new UnsupportedToolIdException(toolId));
+    }
+
+    private boolean isConditionValid(Condition condition) {
+        log.debug("Validating condition: {}", condition);
+
+        ConditionType conditionType = condition.getType();
+        String conditionArgument = condition.getArgument();
+
+        if (conditionType == null) {
+            return false;
+        }
+
+        switch(conditionType) {
+            case POINTS:
+                boolean scoreParsable = NumberUtils.isParsable(conditionArgument);
+                log.debug("Score parsable? {}", scoreParsable);
+                return scoreParsable;
+            default:
+                return true;
+        }
     }
 }

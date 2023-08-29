@@ -90,6 +90,10 @@
     orParentConditionFilter,
   } from "../utils/condition-utils.js";
 
+  import {
+    isUuid,
+  } from "../utils/core-utils.js";
+
   // Api
   import {
     createCondition,
@@ -123,10 +127,22 @@
     },
     mixins: [ i18nMixin ],
     props: {
-      siteId: { type: String },
-      toolId: { type: String },
-      itemId: { type: String },
-      lessonId: { type: String },
+      siteId: {
+        type: String,
+        required: true,
+        validator: isUuid,
+      },
+      toolId: {
+        type: String,
+        required: true,
+      },
+      itemId: {
+        type: String,
+      },
+      lessonId: {
+        type: Number,
+        required: true,
+      },
     },
     data: function() {
       return {
@@ -249,6 +265,8 @@
         return true;
       },
       async requireParentCondition(operator) {
+        await this.requireRootCondition();
+
         if ((operator == "AND" && !this.rootCondition.subConditions.find(andParentConditionFilter))
             || (operator == "OR" && !this.rootCondition.subConditions.find(orParentConditionFilter))) {
 
@@ -347,10 +365,15 @@
       }
     },
     mounted() {
-      this.loadData();
-
+      if (this.siteId && this.toolId && this.itemId) {
+        this.loadData();
+      }
       // Setup watcher to load fresh data when siteId, toolId, or itemId changes, debounced by 100ms
-      this.$watch((vm) => [vm.siteId, vm.toolId, vm.itemId], () => this.loadData());
+      this.$watch((vm) => [vm.siteId, vm.toolId, vm.itemId], () => {
+        if (this.siteId && this.toolId && this.itemId) {
+          this.loadData();
+        }
+      });
     }
   };
 </script>
