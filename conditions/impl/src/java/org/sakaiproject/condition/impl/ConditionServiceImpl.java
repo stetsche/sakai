@@ -28,13 +28,13 @@ import javax.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.condition.api.ConditionEvaluator;
 import org.sakaiproject.condition.api.ConditionService;
 import org.sakaiproject.condition.api.exception.UnsupportedToolIdException;
 import org.sakaiproject.condition.api.model.Condition;
-import org.sakaiproject.condition.api.model.ConditionOperator;
 import org.sakaiproject.condition.api.model.ConditionType;
 import org.sakaiproject.condition.api.persistence.ConditionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +49,9 @@ public class ConditionServiceImpl implements ConditionService {
     @Autowired
     private SecurityService securityService;
 
+    @Autowired
+    private FunctionManager functionManager;
+
     @Setter
     private Map<String, ConditionEvaluator> conditionEvaluators;
 
@@ -57,6 +60,7 @@ public class ConditionServiceImpl implements ConditionService {
     public void init() {
         log.info("Initializing Condition Service");
 
+        // Log registered condition evaluators
         if (conditionEvaluators != null) {
             for (Entry<String, ConditionEvaluator> conditionEvaluatorEntry : conditionEvaluators.entrySet()) {
                 log.info("Registered condition evaluator [{}] for tool with id [{}]",
@@ -65,6 +69,9 @@ public class ConditionServiceImpl implements ConditionService {
         } else {
             log.error("Condition resolvers not set");
         }
+
+        // Register permissions
+        functionManager.registerFunction(PERMISSION_UPDATE_CONDITION);
     }
 
     @Override
@@ -114,7 +121,9 @@ public class ConditionServiceImpl implements ConditionService {
     public Condition saveCondition(Condition condition) {
         if (condition != null) {
             String toolId = condition.getToolId();
-            Condition originalCondition = getCondition(condition.getId());
+            Condition originalCondition = Optional.ofNullable(condition.getId())
+                    .map(id -> getCondition(id))
+                    .orElse(null);
 
             // Check if toolId is supported
             // For a PARENT condition it can be null

@@ -13,8 +13,17 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.condition.api.ConditionService;
+import org.sakaiproject.condition.api.model.Condition;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.tool.api.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,11 +35,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.sakaiproject.condition.api.ConditionService;
-import org.sakaiproject.condition.api.model.Condition;
-import java.util.List;
-import java.util.Optional;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -40,6 +44,10 @@ public class ConditionController extends AbstractSakaiApiController {
 
     @Autowired
     private ConditionService conditionService;
+
+    @Autowired
+    private SecurityService securityService;
+
 
     @GetMapping(value = "/sites/{siteId}/conditions/{conditionId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Condition> getCondition(@PathVariable String siteId, @PathVariable String conditionId) {
@@ -78,8 +86,12 @@ public class ConditionController extends AbstractSakaiApiController {
 
     @PostMapping(value = "/sites/{siteId}/conditions", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Condition> createCondition(@PathVariable String siteId, @RequestBody Condition condition) {
-        checkSakaiSession();
-        checkSite(siteId);
+        Session session = checkSakaiSession();
+        Site site = checkSite(siteId);
+
+        if (!canUpdateCondition(session.getUserId(), site.getReference())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
 
         if (condition != null && StringUtils.isBlank(condition.getId())) {
             Condition savedCondition = conditionService.saveCondition(condition);
@@ -95,16 +107,19 @@ public class ConditionController extends AbstractSakaiApiController {
     @PutMapping(value = "/sites/{siteId}/conditions/{conditionId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Condition> updateCondition(@PathVariable String siteId, @PathVariable String conditionId,
             @RequestBody Condition condition) {
-        checkSakaiSession();
-        checkSite(siteId);
-        log.info("condition {}", condition);
+        Session session = checkSakaiSession();
+        Site site = checkSite(siteId);
+
+        if (!canUpdateCondition(session.getUserId(), site.getReference())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
 
         Condition existingCondition = conditionService.getCondition(conditionId);
-        log.info("existingCondition {}", existingCondition);
+        log.debug("existingCondition {}", existingCondition);
 
         if (existingCondition != null && StringUtils.equals(condition.getId(), conditionId)) {
             Condition updatedCondition = conditionService.saveCondition(condition);
-            log.info("updatedCondition {}", updatedCondition);
+            log.debug("updatedCondition {}", updatedCondition);
 
             if (updatedCondition != null) {
                 return ResponseEntity.ok(updatedCondition);
@@ -116,8 +131,19 @@ public class ConditionController extends AbstractSakaiApiController {
 
     @DeleteMapping(value = "/sites/{siteId}/conditions/{conditionId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> deleteCondition(@PathVariable String siteId, @PathVariable String conditionId) {
+        Session session = checkSakaiSession();
+        Site site = checkSite(siteId);
+
+        if (!canUpdateCondition(session.getUserId(), site.getReference())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         boolean success = StringUtils.isNotBlank(conditionId) && conditionService.deleteCondition(conditionId);
 
         return success ? ResponseEntity.ok(conditionId) : ResponseEntity.badRequest().build();
+    }
+
+    private boolean canUpdateCondition(String userId, String siteRef) {
+        return securityService.unlock(userId, ConditionService.PERMISSION_UPDATE_CONDITION, siteRef);
     }
 }

@@ -25,6 +25,9 @@ public interface ConditionService {
 
     public static final String CONDITIONS_TOOL_ID = "sakai.conditions";
 
+    // Permission to create, update and delete a condition
+    public static final String PERMISSION_UPDATE_CONDITION = "conditions.update.condition";
+
 
     public void init();
 
