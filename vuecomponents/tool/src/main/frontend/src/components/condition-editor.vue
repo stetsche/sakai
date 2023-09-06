@@ -44,6 +44,7 @@
 <style lang="scss">
   @import "bootstrap/dist/css/bootstrap.css";
   @import "bootstrap-vue/dist/bootstrap-vue-icons.min.css";
+  @import "../bootstrap-styles/form.scss";
   @import "../bootstrap-styles/badges.scss";
   @import "../bootstrap-styles/buttons.scss";
 
@@ -211,7 +212,7 @@ export default {
     inputValid() {
       const value = this.form.argument.trim();
       return value != ""
-          ? isNaN(value) && Number(value) >= 0
+          ? !isNaN(value) && Number(value) >= 0
           : null;
     },
     labels() {
