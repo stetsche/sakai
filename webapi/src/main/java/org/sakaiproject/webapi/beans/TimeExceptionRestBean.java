@@ -20,15 +20,24 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(of = "forEntityRef")
 public class TimeExceptionRestBean {
 
+    private static final String SITE_SEGMENT = "/site/";
+    private static final String GROUP_SEGMENT = "/group/";
+    private static final String USER_SEGMENT = "/user/";
 
     private String forEntityRef;
     private Instant openDate;
@@ -36,11 +45,46 @@ public class TimeExceptionRestBean {
     private Instant closeDate;
 
 
+    @JsonIgnore
+    public boolean isValid() {
+        boolean refValid = StringUtils.containsAny(forEntityRef, GROUP_SEGMENT, USER_SEGMENT);
+
+        boolean datesValid = openDate != null && dueDate != null
+            && (dueDate.isAfter(openDate) || dueDate.equals(openDate))
+            && (closeDate == null || closeDate.isAfter(dueDate) || closeDate.equals(dueDate));
+
+        return refValid && datesValid;
+    }
+
+    public ExtendedTime toExtendedTime() {
+        ExtendedTime extendedTime = new ExtendedTime();
+
+        if (openDate != null) {
+            extendedTime.setStartDate(Date.from(openDate));
+        }
+
+        if (dueDate != null) {
+            extendedTime.setDueDate(Date.from(dueDate));
+        }
+
+        if (closeDate != null) {
+            extendedTime.setRetractDate(Date.from(closeDate));
+        }
+
+        if (StringUtils.contains(forEntityRef, GROUP_SEGMENT)) {
+            extendedTime.setGroup(StringUtils.substringAfter(forEntityRef, GROUP_SEGMENT));
+        } else {
+            extendedTime.setUser(StringUtils.substringAfter(forEntityRef, USER_SEGMENT));
+        }
+
+        return extendedTime;
+    }
+
     public static TimeExceptionRestBean of(String siteId, ExtendedTime extendedTime) {
         String entityRef = Optional.ofNullable(StringUtils.trimToNull(extendedTime.getUser()))
-                .map(userId -> "/user/" + userId)
+                .map(userId -> USER_SEGMENT + userId)
                 .or(() -> Optional.ofNullable(StringUtils.trimToNull(extendedTime.getGroup()))
-                        .map(groupId -> "/site/" + siteId + "/group/" + groupId))
+                        .map(groupId -> SITE_SEGMENT + siteId + GROUP_SEGMENT + groupId))
                 .orElse(null);
         return TimeExceptionRestBean.builder()
                 .forEntityRef(entityRef)
