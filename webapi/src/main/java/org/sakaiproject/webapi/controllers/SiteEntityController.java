@@ -14,25 +14,37 @@
 package org.sakaiproject.webapi.controllers;
 
 import java.util.AbstractMap;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.webapi.beans.SiteEntityRestBean;
 import org.sakaiproject.webapi.beans.TimeExceptionRestBean;
+import org.sakaiproject.webapi.beans.SiteEntityRestBean.SiteEntityType;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.Setter;
@@ -43,12 +55,13 @@ import lombok.extern.slf4j.Slf4j;
 public class SiteEntityController extends AbstractSakaiApiController {
 
 
+    private static final String GROUP_TAKE_ASSESSMENT_PERM = "TAKE_PUBLISHED_ASSESSMENT";
+
     @Autowired
     private PersistenceService persistenceService;
 
     @Setter
     private PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-
 
     @GetMapping(value = "/sites/{siteId}/entities/assessments", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Set<SiteEntityRestBean>> getSiteAssessments(@PathVariable String siteId) {
@@ -70,9 +83,6 @@ public class SiteEntityController extends AbstractSakaiApiController {
                 })
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        log.info("publishedAssessments {}", publishedAssessments);
-        log.info("assessmentExtendedTimesMap {}", assessmentExtendedTimesMap);
-
         Set<SiteEntityRestBean> assessmentSiteEntities = publishedAssessments.stream()
                 .map(assessment -> SiteEntityRestBean.of(assessment,
                         assessmentExtendedTimesMap.get(assessment.getPublishedAssessmentId()).stream()
@@ -81,5 +91,143 @@ public class SiteEntityController extends AbstractSakaiApiController {
                 .collect(Collectors.toSet());
 
         return ResponseEntity.ok(assessmentSiteEntities);
+    }
+
+    @PatchMapping(path = "/sites/{siteId}/entities", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Set<SiteEntityRestBean>> getSiteAssessments(@PathVariable String siteId,
+            @RequestBody Set<SiteEntityRestBean> patchEntities) {
+        Site site = checkSite(siteId);
+        checkSakaiSession();
+
+        ExtendedTimeFacade extendedTimeFacade = persistenceService.getExtendedTimeFacade();
+
+        Map<String, Object> toolEntities = new HashMap<>();
+
+        // First iteration - Check if request is valid and keep the retrieved entities
+        for (SiteEntityRestBean patchEntity : patchEntities) {
+            SiteEntityType entityType = patchEntity.getType();
+
+            if (StringUtils.isBlank(patchEntity.getId()) || entityType == null) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            switch(entityType) {
+                case ASSESSMENT:
+                    PublishedAssessmentFacade assessment = publishedAssessmentService.getPublishedAssessment(patchEntity.getId(), true);
+                    boolean timeExceptionsValid = patchEntity.getTimeExceptions().stream()
+                        .map(TimeExceptionRestBean::isValid)
+                        .filter(timeExceptionValid -> !timeExceptionValid)
+                        .findAny()
+                        .orElse(true);
+
+                    if (assessment == null || !timeExceptionsValid) {
+                        return ResponseEntity.badRequest().build();
+                    }
+
+                    toolEntities.put(entityKey(patchEntity), assessment);
+                    break;
+                case ASSIGNMENT:
+                    break;
+                case RESOURCE:
+                    break;
+                case FORUM:
+                    break;
+                default:
+                    return ResponseEntity.badRequest().build();
+            }
+        }
+
+        Set<SiteEntityRestBean> updatedEntities = new HashSet<>();
+
+        // Second iteration - Persist updated entities and map to bean
+        for (SiteEntityRestBean patchEntity : patchEntities) {
+            switch(patchEntity.getType()) {
+                case ASSESSMENT:
+                    PublishedAssessmentFacade assessment = (PublishedAssessmentFacade) toolEntities.get(entityKey(patchEntity));
+                    PublishedAssessmentData assessmentData = (PublishedAssessmentData) assessment.getData();
+                    String assessmentId = assessment.getPublishedAssessmentId().toString();
+
+                    boolean updateAccessControl = ObjectUtils.anyNotNull(
+                            patchEntity.getOpenDate(),
+                            patchEntity.getDueDate(),
+                            patchEntity.getCloseDate(),
+                            patchEntity.getGroupRefs()
+                    );
+
+                    if (updateAccessControl) {
+                        AssessmentAccessControlIfc accessControl = publishedAssessmentService.loadPublishedAccessControl(
+                                assessment.getPublishedAssessmentId());
+
+                        Optional.ofNullable(patchEntity.getOpenDate())
+                                .ifPresent(openDate -> accessControl.setStartDate(Date.from(openDate)));
+
+                        Optional.ofNullable(patchEntity.getDueDate())
+                                .ifPresent(dueDate -> accessControl.setDueDate(Date.from(dueDate)));
+
+                        Optional.ofNullable(patchEntity.getCloseDate())
+                                .ifPresent(closeDate -> accessControl.setDueDate(Date.from(closeDate)));
+
+                        Optional.ofNullable(patchEntity.getGroupRefs())
+                                .ifPresent(groupRefs -> {
+                                    AuthzQueriesFacadeAPI authzQueries = persistenceService.getAuthzQueriesFacade();
+                                    // Remove previous authorizations
+                                    log.info("remove {} {}", assessmentId, GROUP_TAKE_ASSESSMENT_PERM);
+                                    authzQueries.removeAuthorizationByQualifierAndFunction(assessmentId, GROUP_TAKE_ASSESSMENT_PERM);
+
+                                    // Add authorization for each group
+                                    groupRefs.stream()
+                                            .map(groupRef -> groupIdFromRef(groupRef))
+                                            .forEach(groupId -> authzQueries.createAuthorization(groupId, GROUP_TAKE_ASSESSMENT_PERM, assessmentId));
+
+                                    // Set "release to" to site TITLE (?) or constant for groups
+                                    accessControl.setReleaseTo(groupRefs.isEmpty() ? site.getTitle() : AssessmentAccessControlIfc.RELEASE_TO_SELECTED_GROUPS);
+                                });
+
+                        Optional.ofNullable(patchEntity.getTimeExceptions())
+                                .ifPresent(timeExceptions -> {
+                                    List<ExtendedTime> extendedTimes = timeExceptions.stream()
+                                            .map(TimeExceptionRestBean::toExtendedTime)
+                                            .peek(timeException -> timeException.setPubAssessment(assessmentData))
+                                            .collect(Collectors.toList());
+
+                                    extendedTimeFacade.saveEntriesPub(assessmentData, extendedTimes);;
+                                });
+
+                        publishedAssessmentService.saveOrUpdatePublishedAccessControl(accessControl);
+                    }
+
+                    PublishedAssessmentFacade updatedAssessment = publishedAssessmentService.getPublishedAssessment(patchEntity.getId(), true);
+                    updatedEntities.add(SiteEntityRestBean.of(updatedAssessment, timeExceptionSet(updatedAssessment)));
+                    break;
+                case ASSIGNMENT:
+                case RESOURCE:
+                case FORUM:
+                default:
+                    break;
+            }
+        }
+
+        return ResponseEntity.ok(updatedEntities);
+    }
+
+    private String groupIdFromRef(String groupRef) {
+        return StringUtils.substringAfterLast(groupRef, "/");
+    }
+
+    private String entityKey(SiteEntityRestBean siteEntity) {
+        return siteEntity.getType().toString() + ":" + siteEntity.getId();
+    }
+
+    private Set<TimeExceptionRestBean> timeExceptionSet(PublishedAssessmentFacade assessment) {
+        ExtendedTimeFacade extendedTimeFacade = persistenceService.getExtendedTimeFacade();
+        String siteId = assessment.getOwnerSiteId();
+        log.info("siteId: {}", siteId);
+
+        PublishedAssessmentData assessmentData = new PublishedAssessmentData();
+        BeanUtils.copyProperties(assessment, assessmentData);
+
+        return extendedTimeFacade.getEntriesForPub(assessmentData).stream()
+                .map(extendedTime -> TimeExceptionRestBean.of(siteId, extendedTime))
+                .collect(Collectors.toSet());
     }
 }

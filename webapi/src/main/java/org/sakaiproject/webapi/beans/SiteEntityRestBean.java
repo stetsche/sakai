@@ -19,18 +19,25 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SiteEntityRestBean {
 
+    private static final String SITE_SEGMENT = "/site/";
+    private static final String GROUP_SEGMENT = "/group/";
 
-    private Long id;
+    private String id;
     private SiteEntityType type;
     private String title;
     private Instant openDate;
@@ -42,12 +49,20 @@ public class SiteEntityRestBean {
 
     @SuppressWarnings("unchecked")
     public static SiteEntityRestBean of(PublishedAssessmentFacade assessment, Set<TimeExceptionRestBean> timeExceptions) {
+        String siteId = assessment.getOwnerSiteId();
         Set<String> assessmentGroupRefs = Optional.ofNullable(assessment.getReleaseToGroups())
                 .map(Map::keySet)
+                .map(groupIds -> (Set<String>) groupIds)
+                .map(groupIds -> groupIds.stream()
+                        .map(groupId -> SITE_SEGMENT + siteId + GROUP_SEGMENT + groupId)
+                        .collect(Collectors.toSet()))
                 .orElse(Collections.emptySet());
+        String assessmentId = Optional.ofNullable(assessment.getPublishedAssessmentId())
+                .map(id -> id.toString())
+                .orElse(null);
 
         return SiteEntityRestBean.builder()
-                .id(assessment.getPublishedAssessmentId())
+                .id(assessmentId)
                 .type(SiteEntityType.ASSESSMENT)
                 .title(assessment.getTitle())
                 .openDate(Optional.ofNullable(assessment.getStartDate()).map(Date::toInstant).orElse(null))
@@ -64,4 +79,5 @@ public class SiteEntityRestBean {
         FORUM,
         RESOURCE,
     }
+
 }
