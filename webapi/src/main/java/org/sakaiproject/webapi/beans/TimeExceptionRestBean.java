@@ -21,6 +21,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,6 +35,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "forEntityRef")
+@JsonInclude(Include.NON_NULL)
 public class TimeExceptionRestBean {
 
     private static final String SITE_SEGMENT = "/site/";
