@@ -15,23 +15,31 @@ package org.sakaiproject.webapi.beans;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Slf4j
+@JsonInclude(Include.NON_NULL)
 public class SiteEntityRestBean {
 
     private static final String SITE_SEGMENT = "/site/";
@@ -46,11 +54,11 @@ public class SiteEntityRestBean {
     private Set<String> groupRefs;
     private Set<TimeExceptionRestBean> timeExceptions;
 
-
     @SuppressWarnings("unchecked")
-    public static SiteEntityRestBean of(PublishedAssessmentFacade assessment, Set<TimeExceptionRestBean> timeExceptions) {
+    public static SiteEntityRestBean of(PublishedAssessmentFacade assessment,
+            Set<TimeExceptionRestBean> timeExceptions) {
         String siteId = assessment.getOwnerSiteId();
-        Set<String> assessmentGroupRefs = Optional.ofNullable(assessment.getReleaseToGroups())
+        Set<String> groupRefs = Optional.ofNullable(assessment.getReleaseToGroups())
                 .map(Map::keySet)
                 .map(groupIds -> (Set<String>) groupIds)
                 .map(groupIds -> groupIds.stream()
@@ -68,9 +76,36 @@ public class SiteEntityRestBean {
                 .openDate(Optional.ofNullable(assessment.getStartDate()).map(Date::toInstant).orElse(null))
                 .dueDate(Optional.ofNullable(assessment.getDueDate()).map(Date::toInstant).orElse(null))
                 .closeDate(Optional.ofNullable(assessment.getRetractDate()).map(Date::toInstant).orElse(null))
-                .groupRefs(assessmentGroupRefs)
+                .groupRefs(groupRefs)
                 .timeExceptions(timeExceptions)
                 .build();
+    }
+
+    public static SiteEntityRestBean of(Assignment assignment) {
+        Set<String> groupRefs = Assignment.Access.GROUP.equals(assignment.getTypeOfAccess())
+                ? Set.copyOf(assignment.getGroups())
+                : Collections.emptySet();
+
+        return SiteEntityRestBean.builder()
+                .id(assignment.getId())
+                .type(SiteEntityType.ASSIGNMENT)
+                .title(assignment.getTitle())
+                .openDate(assignment.getOpenDate())
+                .dueDate(assignment.getDueDate())
+                .closeDate(assignment.getCloseDate())
+                .groupRefs(groupRefs)
+                .build();
+    }
+
+    public static Comparator<SiteEntityRestBean> comparator() {
+        return Comparator.comparing(SiteEntityRestBean::getType)
+                .thenComparing(SiteEntityRestBean::getTitle);
+        // return (siteEntity1, siteEntity2) -> {
+        // String compareValue1 = siteEntity1.getType() + siteEntity1.getTitle();
+        // String compareValue2 = siteEntity2.getType() + siteEntity2.getTitle();
+
+        // return compareValue1.compareTo(compareValue2);
+        // }
     }
 
     public enum SiteEntityType {
