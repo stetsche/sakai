@@ -13,6 +13,7 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
+import java.time.Instant;
 import java.util.AbstractMap;
 import java.util.Date;
 import java.util.HashMap;
@@ -23,14 +24,28 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.api.app.messageforums.Area;
+import org.sakaiproject.api.app.messageforums.DiscussionForum;
+import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.InconsistentException;
+import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
@@ -58,6 +73,7 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
+@Slf4j
 public class SiteEntityController extends AbstractSakaiApiController {
 
 
@@ -66,6 +82,12 @@ public class SiteEntityController extends AbstractSakaiApiController {
 
     @Autowired
     private AssignmentService assignmentService;
+
+    @Autowired
+    private ContentHostingService contentHostingService;
+
+    @Autowired
+    private DiscussionForumManager discussionForumManager;
 
     @Autowired
     private SecurityService securityService;
@@ -127,11 +149,14 @@ public class SiteEntityController extends AbstractSakaiApiController {
             switch(entityType) {
                 case ASSESSMENT:
                     PublishedAssessmentFacade assessment = publishedAssessmentService.getPublishedAssessment(patchEntity.getId(), true);
-                    boolean timeExceptionsValid = patchEntity.getTimeExceptions().stream()
-                        .map(TimeExceptionRestBean::isValid)
-                        .filter(timeExceptionValid -> !timeExceptionValid)
-                        .findAny()
-                        .orElse(true);
+                    boolean timeExceptionsValid = Optional.ofNullable(patchEntity.getTimeExceptions())
+                            .map(Set::stream)
+                            .map(timeExceptionStream -> timeExceptionStream
+                                .map(TimeExceptionRestBean::isValid)
+                                .filter(timeExceptionValid -> !timeExceptionValid)
+                                .findAny()
+                                .orElse(true))
+                            .orElse(true);
 
                     if (assessment == null || !timeExceptionsValid) {
                         return ResponseEntity.badRequest().build();
@@ -144,6 +169,10 @@ public class SiteEntityController extends AbstractSakaiApiController {
                     toolEntities.put(entityKey(patchEntity), assessment);
                     break;
                 case ASSIGNMENT:
+                    if(patchEntity.getTimeExceptions() !=  null) {
+                        return ResponseEntity.badRequest().build();
+                    }
+
                     Assignment assignment;
                     try {
                         assignment = assignmentService.getAssignment(patchEntity.getId());
@@ -161,14 +190,44 @@ public class SiteEntityController extends AbstractSakaiApiController {
                     toolEntities.put(entityKey(patchEntity), assignment);
                     break;
                 case RESOURCE:
-                    if (patchEntity.getCloseDate() != null) {
+                    Instant openDate = patchEntity.getOpenDate();
+                    Instant closeDate = patchEntity.getCloseDate();
+                    if (ObjectUtils.anyNotNull(patchEntity.getDueDate(), patchEntity.getTimeExceptions())
+                                // Require to have open and close or none of them
+                                && (ObjectUtils.allNotNull(openDate, closeDate) || ObjectUtils.allNull(openDate, closeDate))) {
                         return ResponseEntity.badRequest().build();
                     }
+
+                    ContentResourceEdit resourceEdit;
+                    try {
+                        resourceEdit = contentHostingService.editResource(patchEntity.getId());
+                    } catch (IdUnusedException | InUseException e) {
+                        return ResponseEntity.badRequest().build();
+                    } catch (PermissionException e) {
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+                    } catch (TypeException e) {
+                        log.error("Could not get resource edit due to TypeException: {}", ExceptionUtils.getFullStackTrace(e));
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                    }
+                    toolEntities.put(entityKey(patchEntity), resourceEdit);
                     break;
                 case FORUM:
-                    if (patchEntity.getCloseDate() != null) {
+                    if (ObjectUtils.anyNotNull(
+                            patchEntity.getDueDate(),
+                            patchEntity.getTimeExceptions(),
+                            patchEntity.getGroupRefs())) {
                         return ResponseEntity.badRequest().build();
                     }
+
+                    Area forumArea = discussionForumManager.getDiscussionForumArea(siteId);
+
+                    Optional<DiscussionForum> optForum = findForumInArea(forumArea, patchEntity.getId());
+
+                    if (optForum.isEmpty()) {
+                        return ResponseEntity.badRequest().build();
+                    }
+
+                    toolEntities.put(entityKey(patchEntity), optForum.get());
                     break;
                 default:
                     return ResponseEntity.badRequest().build();
@@ -266,8 +325,66 @@ public class SiteEntityController extends AbstractSakaiApiController {
                         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
                     }
                     updatedEntities.add(SiteEntityRestBean.of(updatedAssignment));
+                    break;
                 case RESOURCE:
+                    ContentResourceEdit resourceEdit = (ContentResourceEdit) toolEntities.get(entityKey(patchEntity));
+                    Optional<Set<String>> optGroupRefs = Optional.ofNullable(patchEntity.getGroupRefs());
+                    Instant resourceOpenDate = patchEntity.getOpenDate();
+                    Instant resourceCloseDate = patchEntity.getCloseDate();
+                    boolean updateAvailability = ObjectUtils.allNotNull(resourceOpenDate, resourceCloseDate);
+
+                    if (updateAvailability) {
+                        resourceEdit.setAvailabilityInstant(false, resourceOpenDate, resourceCloseDate);
+                    }
+
+                    if (optGroupRefs.isPresent()) {
+                        try {
+                            Set<String> groupRefs = optGroupRefs.get();
+                            if (groupRefs.isEmpty()) {
+                                if (AccessMode.GROUPED.equals(resourceEdit.getAccess())) {
+                                    resourceEdit.clearGroupAccess();
+                                }
+                            } else {
+                                resourceEdit.setGroupAccess(Set.copyOf(groupRefs));
+                            }
+                        } catch (PermissionException e) {
+                            log.error("PermissionException was not checked properly: {}", ExceptionUtils.getFullStackTrace(e));
+                            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                        } catch (InconsistentException e) {
+                            log.error("InconsistentException setting group access to resource: {}", ExceptionUtils.getFullStackTrace(e));
+                        }
+                    }
+
+                    if (updateAvailability || optGroupRefs.isPresent()) {
+                        try {
+                            contentHostingService.commitResource(resourceEdit);
+                        } catch (ServerOverloadException | OverQuotaException e) {
+                            log.error("Could not commit resource edit due to {}: {}", e.toString(), ExceptionUtils.getFullStackTrace(e));
+                            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                        }
+                    }
+
+                    ContentResource updatedResource;
+                    try {
+                        updatedResource = contentHostingService.getResource(patchEntity.getId());
+                    } catch (PermissionException | IdUnusedException | TypeException e) {
+                        // This should be safe at this point
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                    }
+                    updatedEntities.add(SiteEntityRestBean.of(updatedResource));
+                    break;
                 case FORUM:
+                    DiscussionForum forum = (DiscussionForum) toolEntities.get(entityKey(patchEntity));
+
+                    Optional.ofNullable(patchEntity.getOpenDate())
+                            .ifPresent(openDate -> forum.setOpenDate(Date.from(openDate)));
+
+                    Optional.ofNullable(patchEntity.getCloseDate())
+                            .ifPresent(closeDate -> forum.setCloseDate(Date.from(closeDate)));
+
+                    DiscussionForum updatedForum = discussionForumManager.saveForum(site.getId(), forum);
+                    updatedEntities.add(SiteEntityRestBean.of(updatedForum));
+                    break;
                 default:
                     break;
             }
@@ -309,5 +426,18 @@ public class SiteEntityController extends AbstractSakaiApiController {
         return extendedTimeFacade.getEntriesForPub(assessmentData).stream()
                 .map(extendedTime -> TimeExceptionRestBean.of(siteId, extendedTime))
                 .collect(Collectors.toSet());
+    }
+
+    @SuppressWarnings("unchecked")
+    private Optional<DiscussionForum> findForumInArea(Area forumArea, String forumId) {
+        if (forumArea == null) {
+            return Optional.empty();
+        }
+
+        Set<DiscussionForum> forums = (Set<DiscussionForum>) forumArea.getOpenForumsSet();
+
+        return forums.stream()
+            .filter(forum -> Long.valueOf(forumId).equals(forum.getId()))
+            .findAny();
     }
 }
