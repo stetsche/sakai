@@ -22,7 +22,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.sakaiproject.api.app.messageforums.OpenForum;
 import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -32,13 +35,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Slf4j
 @JsonInclude(Include.NON_NULL)
 public class SiteEntityRestBean {
 
@@ -97,16 +98,33 @@ public class SiteEntityRestBean {
                 .build();
     }
 
+    public static SiteEntityRestBean of(OpenForum forum) {
+        return SiteEntityRestBean.builder()
+                .id(Optional.ofNullable(forum.getId()).map(id -> id.toString()).orElse(null))
+                .type(SiteEntityType.FORUM)
+                .title(forum.getTitle())
+                .openDate(Optional.ofNullable(forum.getOpenDate()).map(Date::toInstant).orElse(null))
+                .closeDate(Optional.ofNullable(forum.getCloseDate()).map(Date::toInstant).orElse(null))
+                .build();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static SiteEntityRestBean of(ContentResource resource) {
+        return SiteEntityRestBean.builder()
+                .id(resource.getId())
+                .type(SiteEntityType.RESOURCE)
+                .title(resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME))
+                .openDate(resource.getReleaseInstant())
+                .closeDate(resource.getRetractInstant())
+                .groupRefs(Set.copyOf(resource.getGroups()))
+                .build();
+    }
+
     public static Comparator<SiteEntityRestBean> comparator() {
         return Comparator.comparing(SiteEntityRestBean::getType)
                 .thenComparing(SiteEntityRestBean::getTitle);
-        // return (siteEntity1, siteEntity2) -> {
-        // String compareValue1 = siteEntity1.getType() + siteEntity1.getTitle();
-        // String compareValue2 = siteEntity2.getType() + siteEntity2.getTitle();
-
-        // return compareValue1.compareTo(compareValue2);
-        // }
     }
+
 
     public enum SiteEntityType {
         ASSESSMENT,
@@ -114,5 +132,4 @@ public class SiteEntityRestBean {
         FORUM,
         RESOURCE,
     }
-
 }
