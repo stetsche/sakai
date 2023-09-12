@@ -46,7 +46,9 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
@@ -61,6 +63,7 @@ import org.sakaiproject.webapi.beans.TimeExceptionRestBean;
 import org.sakaiproject.webapi.beans.SiteEntityRestBean.SiteEntityType;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -88,6 +91,14 @@ public class SiteEntityController extends AbstractSakaiApiController {
 
     @Autowired
     private DiscussionForumManager discussionForumManager;
+
+    @Autowired
+    @Qualifier("org_sakaiproject_service_gradebook_GradebookExternalAssessmentService")
+    private GradebookExternalAssessmentService gradebookExternalAssessmentService;
+
+    @Autowired
+    @Qualifier("org.sakaiproject.lessonbuildertool.model.SimplePageToolDao")
+    private SimplePageToolDao lessonService;
 
     @Autowired
     private SecurityService securityService;
@@ -408,12 +419,12 @@ public class SiteEntityController extends AbstractSakaiApiController {
                 && securityService.unlock(userId, AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, siteRef);
     }
 
-    private String groupIdFromRef(String groupRef) {
-        return StringUtils.substringAfterLast(groupRef, "/");
-    }
-
     private String entityKey(SiteEntityRestBean siteEntity) {
         return siteEntity.getType().toString() + ":" + siteEntity.getId();
+    }
+
+    private String groupIdFromRef(String groupRef) {
+        return StringUtils.substringAfterLast(groupRef, "/");
     }
 
     private Set<TimeExceptionRestBean> timeExceptionSet(PublishedAssessmentFacade assessment) {
@@ -437,7 +448,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
         Set<DiscussionForum> forums = (Set<DiscussionForum>) forumArea.getOpenForumsSet();
 
         return forums.stream()
-            .filter(forum -> Long.valueOf(forumId).equals(forum.getId()))
-            .findAny();
+                .filter(forum -> Long.valueOf(forumId).equals(forum.getId()))
+                .findAny();
     }
 }
