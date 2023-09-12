@@ -1,0 +1,133 @@
+/******************************************************************************
+ * Copyright 2023 sakaiproject.org Licensed under the Educational
+ * Community License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://opensource.org/licenses/ECL-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ ******************************************************************************/
+package org.sakaiproject.webapi.controllers;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
+import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class LessonsController extends AbstractSakaiApiController {
+
+
+    private static final String SITE_SEGMENT = "/site/";
+
+    private static final SecurityAdvisor ADVISOR_ALLOW_LESSONBUILDER_UPDATE =
+            (String userId, String function, String reference) ->
+                    SimplePage.PERMISSION_LESSONBUILDER_UPDATE.equals(function)
+                            ? SecurityAdvice.ALLOWED
+                            : SecurityAdvice.PASS;
+
+    @Autowired
+    @Qualifier("org_sakaiproject_service_gradebook_GradebookExternalAssessmentService")
+    private GradebookExternalAssessmentService gradebookExternalAssessmentService;
+
+    @Autowired
+    @Qualifier("org.sakaiproject.lessonbuildertool.model.SimplePageToolDao")
+    private SimplePageToolDao lessonService;
+
+    @Autowired
+    private SecurityService securityService;
+
+
+    // lessonId = itemId of lesson's root page
+    @DeleteMapping("/sites/{siteId}/lessons/{lessonId}/items")
+    public ResponseEntity<String> deleteLessonItems(@PathVariable String siteId, @PathVariable Long lessonId) {
+        String userId = checkSakaiSession().getUserId();
+        checkSite(siteId);
+
+        SimplePage lesson = pageIdFromLessonId(lessonId)
+                .flatMap(pageId -> lessonService.getSitePages(siteId).stream()
+                        .filter(sitePage -> pageId.equals(sitePage.getPageId()))
+                        .findAny())
+                .orElse(null);
+
+        if (lesson == null) {
+            return ResponseEntity.badRequest().body("Lesson not found");
+        }
+
+        if (!canDeleteLessonItems(userId, lesson)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        List<SimplePageItem> pageItems = lessonService.findPageItemsByPageId(lesson.getPageId());
+
+        int toDeleteCount = pageItems.size();
+
+        if (toDeleteCount == 0) {
+            return ResponseEntity.ok("Lesson is already empty");
+        }
+
+        int deletedCount = pageItems.stream()
+                .map(item -> {
+                    if (SimplePageItem.CHECKLIST == item.getType()) {
+                        lessonService.deleteAllSavedStatusesForChecklist(item);
+                    }
+
+                    // Remove external assessment entries for id's that are set on the item 
+                    List.of(Optional.ofNullable(item.getGradebookId()), Optional.ofNullable(item.getAltGradebook())).stream()
+                            .flatMap(Optional::stream)
+                            .forEach(gradebookExternalId -> {
+                                gradebookExternalAssessmentService.removeExternalAssessment(siteId, gradebookExternalId);
+                            });
+
+                    boolean deleted = false;
+                    // Pushing this advisor because the internal permission check will create a bad context
+                    securityService.pushAdvisor(ADVISOR_ALLOW_LESSONBUILDER_UPDATE);
+                    try {
+                        deleted = lessonService.deleteItem(item);
+                    } finally {
+                        securityService.popAdvisor(ADVISOR_ALLOW_LESSONBUILDER_UPDATE);
+                    }
+                    return deleted;
+                })
+                .mapToInt(itemDeleted -> itemDeleted ? 1 : 0)
+                .sum();
+
+        String message = deletedCount + " of " + toDeleteCount + " of items deleted";
+        HttpStatus status = deletedCount == toDeleteCount ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
+
+        return ResponseEntity.status(status).body(message);
+    }
+
+    private boolean canDeleteLessonItems(String userId, SimplePage page) {
+        String siteRef = SITE_SEGMENT + page.getSiteId();
+
+        return securityService.unlock(userId, SimplePage.PERMISSION_LESSONBUILDER_UPDATE, siteRef);
+    }
+
+    private Optional<Long> pageIdFromLessonId(Long lessonId) {
+        if (lessonId == null) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(lessonService.findItem(lessonId))
+                .map(pageItem -> pageItem.getSakaiId())
+                .map(pageId -> Long.valueOf(pageId));
+    }
+}
