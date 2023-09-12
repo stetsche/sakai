@@ -34,7 +34,9 @@ import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
@@ -46,7 +48,11 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
@@ -61,9 +67,11 @@ import org.sakaiproject.webapi.beans.TimeExceptionRestBean;
 import org.sakaiproject.webapi.beans.SiteEntityRestBean.SiteEntityType;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -80,6 +88,12 @@ public class SiteEntityController extends AbstractSakaiApiController {
     private static final String GROUP_TAKE_ASSESSMENT_PERM = "TAKE_PUBLISHED_ASSESSMENT";
     private static final String SITE_SEGMENT = "/site/";
 
+    private static final SecurityAdvisor ADVISOR_ALLOW_LESSONBUILDER_UPDATE =
+            (String userId, String function, String reference) ->
+                    SimplePage.PERMISSION_LESSONBUILDER_UPDATE.equals(function)
+                            ? SecurityAdvice.ALLOWED
+                            : SecurityAdvice.PASS;
+
     @Autowired
     private AssignmentService assignmentService;
 
@@ -88,6 +102,14 @@ public class SiteEntityController extends AbstractSakaiApiController {
 
     @Autowired
     private DiscussionForumManager discussionForumManager;
+
+    @Autowired
+    @Qualifier("org_sakaiproject_service_gradebook_GradebookExternalAssessmentService")
+    private GradebookExternalAssessmentService gradebookExternalAssessmentService;
+
+    @Autowired
+    @Qualifier("org.sakaiproject.lessonbuildertool.model.SimplePageToolDao")
+    private SimplePageToolDao lessonService;
 
     @Autowired
     private SecurityService securityService;
@@ -395,6 +417,73 @@ public class SiteEntityController extends AbstractSakaiApiController {
                 .collect(Collectors.toSet()));
     }
 
+
+    // lessonId = itemId of lesson's root page
+    @DeleteMapping("/sites/{siteId}/lessons/{lessonId}/items")
+    public ResponseEntity<String> deleteLessonItems(@PathVariable String siteId, @PathVariable Long lessonId) {
+        String userId = checkSakaiSession().getUserId();
+        checkSite(siteId);
+
+        SimplePage lesson = pageIdFromLessonId(lessonId)
+                .flatMap(pageId -> lessonService.getSitePages(siteId).stream()
+                        .filter(sitePage -> pageId.equals(sitePage.getPageId()))
+                        .findAny())
+                .orElse(null);
+
+        if (lesson == null) {
+            return ResponseEntity.badRequest().body("Lesson not found");
+        }
+
+        if (!canDeleteLessonItems(userId, lesson)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        List<SimplePageItem> pageItems = lessonService.findPageItemsByPageId(lesson.getPageId());
+
+        int toDeleteCount = pageItems.size();
+
+        if (toDeleteCount == 0) {
+            return ResponseEntity.ok("Lesson is already empty");
+        }
+
+        int deletedCount = pageItems.stream()
+                .map(item -> {
+                    if (SimplePageItem.CHECKLIST == item.getType()) {
+                        lessonService.deleteAllSavedStatusesForChecklist(item);
+                    }
+
+                    // Remove external assessment entries for id's that are set on the item 
+                    List.of(Optional.ofNullable(item.getGradebookId()), Optional.ofNullable(item.getAltGradebook())).stream()
+                            .flatMap(Optional::stream)
+                            .forEach(gradebookExternalId -> {
+                                gradebookExternalAssessmentService.removeExternalAssessment(siteId, gradebookExternalId);
+                            });
+
+                    boolean deleted = false;
+                    // Pushing this advisor because the internal permission check will create a bad context
+                    securityService.pushAdvisor(ADVISOR_ALLOW_LESSONBUILDER_UPDATE);
+                    try {
+                        deleted = lessonService.deleteItem(item);
+                    } finally {
+                        securityService.popAdvisor(ADVISOR_ALLOW_LESSONBUILDER_UPDATE);
+                    }
+                    return deleted;
+                })
+                .mapToInt(itemDeleted -> itemDeleted ? 1 : 0)
+                .sum();
+
+        String message = deletedCount + " of " + toDeleteCount + " of items deleted";
+        HttpStatus status = deletedCount == toDeleteCount ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
+
+        return ResponseEntity.status(status).body(message);
+    }
+
+    private boolean canDeleteLessonItems(String userId, SimplePage page) {
+        String siteRef = SITE_SEGMENT + page.getSiteId();
+
+        return securityService.unlock(userId, SimplePage.PERMISSION_LESSONBUILDER_UPDATE, siteRef);
+    }
+
     private boolean canUpdateAssessment(String userId, PublishedAssessmentFacade assessment) {
         String siteRef = SITE_SEGMENT + assessment.getOwnerSiteId();
 
@@ -408,12 +497,22 @@ public class SiteEntityController extends AbstractSakaiApiController {
                 && securityService.unlock(userId, AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, siteRef);
     }
 
-    private String groupIdFromRef(String groupRef) {
-        return StringUtils.substringAfterLast(groupRef, "/");
-    }
-
     private String entityKey(SiteEntityRestBean siteEntity) {
         return siteEntity.getType().toString() + ":" + siteEntity.getId();
+    }
+
+    private Optional<Long> pageIdFromLessonId(Long lessonId) {
+        if (lessonId == null) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(lessonService.findItem(lessonId))
+                .map(pageItem -> pageItem.getSakaiId())
+                .map(pageId -> Long.valueOf(pageId));
+    }
+
+    private String groupIdFromRef(String groupRef) {
+        return StringUtils.substringAfterLast(groupRef, "/");
     }
 
     private Set<TimeExceptionRestBean> timeExceptionSet(PublishedAssessmentFacade assessment) {
@@ -437,7 +536,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
         Set<DiscussionForum> forums = (Set<DiscussionForum>) forumArea.getOpenForumsSet();
 
         return forums.stream()
-            .filter(forum -> Long.valueOf(forumId).equals(forum.getId()))
-            .findAny();
+                .filter(forum -> Long.valueOf(forumId).equals(forum.getId()))
+                .findAny();
     }
 }
