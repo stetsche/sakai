@@ -16,13 +16,18 @@ package org.sakaiproject.webapi.controllers;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
+import org.sakaiproject.condition.api.ConditionService;
+import org.sakaiproject.condition.api.model.Condition;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderConstants;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.site.api.Site;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -31,7 +36,10 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
+@Slf4j
 public class LessonsController extends AbstractSakaiApiController {
 
 
@@ -42,6 +50,9 @@ public class LessonsController extends AbstractSakaiApiController {
                     SimplePage.PERMISSION_LESSONBUILDER_UPDATE.equals(function)
                             ? SecurityAdvice.ALLOWED
                             : SecurityAdvice.PASS;
+
+    @Autowired
+    private ConditionService conditionService;
 
     @Autowired
     @Qualifier("org_sakaiproject_service_gradebook_GradebookExternalAssessmentService")
@@ -89,7 +100,7 @@ public class LessonsController extends AbstractSakaiApiController {
                         lessonService.deleteAllSavedStatusesForChecklist(item);
                     }
 
-                    // Remove external assessment entries for id's that are set on the item 
+                    // Remove external assessment entries for id's that are set on the item
                     List.of(Optional.ofNullable(item.getGradebookId()), Optional.ofNullable(item.getAltGradebook())).stream()
                             .flatMap(Optional::stream)
                             .forEach(gradebookExternalId -> {
@@ -113,6 +124,45 @@ public class LessonsController extends AbstractSakaiApiController {
         HttpStatus status = deletedCount == toDeleteCount ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
 
         return ResponseEntity.status(status).body(message);
+    }
+
+    @DeleteMapping("/sites/{siteId}/lessons/{lessonId}/conditions")
+    public ResponseEntity<String> deleteLessonConditions(@PathVariable String siteId, @PathVariable Long lessonId) {
+        String userId = checkSakaiSession().getUserId();
+        Site site = checkSite(siteId);
+
+        SimplePage lesson = pageIdFromLessonId(lessonId)
+                .flatMap(pageId -> lessonService.getSitePages(siteId).stream()
+                        .filter(sitePage -> pageId.equals(sitePage.getPageId()))
+                        .findAny())
+                .orElse(null);
+
+        if (lesson == null) {
+            return ResponseEntity.badRequest().body("Lesson not found");
+        }
+
+        if (!canUpdateConditions(userId, site.getReference())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        List<SimplePageItem> pageItems = lessonService.findPageItemsByPageId(lesson.getPageId());
+        try {
+            pageItems.stream()
+                    .map(pageItem -> conditionService.getRootConditionForItem(siteId,
+                            LessonBuilderConstants.TOOL_COMMON_ID, Long.valueOf(pageItem.getId()).toString()))
+                    .flatMap(Optional::stream)
+                    .map(Condition::getId)
+                    .forEach(conditionService::deleteCondition);
+        } catch (Exception e) {
+            log.error("Condition could not be deleted due to {} {}", e.toString(), ExceptionUtils.getStackTrace(e));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Conditions could not be deleted");
+        }
+
+        return ResponseEntity.ok().build();
+    }
+
+    private boolean canUpdateConditions(String userId, String siteRef) {
+        return securityService.unlock(userId, ConditionService.PERMISSION_UPDATE_CONDITION, siteRef);
     }
 
     private boolean canDeleteLessonItems(String userId, SimplePage page) {
