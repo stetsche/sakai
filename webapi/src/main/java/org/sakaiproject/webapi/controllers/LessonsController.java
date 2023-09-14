@@ -13,8 +13,10 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -28,12 +30,16 @@ import org.sakaiproject.lessonbuildertool.api.LessonBuilderConstants;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.webapi.beans.LessonItemRestBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
@@ -67,7 +73,7 @@ public class LessonsController extends AbstractSakaiApiController {
 
 
     // lessonId = itemId of lesson's root page
-    @DeleteMapping("/sites/{siteId}/lessons/{lessonId}/items")
+    @DeleteMapping(value = "/sites/{siteId}/lessons/{lessonId}/items")
     public ResponseEntity<String> deleteLessonItems(@PathVariable String siteId, @PathVariable Long lessonId) {
         String userId = checkSakaiSession().getUserId();
         checkSite(siteId);
@@ -82,7 +88,7 @@ public class LessonsController extends AbstractSakaiApiController {
             return ResponseEntity.badRequest().body("Lesson not found");
         }
 
-        if (!canDeleteLessonItems(userId, lesson)) {
+        if (!canUpdateLessonItems(userId, lesson)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -161,11 +167,86 @@ public class LessonsController extends AbstractSakaiApiController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping(value = "/sites/{siteId}/lessons/{lessonId}/items/bulk", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<LessonItemRestBean>> createLessonItems(@PathVariable String siteId, @PathVariable Long lessonId,
+            @RequestBody List<LessonItemRestBean> lessonItems) {
+        String userId = checkSakaiSession().getUserId();
+        checkSite(siteId);
+
+        SimplePage lesson = pageIdFromLessonId(lessonId)
+                .flatMap(pageId -> lessonService.getSitePages(siteId).stream()
+                        .filter(sitePage -> pageId.equals(sitePage.getPageId()))
+                        .findAny())
+                .orElse(null);
+
+        if (lesson == null) {
+            log.debug("lesson == null");
+            return ResponseEntity.badRequest().build();
+        }
+
+        if (!canUpdateLessonItems(userId, lesson)) {
+            log.debug("no update permission for user {}", userId);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        List<SimplePageItem> pageItems = lessonService.findPageItemsByPageId(lesson.getPageId());
+
+        if (!pageItems.isEmpty()) {
+            log.debug("page items not empty; pageItems: {}", pageItems.stream().map(SimplePageItem::getId).collect(Collectors.toSet()));
+            return ResponseEntity.badRequest().build();
+        }
+
+        boolean allItemsCreateable = lessonItems.size() == lessonItems.stream()
+                .filter(LessonItemRestBean::isCreatable)
+                .collect(Collectors.counting()).intValue();
+
+        if (!allItemsCreateable) {
+            log.debug("no all items are creatable");
+            return ResponseEntity.badRequest().build();
+        }
+
+        // Create Lesson items and collect results
+        List<Boolean> createdStatuses = new ArrayList<>(); 
+
+        int sequence = 1;
+        for(LessonItemRestBean lessonItem : lessonItems) {
+            lessonItem.setSequence(sequence);
+            boolean lessonItemCreated = createLessonItem(lessonItem);
+            createdStatuses.add(lessonItemCreated);
+            sequence++;
+        }
+
+        int requestedCount = lessonItems.size();
+        int failedCount = createdStatuses.stream().filter(status -> !status).collect(Collectors.counting()).intValue();
+
+        if (failedCount > 0) {
+            log.error("Could not create all lesson items. Created {} of requested {}",
+                    requestedCount - failedCount, requestedCount);
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+        List<SimplePageItem> updatedPageItems = lessonService.findPageItemsByPageId(lesson.getPageId());
+
+        return ResponseEntity.ok(updatedPageItems.stream()
+                .map(LessonItemRestBean::of)
+                .collect(Collectors.toList()));
+    }
+
+    private boolean createLessonItem(LessonItemRestBean lessonItem) {
+        SimplePageItem  itemToSave = lessonService.makeItem(lessonItem.getPageId(), lessonItem.getSequence(),
+                lessonItem.getType(), lessonItem.getContentRef(), lessonItem.getTitle());
+
+        Optional.ofNullable(lessonItem.getFormat()).ifPresent(format -> itemToSave.setFormat(format));
+
+        return lessonService.quickSaveItem(itemToSave);
+    }
+
     private boolean canUpdateConditions(String userId, String siteRef) {
         return securityService.unlock(userId, ConditionService.PERMISSION_UPDATE_CONDITION, siteRef);
     }
 
-    private boolean canDeleteLessonItems(String userId, SimplePage page) {
+    private boolean canUpdateLessonItems(String userId, SimplePage page) {
         String siteRef = SITE_SEGMENT + page.getSiteId();
 
         return securityService.unlock(userId, SimplePage.PERMISSION_LESSONBUILDER_UPDATE, siteRef);
