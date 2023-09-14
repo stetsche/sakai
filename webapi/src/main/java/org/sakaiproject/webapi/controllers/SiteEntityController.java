@@ -154,6 +154,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
             SiteEntityType entityType = patchEntity.getType();
 
             if (StringUtils.isBlank(patchEntity.getId()) || entityType == null) {
+                log.debug("Id or type not set");
                 return ResponseEntity.badRequest().build();
             }
 
@@ -169,11 +170,18 @@ public class SiteEntityController extends AbstractSakaiApiController {
                                 .orElse(true))
                             .orElse(true);
 
-                    if (assessment == null || !timeExceptionsValid) {
+                    if (assessment == null) {
+                        log.debug("assessment with id {} not found", patchEntity.getId());
+                        return ResponseEntity.badRequest().build();
+                    }
+
+                    if (!timeExceptionsValid) {
+                        log.debug("timeExceptins for assessment with id {} not valid", patchEntity.getId());
                         return ResponseEntity.badRequest().build();
                     }
 
                     if (!canUpdateAssessment(userId, assessment)) {
+                        log.debug("canUpdateAssessment failed", patchEntity.getId());
                         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
                     }
 
@@ -189,12 +197,15 @@ public class SiteEntityController extends AbstractSakaiApiController {
                         assignment = assignmentService.getAssignment(patchEntity.getId());
 
                     } catch (IdUnusedException e) {
+                        log.debug("assignment with id {} not found", patchEntity.getId());
                         return ResponseEntity.badRequest().build();
                     } catch (PermissionException e) {
+                        log.debug("assignmentService permission check failed", patchEntity.getId());
                         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
                     }
 
                     if (!canUpdateAssignment(userId, assignment)) {
+                        log.debug("canUpdateAssignment failed", patchEntity.getId());
                         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
                     }
 
@@ -203,9 +214,14 @@ public class SiteEntityController extends AbstractSakaiApiController {
                 case RESOURCE:
                     Instant openDate = patchEntity.getOpenDate();
                     Instant closeDate = patchEntity.getCloseDate();
-                    if (ObjectUtils.anyNotNull(patchEntity.getDueDate(), patchEntity.getTimeExceptions())
-                                // Require to have open and close or none of them
-                                && (ObjectUtils.allNotNull(openDate, closeDate) || ObjectUtils.allNull(openDate, closeDate))) {
+                    if (ObjectUtils.anyNotNull(patchEntity.getDueDate(), patchEntity.getTimeExceptions())) {
+                        log.debug("Due date and timeExceptions can not be set for resources", patchEntity.getId());
+                        return ResponseEntity.badRequest().build();
+                    }
+
+                    // Require to have open and close or none of them
+                    if (ObjectUtils.allNotNull(openDate, closeDate) || ObjectUtils.allNull(openDate, closeDate)) {
+                        log.debug("dueDate AND closeDate or nothing", patchEntity.getId());
                         return ResponseEntity.badRequest().build();
                     }
 
@@ -215,6 +231,8 @@ public class SiteEntityController extends AbstractSakaiApiController {
                     } catch (IdUnusedException | InUseException e) {
                         return ResponseEntity.badRequest().build();
                     } catch (PermissionException e) {
+                        log.error("Permission check when editing resource failed {}",
+                                ExceptionUtils.getFullStackTrace(e));
                         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
                     } catch (TypeException e) {
                         log.error("Could not get resource edit due to TypeException: {}", ExceptionUtils.getFullStackTrace(e));
@@ -227,6 +245,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
                             patchEntity.getDueDate(),
                             patchEntity.getTimeExceptions(),
                             patchEntity.getGroupRefs())) {
+                        log.debug("dueDate, timeExceptions and groupRefs can not be set for forum entities");
                         return ResponseEntity.badRequest().build();
                     }
 
@@ -235,12 +254,14 @@ public class SiteEntityController extends AbstractSakaiApiController {
                     Optional<DiscussionForum> optForum = findForumInArea(forumArea, patchEntity.getId());
 
                     if (optForum.isEmpty()) {
+                        log.debug("Forum with id {} not found");
                         return ResponseEntity.badRequest().build();
                     }
 
                     toolEntities.put(entityKey(patchEntity), optForum.get());
                     break;
                 default:
+                    log.debug("Unhandled entity type {}", patchEntity.getType());
                     return ResponseEntity.badRequest().build();
             }
         }
@@ -333,6 +354,8 @@ public class SiteEntityController extends AbstractSakaiApiController {
                         updatedAssignment = assignmentService.getAssignment(assignment.getId());
                     } catch (PermissionException | IdUnusedException e) {
                         // Permission already evaluated before and assignmentId should be safe
+                        log.error("Pervious permission check was not sufficient: {}",
+                                ExceptionUtils.getFullStackTrace(e));
                         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
                     }
                     updatedEntities.add(SiteEntityRestBean.of(updatedAssignment));
@@ -359,10 +382,12 @@ public class SiteEntityController extends AbstractSakaiApiController {
                                 resourceEdit.setGroupAccess(Set.copyOf(groupRefs));
                             }
                         } catch (PermissionException e) {
-                            log.error("PermissionException was not checked properly: {}", ExceptionUtils.getFullStackTrace(e));
+                            log.error("Pervious permission check was not sufficient: {}",
+                                    ExceptionUtils.getFullStackTrace(e));
                             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
                         } catch (InconsistentException e) {
-                            log.error("InconsistentException setting group access to resource: {}", ExceptionUtils.getFullStackTrace(e));
+                            log.error("InconsistentException setting group access to resource: {}",
+                                    ExceptionUtils.getFullStackTrace(e));
                         }
                     }
 
@@ -370,7 +395,8 @@ public class SiteEntityController extends AbstractSakaiApiController {
                         try {
                             contentHostingService.commitResource(resourceEdit);
                         } catch (ServerOverloadException | OverQuotaException e) {
-                            log.error("Could not commit resource edit due to {}: {}", e.toString(), ExceptionUtils.getFullStackTrace(e));
+                            log.error("Could not commit resource edit due to {}: {}", e.toString(),
+                                    ExceptionUtils.getFullStackTrace(e));
                             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
                         }
                     }
@@ -380,6 +406,8 @@ public class SiteEntityController extends AbstractSakaiApiController {
                         updatedResource = contentHostingService.getResource(patchEntity.getId());
                     } catch (PermissionException | IdUnusedException | TypeException e) {
                         // This should be safe at this point
+                        log.error("Pervious check was not sufficient: {} {}", e.toString(),
+                                ExceptionUtils.getFullStackTrace(e));
                         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
                     }
                     updatedEntities.add(SiteEntityRestBean.of(updatedResource));
