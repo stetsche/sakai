@@ -160,7 +160,7 @@ public class LessonsController extends AbstractSakaiApiController {
                     .map(Condition::getId)
                     .forEach(conditionService::deleteCondition);
         } catch (Exception e) {
-            log.error("Condition could not be deleted due to {} {}", e.toString(), ExceptionUtils.getStackTrace(e));
+            log.error("Condition could not be deleted due to {} {}", e.toString(), ExceptionUtils.getFullStackTrace(e));
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Conditions could not be deleted");
         }
 
