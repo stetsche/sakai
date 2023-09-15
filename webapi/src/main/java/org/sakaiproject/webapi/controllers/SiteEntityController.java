@@ -24,7 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.messageforums.Area;
@@ -232,10 +232,10 @@ public class SiteEntityController extends AbstractSakaiApiController {
                         return ResponseEntity.badRequest().build();
                     } catch (PermissionException e) {
                         log.error("Permission check when editing resource failed {}",
-                                ExceptionUtils.getFullStackTrace(e));
+                                ExceptionUtils.getStackTrace(e));
                         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
                     } catch (TypeException e) {
-                        log.error("Could not get resource edit due to TypeException: {}", ExceptionUtils.getFullStackTrace(e));
+                        log.error("Could not get resource edit due to TypeException: {}", ExceptionUtils.getStackTrace(e));
                         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
                     }
                     toolEntities.put(entityKey(patchEntity), resourceEdit);
@@ -355,7 +355,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
                     } catch (PermissionException | IdUnusedException e) {
                         // Permission already evaluated before and assignmentId should be safe
                         log.error("Pervious permission check was not sufficient: {}",
-                                ExceptionUtils.getFullStackTrace(e));
+                                ExceptionUtils.getStackTrace(e));
                         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
                     }
                     updatedEntities.add(SiteEntityRestBean.of(updatedAssignment));
@@ -383,11 +383,11 @@ public class SiteEntityController extends AbstractSakaiApiController {
                             }
                         } catch (PermissionException e) {
                             log.error("Pervious permission check was not sufficient: {}",
-                                    ExceptionUtils.getFullStackTrace(e));
+                                    ExceptionUtils.getStackTrace(e));
                             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
                         } catch (InconsistentException e) {
                             log.error("InconsistentException setting group access to resource: {}",
-                                    ExceptionUtils.getFullStackTrace(e));
+                                    ExceptionUtils.getStackTrace(e));
                         }
                     }
 
@@ -396,7 +396,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
                             contentHostingService.commitResource(resourceEdit);
                         } catch (ServerOverloadException | OverQuotaException e) {
                             log.error("Could not commit resource edit due to {}: {}", e.toString(),
-                                    ExceptionUtils.getFullStackTrace(e));
+                                    ExceptionUtils.getStackTrace(e));
                             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
                         }
                     }
@@ -407,7 +407,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
                     } catch (PermissionException | IdUnusedException | TypeException e) {
                         // This should be safe at this point
                         log.error("Pervious check was not sufficient: {} {}", e.toString(),
-                                ExceptionUtils.getFullStackTrace(e));
+                                ExceptionUtils.getStackTrace(e));
                         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
                     }
                     updatedEntities.add(SiteEntityRestBean.of(updatedResource));
