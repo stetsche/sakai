@@ -82,6 +82,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
 
     private static final String GROUP_TAKE_ASSESSMENT_PERM = "TAKE_PUBLISHED_ASSESSMENT";
     private static final String SITE_SEGMENT = "/site/";
+    private static final String GROUP_SEGMENT = "/group/";
 
     @Autowired
     private AssignmentService assignmentService;
@@ -137,6 +138,26 @@ public class SiteEntityController extends AbstractSakaiApiController {
                 .collect(Collectors.toSet());
 
         return ResponseEntity.ok(assessmentSiteEntities);
+    }
+
+    @GetMapping(value = "/sites/{siteId}/entities/resources", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Set<SiteEntityRestBean>> getSiteResources(@PathVariable String siteId) {
+        checkSakaiSession();
+        checkSite(siteId);
+
+        String collectionRef = GROUP_SEGMENT + siteId + "/";
+
+        List<ContentResource> resources;
+        try {
+            resources = contentHostingService.getAllResources(collectionRef);
+        } catch (IllegalArgumentException e) {
+            log.debug("Could not get resources due to {} {}", e.toString(), ExceptionUtils.getStackTrace(e));
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok(resources.stream()
+                .map(SiteEntityRestBean::of)
+                .collect(Collectors.toSet()));
     }
 
     @PatchMapping(path = "/sites/{siteId}/entities", produces = MediaType.APPLICATION_JSON_VALUE)
