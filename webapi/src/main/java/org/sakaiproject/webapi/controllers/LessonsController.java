@@ -14,16 +14,23 @@
 package org.sakaiproject.webapi.controllers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.velocity.runtime.resource.ContentResource;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.condition.api.ConditionService;
 import org.sakaiproject.condition.api.model.Condition;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderConstants;
@@ -59,6 +66,9 @@ public class LessonsController extends AbstractSakaiApiController {
 
     @Autowired
     private ConditionService conditionService;
+
+    @Autowired
+    private ContentHostingService contentHostingService;
 
     @Autowired
     @Qualifier("org_sakaiproject_service_gradebook_GradebookExternalAssessmentService")
@@ -208,8 +218,36 @@ public class LessonsController extends AbstractSakaiApiController {
         // Create Lesson items and collect results
         List<Boolean> createdStatuses = new ArrayList<>(); 
 
+        // Get resource properties for resource items
+        Map<String, ResourceProperties> resourcePropertiesMap = new HashMap<>();
+        for(LessonItemRestBean lessonItem : lessonItems) {
+            if (SimplePageItem.RESOURCE != lessonItem.getType()) {
+                break;
+            }
+
+            String resourceId = lessonItem.getContentRef();
+            try {
+                ResourceProperties resourceProperties = contentHostingService.getProperties(resourceId);
+                resourcePropertiesMap.put(lessonItem.getContentRef(), resourceProperties);
+            } catch (IdUnusedException e) {
+                log.debug("can not find resource with id {}", resourceId);
+                return ResponseEntity.badRequest().build();
+            } catch (PermissionException e) {
+                log.debug("no permission to get resource {}", resourceId);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        }
+
         int sequence = 1;
         for(LessonItemRestBean lessonItem : lessonItems) {
+            switch(lessonItem.getType()) {
+                case SimplePageItem.RESOURCE:
+                    ResourceProperties resourceProperties = resourcePropertiesMap.get(lessonItem.getContentRef());
+                    lessonItem.setHtml(resourceProperties.getProperty(ResourceProperties.PROP_CONTENT_TYPE));
+                    break;
+                default:
+                    break;
+            }
             lessonItem.setSequence(sequence);
             boolean lessonItemCreated = createLessonItem(lessonItem);
             createdStatuses.add(lessonItemCreated);
@@ -238,6 +276,7 @@ public class LessonsController extends AbstractSakaiApiController {
                 lessonItem.getType(), lessonItem.getContentRef(), lessonItem.getTitle());
 
         Optional.ofNullable(lessonItem.getFormat()).ifPresent(format -> itemToSave.setFormat(format));
+        Optional.ofNullable(lessonItem.getHtml()).ifPresent(html -> itemToSave.setHtml(html));
 
         return lessonService.quickSaveItem(itemToSave);
     }

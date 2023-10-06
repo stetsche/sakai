@@ -40,6 +40,7 @@ public class LessonItemRestBean {
     private String contentRef;
     private String title;
     private String format;
+    private String html;
 
 
     @JsonIgnore
@@ -62,6 +63,7 @@ public class LessonItemRestBean {
                 .contentRef(lessonItem.getSakaiId())
                 .title(lessonItem.getName())
                 .format(lessonItem.getFormat())
+                .html(lessonItem.getHtml())
                 .build();
     }
 }
