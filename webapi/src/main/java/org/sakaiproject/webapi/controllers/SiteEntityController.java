@@ -73,6 +73,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -173,6 +174,9 @@ public class SiteEntityController extends AbstractSakaiApiController {
         // First iteration - Check if request is valid and keep the retrieved entities
         for (SiteEntityRestBean patchEntity : patchEntities) {
             SiteEntityType entityType = patchEntity.getType();
+            Instant entityOpenDate = patchEntity.getOpenDate();
+            Instant entityDueDate = patchEntity.getDueDate();
+            Instant entityCloseDate = patchEntity.getCloseDate();
 
             if (StringUtils.isBlank(patchEntity.getId()) || entityType == null) {
                 log.debug("Id or type not set");
@@ -233,16 +237,15 @@ public class SiteEntityController extends AbstractSakaiApiController {
                     toolEntities.put(entityKey(patchEntity), assignment);
                     break;
                 case RESOURCE:
-                    Instant openDate = patchEntity.getOpenDate();
-                    Instant closeDate = patchEntity.getCloseDate();
                     if (ObjectUtils.anyNotNull(patchEntity.getDueDate(), patchEntity.getTimeExceptions())) {
                         log.debug("Due date and timeExceptions can not be set for resources", patchEntity.getId());
                         return ResponseEntity.badRequest().build();
                     }
 
                     // Require to have open and close or none of them
-                    if (ObjectUtils.allNotNull(openDate, closeDate) || ObjectUtils.allNull(openDate, closeDate)) {
-                        log.debug("dueDate AND closeDate or nothing", patchEntity.getId());
+                    if (!(ObjectUtils.allNotNull(entityOpenDate, entityCloseDate)
+                            || ObjectUtils.allNull(entityOpenDate, entityCloseDate))) {
+                        log.debug("Specify dueDate AND closeDate or nothing", patchEntity.getId());
                         return ResponseEntity.badRequest().build();
                     }
 
@@ -263,10 +266,17 @@ public class SiteEntityController extends AbstractSakaiApiController {
                     break;
                 case FORUM:
                     if (ObjectUtils.anyNotNull(
-                            patchEntity.getDueDate(),
+                            entityDueDate,
                             patchEntity.getTimeExceptions(),
                             patchEntity.getGroupRefs())) {
                         log.debug("dueDate, timeExceptions and groupRefs can not be set for forum entities");
+                        return ResponseEntity.badRequest().build();
+                    }
+
+                    // Require to have open and close or none of them
+                    if (!(ObjectUtils.allNotNull(entityOpenDate, entityCloseDate)
+                            || ObjectUtils.allNull(entityOpenDate, entityCloseDate))) {
+                        log.debug("Specify dueDate AND closeDate or nothing", patchEntity.getId());
                         return ResponseEntity.badRequest().build();
                     }
 
@@ -275,7 +285,7 @@ public class SiteEntityController extends AbstractSakaiApiController {
                     Optional<DiscussionForum> optForum = findForumInArea(forumArea, patchEntity.getId());
 
                     if (optForum.isEmpty()) {
-                        log.debug("Forum with id {} not found");
+                        log.debug("Forum with id {} not found", patchEntity.getId());
                         return ResponseEntity.badRequest().build();
                     }
 
