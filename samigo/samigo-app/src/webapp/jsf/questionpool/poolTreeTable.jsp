@@ -114,6 +114,12 @@
   <f:param name="outCome" value="poolList"/>
 </h:commandLink>
 
+<!-- Show statistics -->
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool && pool.ownerId==questionpool.agentId && pool.parentPoolId == 0}" value=" #{questionPoolMessages.separator} " />
+<a href="#" data-toggle="modal" data-target="#statModal">
+  <h:outputText value="Show Statistics" />
+</a>
+
  </span>
 </h:panelGroup>
     </h:column>
@@ -180,6 +186,53 @@ lydial: in 2.2, use Display Name instead of ownerId, since ownerId now returns t
      </h:panelGroup>
     </h:column>
 
+    <h:column id="colTags" rendered="#{questionpool.showTags}">
+      <f:facet name="header">
+        <h:outputText value="#{questionPoolMessages.t_tags}" />
+      </f:facet>
+      <h:panelGroup rendered="#{pool.questionPoolId % 5 > 2}">
+        <ul>
+          <li>
+            <span>
+              <h:outputText value="easy" />
+              <span class="collection">
+                <h:outputText value="(DAC-EDUCATION-DEPT1-SUBJ1-101)" />
+              </span>
+            </span>
+          </li>
+          <h:panelGroup rendered="#{pool.questionPoolId % 2 == 0}">
+            <li>
+              <span>
+                <h:outputText value="bonus" />
+                <span class="collection">
+                  <h:outputText value="(DAC-EDUCATION-DEPT1-SUBJ1-101)" />
+                </span>
+              </span>
+            </li>
+          </h:panelGroup>
+        </ul>
+      </h:panelGroup>
+      <h:panelGroup rendered="#{pool.questionPoolId % 5 < 3}">
+        <ul>
+          <li>
+            <span>
+              <h:outputText value="hard" />
+              <span class="collection">
+                <h:outputText value="(DAC-EDUCATION-DEPT1-SUBJ1-101)" />
+              </span>
+            </span>
+          </li>
+        </ul>
+      </h:panelGroup>
+      <!-- <span>
+        <h:outputText value="#{tag.tagLabel}" />
+        <span class="collection">
+          <h:outputText value="(#{tag.tagCollectionName})"/>
+        </span>
+      </span> -->
+      </br>
+    </h:column>
+
     <h:column id="col4">
      <f:facet name="header">
       <h:panelGroup>
@@ -207,7 +260,6 @@ lydial: in 2.2, use Display Name instead of ownerId, since ownerId now returns t
         <h:outputText value="#{pool.data.questionPoolItemSize}"/>
      </h:panelGroup>
     </h:column>
-
 
     <h:column id="col5">
      <f:facet name="header">
@@ -247,4 +299,55 @@ lydial: in 2.2, use Display Name instead of ownerId, since ownerId now returns t
       </h:selectManyCheckbox>
     </h:column>
   </h:dataTable>
+  <div id="statModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Statistics for my pool</h4>
+        </div>
+        <div class="modal-body">
+          <table class="table table-bordered table-striped">
+            <tr>
+              <th>Questions</th>
+              <td>7</td>
+            </tr>
+            <tr>
+              <th>Subpools</th>
+              <td>0</td>
+            </tr>
+            <tr>
+              <th>Times used</th>
+              <td>4</td>
+            </tr>
+            <tr>
+              <th>Questions attempted</th>
+              <td>112</td>
+            </tr>
+            <tr>
+              <th>Questions correct</th>
+              <td>84</td>
+            </tr>
+            <tr>
+              <th>Questions incorrect</th>
+              <td>28</td>
+            </tr>
+            <tr>
+              <th>Questions unanswered</th>
+              <td>28</td>
+            </tr>
+            <tr>
+              <th>Difficulty</th>
+              <td>40</td>
+            </tr>
+          </table>
+        </div>
+        <!-- <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div> -->
+      </div>
+
+    </div>
+  </div>
 </div>
