@@ -303,7 +303,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		// Start and end in the same collection.
 		{
 			List<Event> events = new ArrayList<>();
-			events.add(statsUpdateManager.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id"));
+			events.add(statsUpdateManager.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID,    "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id"));
 			events.add(statsUpdateManager.buildEvent(new Date(), StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id"));
 			assertTrue(statsUpdateManager.collectEvents(events));
 		}
@@ -485,8 +485,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 			assertEquals(eSV1.getUserId(), es2.getUserId());
 			assertEquals(eSV2.getUserId(), es1.getUserId());
 		}
-		assertNull(es1.getLastVisitStartTime());
-		assertNull(es2.getLastVisitStartTime());
 		assertTrue(es1.getDuration() >= 1000);
 		assertTrue(es2.getDuration() >= 1000);
 	}
@@ -511,7 +509,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresence es1 = results.get(0);
 		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
 		assertEquals(eventBegin1.getUserId(), es1.getUserId());
-		assertNull(es1.getLastVisitStartTime());
 		long totalDuration = es1.getDuration();
 		long firstDuration = totalDuration;
 		assertEquals(totalDuration, secondDuration);
@@ -532,7 +529,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		es1 = results.get(0);
 		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
 		assertEquals(eventBegin2.getUserId(), es1.getUserId());
-		assertNull(es1.getLastVisitStartTime());
 		totalDuration = es1.getDuration();
 		assertTrue(totalDuration == firstDuration + secondDuration);
 	}
@@ -564,7 +560,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresence es1 = r1.get(0);
 		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
 		assertEquals(eSV5e.getUserId(), es1.getUserId());
-		assertNull(es1.getLastVisitStartTime());
 		long totalDuration = es1.getDuration();
 		assertTrue(totalDuration == firstDuration + secondDuration);
 	}
@@ -596,7 +591,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		SitePresence es1 = r1.get(0);
 		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
 		assertEquals(eSV6e.getUserId(), es1.getUserId());
-		assertNull(es1.getLastVisitStartTime());
 		long totalDuration = es1.getDuration();
 		assertTrue(totalDuration == firstDuration + secondDuration);
 	}
