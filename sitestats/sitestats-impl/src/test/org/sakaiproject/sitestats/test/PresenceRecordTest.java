@@ -62,4 +62,81 @@ public class PresenceRecordTest {
         assertEquals(beginningRecord.getDuration(), Duration.ZERO);
         assertEquals(endingRecord.getDuration(), Duration.ZERO);
     }
+
+    @Test
+    public void testOverlapsWith() {
+        // t0     t1  t2 t3t4 t5  t6     t7
+        //            b-------e            // complete test record
+        //            b------------------> // beginning test record
+        // <------------------e            // ending test record
+        //        b--------------e         // complete record surrounding overlap
+        //               b-e               // complete record within overlap
+        //                 b-----e         // complete record begin overlap
+        //       b-------e                 // complete record end overlap
+        // <-------------e                 // ending record end overlap
+        //                 b-------------> // beginning record begin overlap 
+        // b-------e                       // complete record before
+        //                       b-------e // complete record after
+        // <-------e                       // beginning record before
+        //                       b-------> // ending record after
+        // t0     t1  t2 t3t4 t5 t6     t7
+
+        Instant t0 = base;
+        Instant t1 = base.plus(30, ChronoUnit.MINUTES);
+        Instant t2 = base.plus(50, ChronoUnit.MINUTES);
+        Instant t3 = base.plus(60, ChronoUnit.MINUTES);
+        Instant t4 = base.plus(70, ChronoUnit.MINUTES);
+        Instant t5 = base.plus(80, ChronoUnit.MINUTES);
+        Instant t6 = base.plus(100, ChronoUnit.MINUTES);
+        Instant t7 = base.plus(130, ChronoUnit.MINUTES);
+
+        PresenceRecord completeTestRecord = PresenceRecord.builder().begin(t2).end(t5).build();
+        PresenceRecord beginningTestRecord = PresenceRecord.builder().begin(t2).end(null).build();
+        PresenceRecord endingTestRecord = PresenceRecord.builder().begin(null).end(t5).build();
+
+        PresenceRecord completeSurroundingRecord = PresenceRecord.builder().begin(t1).end(t6).build();
+        PresenceRecord completeWithinRecord = PresenceRecord.builder().begin(t3).end(t4).build();
+        PresenceRecord completeBeginOverlapRecord = PresenceRecord.builder().begin(t4).end(t6).build();
+        PresenceRecord completeEndOverlapRecord = PresenceRecord.builder().begin(t1).end(t3).build();
+        PresenceRecord endingOverlapRecord = PresenceRecord.builder().begin(null).end(t3).build();
+        PresenceRecord beginningOverlapRecord = PresenceRecord.builder().begin(t4).end(null).build();
+
+        PresenceRecord completeBeforeRecord = PresenceRecord.builder().begin(t0).end(t1).build();
+        PresenceRecord completeAfterRecord = PresenceRecord.builder().begin(t6).end(t7).build();
+        PresenceRecord endingBeforeRecord = PresenceRecord.builder().begin(null).end(t1).build();
+        PresenceRecord beginningAfterRecord = PresenceRecord.builder().begin(t6).end(null).build();
+
+        assertTrue(completeTestRecord.overlapsWith(completeSurroundingRecord));
+        assertTrue(completeTestRecord.overlapsWith(completeWithinRecord));
+        assertTrue(completeTestRecord.overlapsWith(completeBeginOverlapRecord));
+        assertTrue(completeTestRecord.overlapsWith(completeEndOverlapRecord));
+        assertTrue(completeTestRecord.overlapsWith(endingOverlapRecord));
+        assertTrue(completeTestRecord.overlapsWith(beginningOverlapRecord));
+        assertFalse(completeTestRecord.overlapsWith(completeBeforeRecord));
+        assertFalse(completeTestRecord.overlapsWith(completeAfterRecord));
+        assertFalse(completeTestRecord.overlapsWith(endingBeforeRecord));
+        assertFalse(completeTestRecord.overlapsWith(beginningAfterRecord));
+
+        assertTrue(beginningTestRecord.overlapsWith(completeSurroundingRecord));
+        assertTrue(beginningTestRecord.overlapsWith(completeWithinRecord));
+        assertTrue(beginningTestRecord.overlapsWith(completeBeginOverlapRecord));
+        assertTrue(beginningTestRecord.overlapsWith(completeEndOverlapRecord));
+        assertTrue(beginningTestRecord.overlapsWith(endingOverlapRecord));
+        assertTrue(beginningTestRecord.overlapsWith(beginningOverlapRecord));
+        assertFalse(beginningTestRecord.overlapsWith(completeBeforeRecord));
+        assertTrue(beginningTestRecord.overlapsWith(completeAfterRecord));
+        assertFalse(beginningTestRecord.overlapsWith(endingBeforeRecord));
+        assertTrue(beginningTestRecord.overlapsWith(beginningAfterRecord));
+
+        assertTrue(endingTestRecord.overlapsWith(completeSurroundingRecord));
+        assertTrue(endingTestRecord.overlapsWith(completeWithinRecord));
+        assertTrue(endingTestRecord.overlapsWith(completeBeginOverlapRecord));
+        assertTrue(endingTestRecord.overlapsWith(completeEndOverlapRecord));
+        assertTrue(endingTestRecord.overlapsWith(endingOverlapRecord));
+        assertTrue(endingTestRecord.overlapsWith(beginningOverlapRecord));
+        assertTrue(endingTestRecord.overlapsWith(completeBeforeRecord));
+        assertFalse(endingTestRecord.overlapsWith(completeAfterRecord));
+        assertTrue(endingTestRecord.overlapsWith(endingBeforeRecord));
+        assertFalse(endingTestRecord.overlapsWith(beginningAfterRecord));
+    }
 }

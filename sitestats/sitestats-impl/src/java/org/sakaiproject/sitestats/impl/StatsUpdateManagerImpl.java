@@ -524,10 +524,11 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 			String eventId = e.getEvent();
 			String resourceRef = e.getResource();
-			if(userId == null || eventId == null || resourceRef == null) {
+			String sessionId = e.getSessionId();
+			if(userId == null || eventId == null || resourceRef == null || sessionId == null) {
 				return;
 			}
-			consolidateEvent(date, eventId, resourceRef, userId, siteId);
+			consolidateEvent(date, eventId, resourceRef, userId, siteId, sessionId);
 		} else if(getServerEvents().contains(e.getEvent()) && !isMyWorkspaceEvent(e)){
 			
 			//it's a server event
@@ -580,7 +581,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	 *
 	 * @param dateTime Can this be <code>null</code>?
 	 */
-	private void consolidateEvent(Date dateTime, String eventId, String resourceRef, String userId, String siteId) {
+	private void consolidateEvent(Date dateTime, String eventId, String resourceRef, String userId, String siteId, String sessionId) {
 		if(eventId == null)
 			return;
 
@@ -718,7 +719,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 		} else if(StatsManager.SITEVISIT_EVENTID.equals(eventId)){
 			String visitsKey = siteId + date;
-			SitePresenceKey sitePresenceKey = SitePresenceKey.builder().siteId(siteId).userId(userId).build();
+			SitePresenceKey sitePresenceKey = SitePresenceKey.builder().siteId(siteId).userId(userId).sessionId(sessionId).build();
 			lock.lock();
 			try{
 				// Populate visits map
@@ -750,7 +751,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 		}else if(StatsManager.SITEVISITEND_EVENTID.equals(eventId) && statsManager.getEnableSitePresences()){
 			// site presence ended
-			SitePresenceKey sitePresenceKey = SitePresenceKey.builder().siteId(siteId).userId(userId).build();
+			SitePresenceKey sitePresenceKey = SitePresenceKey.builder().siteId(siteId).userId(userId).sessionId(sessionId).build();
 			lock.lock();
 			try{
 				// Populate presence map with end events
@@ -1351,10 +1352,11 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		for (Map.Entry<SitePresenceKey, List<SitePresenceRecord>> userSitePresencesEntry : presencesByUserAndSite.entrySet()) {
 			String siteId = userSitePresencesEntry.getKey().getSiteId();
 			String userId = userSitePresencesEntry.getKey().getUserId();
+			int key = userSitePresencesEntry.getKey().hashCode();
 			List<SitePresenceRecord> allUserSitePresences = userSitePresencesEntry.getValue();
 
 			for (int i = 0; i < allUserSitePresences.size(); i++) {
-				log.debug("p{}: {}", i, allUserSitePresences.get(i));
+				log.debug("k{} p{}: {}", key, i, allUserSitePresences.get(i));
 			}
 
 			Collections.sort(allUserSitePresences);
@@ -1368,16 +1370,16 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			// For ending events presences fill in the saved being time
 			for (SitePresenceRecord presenceConsolidation : allUserSitePresences) {
 				if (presenceConsolidation.isEnding()) {
-					hasEndingPresence = true;
-
 					if (savedBegin.isPresent()) {
 						presenceConsolidation.setBegin(savedBegin.get());
 					} else {
 						// Ending presence but no saved begin date; Log and skip it
-						log.warn("Presence end at {} without saved begin time for siteId [{}], userId [{}] and sessionId [{}]",
+						log.warn("Presence end at {} without saved begin time for siteId [{}]and userId [{}]",
 								presenceConsolidation.getEnd().atZone(ZoneId.systemDefault()).toLocalDateTime().toString(), siteId, userId);
 						continue;
 					}
+
+					hasEndingPresence = true;
 				} else if (presenceConsolidation.isComplete()) {
 					hasEndingPresence = true;
 				}
@@ -1395,7 +1397,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					.map(SitePresenceRecord::getBegin);
 
 			Optional<Instant> lastStart;
-			log.debug("hasEndingPresence: {}", hasEndingPresence);
+			log.debug("k{} hasEndingPresence: {}", key, hasEndingPresence);
 			if (hasEndingPresence) {
 				Optional<Instant> lastEndingOrCompletePresenceEnd = validUserSitePresences.stream()
 						.filter(Predicate.not(SitePresenceRecord::isBeginning))
@@ -1421,7 +1423,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				lastStart = savedBegin.or(() -> firstBeginningPresenceBegin);
 			}
 
-			log.debug("lastStart: {}", lastStart);
+			log.debug("k{} lastStart: {}", key, lastStart);
 
 			// To process the complete events we need to filter and sort them
 			List<Presence> completeUserSitePresences = validUserSitePresences.stream()
@@ -1435,6 +1437,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			Map<Instant, PresenceConsolidation> consolidationByDay = presenceConsolidation.mapByDay();
 			consolidationByDay.forEach((day, consodation) -> {
 				Long durationMillis = consodation.getDuration().toMillis();
+				// TODO: log the duration we are saving here
+				log.debug("k{} saving duration: {}", key, durationMillis);
 
 				SitePresence sitePresence = SitePresenceImpl.builder()
 						.siteId(siteId)
@@ -1455,6 +1459,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					.collect(Collectors.toList());
 
 			for (SitePresenceRecord unsavedBeginningPresence : unsavedBeginningPresences) {
+				log.debug("k{} saving beginning presence with laststart {}", key, lastStart);
 				SitePresence sitePresence = SitePresenceImpl.builder()
 						.siteId(siteId)
 						.userId(userId)

@@ -1,10 +1,12 @@
 package org.sakaiproject.sitestats.impl;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.sakaiproject.sitestats.api.presence.Presence;
 
 import lombok.AllArgsConstructor;
@@ -87,7 +89,8 @@ public class PresenceRecord implements Presence, Comparable<PresenceRecord> {
         Instant otherBegin = other.getBegin();
         Instant otherEnd = other.getEnd();
 
-        return (begin == null || begin.isBefore(otherEnd)) && (otherBegin == null || otherBegin.isBefore(end));
+        return (begin == null || (otherEnd == null || begin.isBefore(otherEnd)))
+                && (otherBegin == null || (end == null || otherBegin.isBefore(end)));
     }
 
     @Override
@@ -101,6 +104,31 @@ public class PresenceRecord implements Presence, Comparable<PresenceRecord> {
 
         return (otherBegin == null || otherBegin.isBefore(begin)) && (otherEnd == null || otherEnd.isAfter(end));
     }
+
+    /**
+     * Converts {@link org.sakaiproject.sitestats.api.presence.Presence}
+     * to       {@link org.sakaiproject.sitestats.impl.PresenceRecord}
+     *
+     * @param presence The presence to convert
+     * @return The presence object if it's already a record else a new record instance
+     */
+    public static PresenceRecord from(@NonNull Presence presence) {
+        if (presence instanceof PresenceRecord) {
+            return (PresenceRecord) presence;
+        }
+
+        PresenceRecord record = new PresenceRecord();
+
+        try {
+            BeanUtils.copyProperties(record, presence);
+        } catch (IllegalAccessException | InvocationTargetException exception) {
+            throw new IllegalArgumentException(String.format("Provided %s of type %s is not complatible with %s",
+                    Presence.class.getName(), presence.getClass().getName(), PresenceRecord.class.getName()), exception);
+        }
+
+        return record;
+    }
+
 
     private static Instant toDay(@NonNull Instant instant) {
         return instant.truncatedTo(ChronoUnit.DAYS);

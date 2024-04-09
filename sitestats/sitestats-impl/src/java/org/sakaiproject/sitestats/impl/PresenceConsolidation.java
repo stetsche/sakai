@@ -1,6 +1,5 @@
 package org.sakaiproject.sitestats.impl;
 
-import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -13,13 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.sakaiproject.sitestats.api.presence.Presence;
 
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class PresenceConsolidation {
 
 
@@ -34,11 +30,13 @@ public class PresenceConsolidation {
 
 
     public boolean add(@NonNull Presence presence) {
-        if (!presence.isComplete()) {
+        PresenceRecord additialRecord = PresenceRecord.from(presence);
+
+        if (!additialRecord.isComplete()) {
             throw new IllegalArgumentException("Can not add incomplete record to consolidation");
         }
 
-        if (records.contains(presence)) {
+        if (records.contains(additialRecord)) {
             // Record is already present in list, leave unchanged
             return false;
         }
@@ -48,7 +46,7 @@ public class PresenceConsolidation {
 
         // Assign first and last overlapping records
         for (PresenceRecord currentRecord : records) {
-            if (currentRecord.overlapsWith(presence)) {
+            if (currentRecord.overlapsWith(additialRecord)) {
                 if (firstOverlappingRecord == null) {
                     firstOverlappingRecord = currentRecord;
                 }
@@ -61,7 +59,8 @@ public class PresenceConsolidation {
 
         // If we have no intersections, just add the new record
         if (firstOverlappingRecord == null && lastOverlappingRecord == null) {
-            records.add(presenceToRecord(presence));
+            records.add(additialRecord);
+            sort();
             return true;
         }
 
@@ -69,19 +68,19 @@ public class PresenceConsolidation {
         if (firstOverlappingRecord != null && firstOverlappingRecord == lastOverlappingRecord) {
             Presence onlyIntersectingRecord = firstOverlappingRecord;
 
-            if (presence.isWithin(onlyIntersectingRecord)) {
+            if (additialRecord.isWithin(onlyIntersectingRecord)) {
                 return false;
             }
 
-            Instant addedRecordBegin = presence.getBegin();
-            Instant addedRecordEnd = presence.getEnd();
+            Instant additionalRecordBegin = additialRecord.getBegin();
+            Instant additionalRecordEnd = additialRecord.getEnd();
 
-            if (addedRecordBegin.isBefore(onlyIntersectingRecord.getBegin())) {
-                onlyIntersectingRecord.setBegin(addedRecordBegin);
+            if (additionalRecordBegin.isBefore(onlyIntersectingRecord.getBegin())) {
+                onlyIntersectingRecord.setBegin(additionalRecordBegin);
             }
 
-            if (addedRecordEnd.isAfter(onlyIntersectingRecord.getEnd())) {
-                onlyIntersectingRecord.setEnd(addedRecordEnd);
+            if (additionalRecordEnd.isAfter(onlyIntersectingRecord.getEnd())) {
+                onlyIntersectingRecord.setEnd(additionalRecordEnd);
             }
 
             return true;
@@ -96,8 +95,8 @@ public class PresenceConsolidation {
                 records.remove(i);
             }
 
-            PresenceRecord mergedRecord = merge(presence, firstOverlappingRecord, lastOverlappingRecord);
-            records.set(firstIndex, mergedRecord);
+            PresenceRecord mergedRecord = merge(additialRecord, firstOverlappingRecord, lastOverlappingRecord);
+            records.add(firstIndex, mergedRecord);
             return true;
         }
 
@@ -252,30 +251,6 @@ public class PresenceConsolidation {
 
     private void sort() {
         Collections.sort(records, PRESENCE_RECORDS_ORDER);
-    }
-
-    /**
-     * Converts {@link org.sakaiproject.sitestats.api.presence.Presence}
-     * to       {@link org.sakaiproject.sitestats.impl.PresenceRecord}
-     *
-     * @param presence The presence to convert
-     * @return The presence object if it's already a record else a new record instance
-     */
-    private PresenceRecord presenceToRecord(@NonNull Presence presence) {
-        if (presence instanceof PresenceRecord) {
-            return (PresenceRecord) presence;
-        }
-
-        PresenceRecord record = new PresenceRecord();
-
-        try {
-            BeanUtils.copyProperties(record, presence);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            log.error("Could not copy properties from {} to {}, did the entities change?",
-                    Presence.class.getName(), PresenceRecord.class.getName());
-        }
-
-        return record;
     }
 
     private static Instant toDay(@NonNull Instant instant) {
