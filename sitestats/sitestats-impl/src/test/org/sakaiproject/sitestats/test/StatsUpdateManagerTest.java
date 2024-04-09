@@ -304,7 +304,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		// Start and end in the same collection.
 		{
 			List<Event> events = new ArrayList<>();
-			events.add(statsUpdateManager.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID,    "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id"));
+			events.add(statsUpdateManager.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id"));
 			events.add(statsUpdateManager.buildEvent(new Date(), StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id"));
 			assertTrue(statsUpdateManager.collectEvents(events));
 		}
@@ -564,7 +564,7 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 	}
 
 	@Test
-	public void testOverlappingSitePresencesWild() throws InterruptedException {
+	public void testOverlappingSitePresencesInterEvaluation() throws InterruptedException {
 		Instant base = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 
 		// Create events for overlapping presences
@@ -582,7 +582,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
 
 		SitePresenceImpl result;
-		// Evaluate
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence1Begin)));
 		result = db.getResultsForClass(SitePresenceImpl.class).get(0);
 		assertEquals(Duration.of(0, ChronoUnit.SECONDS).toMillis(), result.getDuration());
@@ -598,13 +597,32 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence2End)));
 		result = db.getResultsForClass(SitePresenceImpl.class).get(0);
 		assertEquals(Duration.of(120, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+	}
 
-		// assertEquals(1, results.size());
+	@Test
+	public void testTrickyOverlappingSitePresences() throws InterruptedException {
+		Instant base = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 
-		// SitePresenceImpl result = results.get(0);
+		// Create events for overlapping presences
+		//     0    20    40    60    80   100
+		//                    eval        eval
+		// p1: b-----------------------e
+		// p2:       b-----e
+		final Event presence1Begin = statsUpdateManager.buildEvent(Date.from(base),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence1End = statsUpdateManager.buildEvent(Date.from(base.plus(80, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence2Begin = statsUpdateManager.buildEvent(Date.from(base.plus(20, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+		final Event presence2End = statsUpdateManager.buildEvent(Date.from(base.plus(40, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
 
-		// assertEquals(FakeData.USER_A_ID, result.getUserId());
-		// assertEquals(Duration.of(120, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1Begin, presence2Begin, presence2End)));
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1End)));
+
+		SitePresenceImpl result = db.getResultsForClass(SitePresenceImpl.class).get(0);
+
+		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
 	}
 
 	@SuppressWarnings("unchecked")
