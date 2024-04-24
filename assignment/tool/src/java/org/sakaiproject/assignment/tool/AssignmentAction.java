@@ -5758,7 +5758,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         Map<String, User> studentMembers = groupSelection.getUsers().stream()
                     .filter(isNonSubmitter)
-                    .map(this::getUser)
+                    .map(userDirectoryService::getOptionalUser)
                     .flatMap(Optional::stream)
                     .collect(Collectors.toMap(User::getId, Function.identity()));
 
@@ -16772,13 +16772,5 @@ public class AssignmentAction extends PagedResourceActionII {
             return assignmentService.intToTime(assigmentRateSpent);
         }
         return assignmentService.intToTime(assigmentRateSpent);
-    }
-    
-    private Optional<User> getUser(String userId) {
-        try {
-            return Optional.of(userDirectoryService.getUser(userId));
-        } catch (UserNotDefinedException e) {
-            return Optional.empty();
-        }
     }
 }
