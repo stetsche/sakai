@@ -46,7 +46,7 @@
 		#else
 		<div class="sakai-table-toolBar">
 			<div class="sakai-table-filterContainer">
-			#if ($!groups.hasNext() || !$hasAtLeastOneAnonAssignment)
+			#if ($!groups.hasNext())
 				#define($viewSelectOptions)
 					#if (!$showSubmissionByFilterSearchOnly)
 						<option value="all" #if($!viewGroup.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
@@ -59,6 +59,7 @@
 				#end
 				#viewFilterPanel("viewFilterForm", "viewgroup", $viewSelectOptions, "doChange_submission_list_option")
 			#end
+			#searchFilterPanel("$form_search", $searchString, "doView_submission_list_search", "doView_submission_list_search_clear")
 			</div>
 			<div class="sakai-table-toolBar-centre">
 				#if ($!isTimesheet)
@@ -119,62 +120,61 @@
 										#else
 											data-action-href='#toolLinkParam("AssignmentAction" "doHide_student_submission" "studentId=$formattedText.escapeUrl($member.Id)")'
 										#end
-											data-expanded="$isExpanded"
-									>
-										$submitterName
-									</span>
-								</td>
-								<td headers="assignment" data-order="ZZZZZZZZ"></td>
-								<td headers="submitted"></td>
-								<td headers="status" data-order="999999999999"></td>
-							#if ($!isTimesheet)
-								<td headers="time"></td>
-							#end
-							<td headers="grade"></td>
-							</tr>
-						#else
+									</div>
+									<div>
+										<div class="spinnerBesideContainer" id="$submitterName">
+											#set( $userSpinnerID = "userSpinner_" + $member.Id )
+											#if (!$studentListShowSet.contains($member.Id))
+													<a href="javascript:void(0)" onclick="SPNR.insertSpinnerInPreallocated( this, null, '$userSpinnerID' ); location='#toolLinkParam("AssignmentAction" "doShow_student_submission" "studentId=$formattedText.escapeUrl($member.Id)")'; return false;"
+														title="$tlang.getString("stulistsunbm.shostuass")" name="studentLink" >
+													<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("stulistsunbm.shostuass")" width="13" height="13" border="0" />
+											#else
+													<a href="javascript:void(0)" onclick="SPNR.insertSpinnerInPreallocated( this, null, '$userSpinnerID' ); location='#toolLinkParam("AssignmentAction" "doHide_student_submission" "studentId=$formattedText.escapeUrl($member.Id)")'; return false;"
+														title="$tlang.getString("stulistsunbm.hidstuass")" name="studentLink" >
+													<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("stulistsunbm.hidstuass")" width="13" height="13" border="0" />
+											#end
+											$formattedText.escapeHtml($submitterName)
+											</a>
+											<div id="$userSpinnerID" class="allocatedSpinPlaceholder"></div>
+										</div>
+									</div>
+								</div>
+							</td>
+							<td colspan="5">
+							</td>
+						</tr>
+						#if ($studentListShowSet.contains($member.Id))
 							#set($assignments=false)
 							#set($assignments=$!studentAssignmentsTable.get($member))
 							#foreach ($assignment in $!assignments)
 								#set ($assignmentReference = $!service.assignmentReference($assignment.Id))
 								#set ($isAnon = $!service.assignmentUsesAnonymousGrading($assignment))
-								#set($assignmentTitle = $formattedText.escapeHtml($assignment.Title))
-								#if (!$assignment.Draft)
+								#if ($assignment.IsGroup)
+									#set($displayAssignment = $service.canSubmit($assignment, $member.id))
+								#else
+									#set($displayAssignment = true)
+								#end
+								#if (!$assignment.Draft && $displayAssignment)
 									## do not show draft assignments
 									#set($submission = false)
 									#set($submission=$service.getSubmission($assignment.Id, $member))
 									#set($submissionReference=$service.submissionReference($assignment.Context, $submission.Id, $assignment.Id))
 									<tr>
-										<td headers="studentname" data-order="$submitterName">
-											<span data-user-id="$member.Id"
-												#if (!$studentListShowSet.contains($member.Id))
-													data-action-href='#toolLinkParam("AssignmentAction" "doShow_student_submission" "studentId=$formattedText.escapeUrl($member.Id)")'
+										<td headers="studentname"/>
+										<td headers="assignment">
+											<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($submissionReference)&option=lisofass2&user_id=$member.id")" title="$formattedText.escapeHtml($assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
+											#if ($allowAddAssignment && $allowSubmitByInstructor)
+											#set( $submitSpinnerID = "submitFor_" + $member.Id + "_" + $formattedText.escapeUrl($assignmentReference) )
+											<div class="itemAction spinnerBesideContainer">
+												#if ($assignment.DueDate.isAfter($currentTime))
+													<a onclick="SPNR.insertSpinnerInPreallocated( this, null, '$submitSpinnerID' );" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$formattedText.escapeUrl($assignmentReference)&submitterId=$formattedText.escapeUrl($member.id)")">
+														$tlang.getString("submitforstudent")
+													</a>
 												#else
-													data-action-href='#toolLinkParam("AssignmentAction" "doHide_student_submission" "studentId=$formattedText.escapeUrl($member.Id)")'
+													$tlang.getString("submitforstudentnotallowed")
 												#end
-												data-expanded="$isExpanded"
-											>
-												$submitterName
-											</span>
-										</td>
-										<td headers="assignment" data-order="$assignmentTitle">
-											#if (!$isAnon)
-												<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($submissionReference)&option=lisofass2")">$assignmentTitle</a>
-												#if ($allowAddAssignment && $allowSubmitByInstructor)
-												#set( $submitSpinnerID = "submitFor_" + $member.Id + "_" + $formattedText.escapeUrl($assignmentReference) )
-												<div class="itemAction spinnerBesideContainer">
-													#if ($assignment.DueDate.isAfter($currentTime))
-														<a onclick="SPNR.insertSpinnerInPreallocated( this, null, '$submitSpinnerID' );" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$formattedText.escapeUrl($assignmentReference)&submitterId=$formattedText.escapeUrl($member.id)")">
-															$tlang.getString("submitforstudent")
-														</a>
-													#else
-														$tlang.getString("submitforstudentnotallowed")
-													#end
-													<div id="$submitSpinnerID" class="allocatedSpinPlaceholder"></div>
-												</div>
-												#end
-											#else
-												$assignmentTitle ($tlang.getString("grading.anonymous.title"))
+												<div id="$submitSpinnerID" class="allocatedSpinPlaceholder"></div>
+											</div>
 											#end
 										</td>
 										<td headers="submitted">
@@ -258,6 +258,11 @@
 			#end
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
+	#end
+	#if ($expandedUserName)
+		<script>
+			window.location.href = window.location.href + "#" + "$expandedUserName";
+		</script>
 	#end
 </div>
 <!-- end: chef_assignments_instructor_student_list_submissions.vm  -->
