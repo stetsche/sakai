@@ -1118,6 +1118,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String CONTEXT_GO_NEXT_UNGRADED_ENABLED = "goNextUngradedEnabled";
     private static final String CONTEXT_GO_PREV_UNGRADED_ENABLED = "goPrevUngradedEnabled";
     private static final String PARAMS_VIEW_SUBS_ONLY_CHECKBOX = "chkSubsOnly1";
+    private static final String EXPANDED_USER_NAME = "expandedUserName";
     private static ResourceLoader rb = new ResourceLoader("assignment");
     private boolean nextUngraded = false;
     private boolean prevUngraded = false;
@@ -5732,17 +5733,10 @@ public class AssignmentAction extends PagedResourceActionII {
                 "&searchFilterOnly=" + searchFilterOnly.toString() +
                 "&estimate=true";
         context.put("accessPointUrl", accessPointUrl);
-
-        Collection<Assignment> assignments = assignmentService.getAssignmentsForContext(contextString);
-
-        boolean hasAtLeastOneAnonAssigment = false;
-        for (Assignment assignment : assignments) {
-            if (assignmentService.assignmentUsesAnonymousGrading(assignment)) {
-                hasAtLeastOneAnonAssigment = true;
-                break;
-            }
-        }
-        context.put("hasAtLeastOneAnonAssignment", hasAtLeastOneAnonAssigment);
+                           
+        Collection<Assignment> assignments = assignmentService.getAssignmentsForContext(contextString)
+                .stream().filter(a -> !assignmentService.assignmentUsesAnonymousGrading(a))
+                .collect(Collectors.toList()); 
 
         List<String> nonSubmitterPermissions = serverConfigurationService.getStringList(AssignmentConstants.SAK_PROP_NON_SUBMITTER_PERMISSIONS,
                 AssignmentConstants.SAK_PROP_NON_SUBMITTER_PERMISSIONS_DEFAULT);
@@ -5784,6 +5778,8 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         }
 
+                
+        context.put("expandedUserName", state.getAttribute(EXPANDED_USER_NAME));
         context.put("studentMembersMap", studentMembers);
         context.put("studentMembers", new SortedIterator(studentMembers.values().iterator(), new AssignmentComparator(state, SORTED_USER_BY_SORTNAME, Boolean.TRUE.toString())));
         context.put("viewGroup", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION));
@@ -5813,17 +5809,6 @@ public class AssignmentAction extends PagedResourceActionII {
     private String build_instructor_report_submissions(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
         List submissions = prepPage(state);
         context.put("submissions", submissions);
-
-        List<SubmitterSubmission> allSubmissions = (List<SubmitterSubmission>) state.getAttribute(STATE_PAGEING_TOTAL_ITEMS);
-        boolean hasAtLeastOneAnonAssigment = false;
-        for (SubmitterSubmission submission : allSubmissions) {
-            Assignment assignment = submission.getSubmission().getAssignment();
-            if (assignmentService.assignmentUsesAnonymousGrading(assignment)) {
-                hasAtLeastOneAnonAssigment = true;
-                break;
-            }
-        }
-        context.put("hasAtLeastOneAnonAssignment", hasAtLeastOneAnonAssigment);
 
         context.put("sortedBy", state.getAttribute(SORTED_SUBMISSION_BY));
         context.put("sortedAsc", state.getAttribute(SORTED_SUBMISSION_ASC));
@@ -11024,7 +11009,14 @@ public class AssignmentAction extends PagedResourceActionII {
         String assignmentId = params.getString("assignmentId");
         state.setAttribute(EXPORT_ASSIGNMENT_REF, assignmentId);
         String submissionId = params.getString("submissionId");
-
+        try {
+            String userId = params.getString("user_id");
+            User expandedUser = userDirectoryService.getUser(userId);
+            state.setAttribute(EXPANDED_USER_NAME, expandedUser.getSortName() + " (" + expandedUser.getDisplayId() + ")");
+        } catch (Exception ex) {
+            log.error(ex.getMessage(), ex);
+        }
+        
         // SAK-29314 - put submission information into state
         boolean viewSubsOnlySelected = stringToBool((String) data.getParameters().getString(PARAMS_VIEW_SUBS_ONLY_CHECKBOX));
         putSubmissionInfoIntoState(state, assignmentId, submissionId, viewSubsOnlySelected);
@@ -11231,6 +11223,12 @@ public class AssignmentAction extends PagedResourceActionII {
         ParameterParser params = data.getParameters();
 
         String id = params.getString("studentId");
+        try {
+            User expandedUser = userDirectoryService.getUser(id);
+            state.setAttribute(EXPANDED_USER_NAME, expandedUser.getSortName() + " (" + expandedUser.getDisplayId() + ")");
+        } catch (Exception ex) {
+            log.error(ex.getMessage(), ex);
+        }
         // add the student id into the table
         t.add(id);
 
@@ -11247,6 +11245,7 @@ public class AssignmentAction extends PagedResourceActionII {
         ParameterParser params = data.getParameters();
 
         String id = params.getString("studentId");
+        state.removeAttribute(EXPANDED_USER_NAME);
         // remove the student id from the table
         t.remove(id);
 
