@@ -3151,6 +3151,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return access;
     }
 
+    public boolean permissionCheckInGroups(String permission, Assignment assignment, String user) {
+        return this.permissionCheckWithGroups(permission, assignment, user);
+    }
+
     private boolean permissionCheckWithGroups(final String permission, final Assignment assignment, final String user) {
         if (StringUtils.isBlank(permission) || assignment == null) return false;
         String siteReference = siteService.siteReference(assignment.getContext());
