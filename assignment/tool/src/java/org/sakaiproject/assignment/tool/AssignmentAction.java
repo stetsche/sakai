@@ -5777,7 +5777,6 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         }
 
-                
         context.put("expandedUserId", state.getAttribute(EXPANDED_USER_ID));
         context.put("studentMembersMap", studentMembers);
         context.put("studentMembers", new SortedIterator(studentMembers.values().iterator(), new AssignmentComparator(state, SORTED_USER_BY_SORTNAME, Boolean.TRUE.toString())));
