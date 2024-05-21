@@ -1,4 +1,11 @@
 <!-- start: chef_assignments_instructor_student_list_submissions.vm  -->
+<script>
+	#if ($expandedUserId)
+		window.currentExpandedUser = "$expandedUserId";
+	#else
+		window.currentExpandedUser = "";
+	#end
+</script>
 #javascript("/sakai-assignment-tool/js/assignmentsByStudent.js")
 <script>
 	window.addEventListener("load", () => {
@@ -46,7 +53,7 @@
 		#else
 		<div class="sakai-table-toolBar">
 			<div class="sakai-table-filterContainer">
-			#if ($!groups.hasNext() || !$hasAtLeastOneAnonAssignment)
+			#if ($!groups.hasNext())
 				#define($viewSelectOptions)
 					#if (!$showSubmissionByFilterSearchOnly)
 						<option value="all" #if($!viewGroup.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
@@ -137,9 +144,13 @@
 							#set($assignments=$!studentAssignmentsTable.get($member))
 							#foreach ($assignment in $!assignments)
 								#set ($assignmentReference = $!service.assignmentReference($assignment.Id))
-								#set ($isAnon = $!service.assignmentUsesAnonymousGrading($assignment))
 								#set($assignmentTitle = $formattedText.escapeHtml($assignment.Title))
-								#if (!$assignment.Draft)
+								#if ($assignment.IsGroup)
+									#set($displayAssignment = $service.canSubmit($assignment, $member.id))
+								#else
+									#set($displayAssignment = true)
+								#end
+								#if (!$assignment.Draft && $displayAssignment)
 									## do not show draft assignments
 									#set($submission = false)
 									#set($submission=$service.getSubmission($assignment.Id, $member))
@@ -158,9 +169,8 @@
 											</span>
 										</td>
 										<td headers="assignment" data-order="$assignmentTitle">
-											#if (!$isAnon)
-												<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($submissionReference)&option=lisofass2")">$assignmentTitle</a>
-												#if ($allowAddAssignment && $allowSubmitByInstructor)
+											<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($submissionReference)&option=lisofass2")">$assignmentTitle</a>
+											#if ($allowAddAssignment && $allowSubmitByInstructor)
 												#set( $submitSpinnerID = "submitFor_" + $member.Id + "_" + $formattedText.escapeUrl($assignmentReference) )
 												<div class="itemAction spinnerBesideContainer">
 													#if ($assignment.DueDate.isAfter($currentTime))
@@ -172,29 +182,25 @@
 													#end
 													<div id="$submitSpinnerID" class="allocatedSpinPlaceholder"></div>
 												</div>
-												#end
-											#else
-												$assignmentTitle ($tlang.getString("grading.anonymous.title"))
 											#end
 										</td>
 										<td headers="submitted">
 											#if ($!submission.submitted)
-												#if (!$isAnon)
-													#if ($!submission.DateSubmitted)
-														$!service.getUsersLocalDateTimeString($!submission.DateSubmitted)
-														#if ($submission.DateSubmitted.isAfter($assignment.DueDate))
-															<span class="highlight">$tlang.getString("gen.late2")</span>
-														#end
+												#if ($!submission.DateSubmitted)
+													$!service.getUsersLocalDateTimeString($!submission.DateSubmitted)
+													#if ($submission.DateSubmitted.isAfter($assignment.DueDate))
+														<span class="highlight">$tlang.getString("gen.late2")</span>
 													#end
-													#set ($submissionSubmitter = $!service.getSubmissionSubmittee($submission))
-													#if ($!submissionSubmitter.isPresent())
-														#set ($submitterId = $!submissionSubmitter.get().getSubmitter())
-														<br />$tlang.getString("listsub.submitted.by") $formattedText.escapeHtml($studentMembersMap.get($submitterId).getDisplayName())
-														#if($member.getId() != $submitterId)
-															($tlang.getString("listsub.submitted.on.behalf") $formattedText.escapeHtml($member.sortName))
-														#end
+												#end
+												#set ($submissionSubmitter = $!service.getSubmissionSubmittee($submission))
+												#if ($!submissionSubmitter.isPresent())
+													#set ($submitterId = $!submissionSubmitter.get().getSubmitter())
+													<br />$tlang.getString("listsub.submitted.by") $formattedText.escapeHtml($studentMembersMap.get($submitterId).getDisplayName())
+													#if($member.getId() != $submitterId)
+														($tlang.getString("listsub.submitted.on.behalf") $formattedText.escapeHtml($member.sortName))
 													#end
-												#elseif ($!submission.DateSubmitted)
+												#end
+												#if ($!submission.DateSubmitted)
 													$tlang.getString("gen.subm4") $tlang.getString("submitted.date.redacted")
 												#end
 											#end
