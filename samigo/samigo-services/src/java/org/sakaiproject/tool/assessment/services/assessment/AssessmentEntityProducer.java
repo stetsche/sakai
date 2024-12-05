@@ -44,6 +44,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
+import org.sakaiproject.tool.assessment.util.ImportPerformance;
 import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -57,6 +58,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
     private static final int QTI_VERSION = 1;
     private static final String ARCHIVED_ELEMENT = "assessment";
     private QTIServiceAPI qtiService;
+
+	private ImportPerformance importPerformance = new ImportPerformance();
 
 	public void init() {
 		log.info("init()");
@@ -84,8 +87,11 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 
 		AssessmentService service = new AssessmentService();
 		Map<String, String> transversalMap = new HashMap<String, String>();
+		importPerformance.reset();
+		importPerformance.startMeassuring();
+		importPerformance.startMeassuring(ImportPerformance.COPY_ASSESSMENTS);
 		service.copyAllAssessments(fromContext, toContext, transversalMap);
-		
+		importPerformance.stopMeassuring(ImportPerformance.COPY_ASSESSMENTS);
 		// At a minimum, we need to remap all the attachment URLs to point to the new site
 
 		transversalMap.put("/content/attachment/" + fromContext + "/", "/content/attachment/" + toContext + "/");
@@ -110,8 +116,10 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
         ((Element) stack.peek()).appendChild(element);
         stack.push(element);
         AssessmentService assessmentService = new AssessmentService();
+		importPerformance.startMeassuring(ImportPerformance.GET_ASSESSMENTS);
         List<AssessmentData> assessmentList 
                 = (List<AssessmentData>) assessmentService.getAllActiveAssessmentsbyAgent(siteId);
+		importPerformance.stopMeassuring(ImportPerformance.GET_ASSESSMENTS);
         for (AssessmentData data : assessmentList) {
             Element assessmentXml = doc.createElement(ARCHIVED_ELEMENT);
             String id = data.getAssessmentId().toString();
@@ -235,6 +243,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 	 * {@inheritDoc}
 	 */
 	public void updateEntityReferences(String toContext, Map<String, String> transversalMap){
+		importPerformance.startMeassuring(ImportPerformance.UPDATE_REFS);
 		if(transversalMap != null && transversalMap.size() > 0){
 
 			Set<Entry<String, String>> entrySet = (Set<Entry<String, String>>) transversalMap.entrySet();
@@ -275,6 +284,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 					List itemList = section.getItemArray();
 					for(int j = 0; j < itemList.size(); j++){
 						ItemData item = (ItemData) itemList.get(j);
+						importPerformance.startMeassuringItem(item);
 						
 						
 						String itemIntr = item.getInstruction();
@@ -339,6 +349,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 							}
 						}	
 						
+						importPerformance.stopMeassuringItem(item);
 					}					
 				}
 				
@@ -349,5 +360,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 				}
 			}
 		}
+		importPerformance.stopMeassuring(ImportPerformance.UPDATE_REFS);
+		importPerformance.stopMeassuring();
+		importPerformance.evaluate(System.out);
 	}
 }
