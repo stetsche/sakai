@@ -16,8 +16,17 @@
 package org.sakaiproject.tool.assessment.services.assessment;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -30,6 +39,8 @@ import java.util.Stack;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
@@ -59,7 +70,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
     private static final String ARCHIVED_ELEMENT = "assessment";
     private QTIServiceAPI qtiService;
 
-	private ImportPerformance importPerformance = new ImportPerformance();
+	private Map<String, ImportPerformance> importPerformances = new HashMap<>();
 
 	public void init() {
 		log.info("init()");
@@ -87,7 +98,9 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 
 		AssessmentService service = new AssessmentService();
 		Map<String, String> transversalMap = new HashMap<String, String>();
+		ImportPerformance importPerformance = importPerformances.computeIfAbsent(toContext, (key) -> new ImportPerformance());
 		importPerformance.reset();
+		log.info("Start messuring import performance to site {}, {} site(s) registeded.", toContext, importPerformances.size());
 		importPerformance.startMeassuring();
 		importPerformance.startMeassuring(ImportPerformance.COPY_ASSESSMENTS);
 		service.copyAllAssessments(fromContext, toContext, transversalMap);
@@ -116,10 +129,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
         ((Element) stack.peek()).appendChild(element);
         stack.push(element);
         AssessmentService assessmentService = new AssessmentService();
-		importPerformance.startMeassuring(ImportPerformance.GET_ASSESSMENTS);
         List<AssessmentData> assessmentList 
                 = (List<AssessmentData>) assessmentService.getAllActiveAssessmentsbyAgent(siteId);
-		importPerformance.stopMeassuring(ImportPerformance.GET_ASSESSMENTS);
         for (AssessmentData data : assessmentList) {
             Element assessmentXml = doc.createElement(ARCHIVED_ELEMENT);
             String id = data.getAssessmentId().toString();
@@ -224,7 +235,10 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 			if (cleanup) {
 				if (log.isDebugEnabled()) log.debug("deleting assessments from " + toContext);
 				AssessmentService service = new AssessmentService();
+				ImportPerformance importPerformance = importPerformances.get(toContext);
+				importPerformance.startMeassuring(ImportPerformance.GET_ASSESSMENTS);
 				List assessmentList = service.getAllActiveAssessmentsbyAgent(toContext);
+				importPerformance.stopMeassuring(ImportPerformance.GET_ASSESSMENTS);
 				log.debug("found " + assessmentList.size() + " assessments in site: " + toContext);
 				for (Iterator iter = assessmentList.iterator(); iter.hasNext();) {
 					AssessmentData oneassessment = (AssessmentData) iter.next();
@@ -243,6 +257,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 	 * {@inheritDoc}
 	 */
 	public void updateEntityReferences(String toContext, Map<String, String> transversalMap){
+		ImportPerformance importPerformance = importPerformances.get(toContext);
 		importPerformance.startMeassuring(ImportPerformance.UPDATE_REFS);
 		if(transversalMap != null && transversalMap.size() > 0){
 
@@ -358,10 +373,35 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 					//hibernate will take care of saving everything that changed:
 					service.saveAssessment(assessmentFacade);
 				}
+				// Update evaluation file after every assessment is processed
+				savePerformanceEvaluation(toContext);
 			}
 		}
 		importPerformance.stopMeassuring(ImportPerformance.UPDATE_REFS);
 		importPerformance.stopMeassuring();
-		importPerformance.evaluate(System.out);
+		log.info("Stop messuring import performance to site {}, {} site(s) registeded.", toContext, importPerformances.size());
+		savePerformanceEvaluation(toContext);
+	}
+
+	private void savePerformanceEvaluation(String toContext) {
+		String evaluationFolderName = StringUtils.replace(toContext, "/", "-");
+		ImportPerformance importPerformance = importPerformances.get(toContext);
+
+		Path evaluationFolderPath = Paths.get(ServerConfigurationService.getSakaiHomePath(), evaluationFolderName);
+		String evaluationFileName = String.format("%s-%s-evaluation.txt",
+				DateTimeFormatter.ofPattern("yyyyMMdd-HH").format(Instant.now().atZone(ZoneId.systemDefault())),
+				importPerformance.isCompleted() ? "final" : "intermidiate");
+		try {
+			File evaluationFolder = Files.createDirectories(evaluationFolderPath).toFile();
+			File evaluationFile = Path.of(evaluationFolder.getPath(), evaluationFileName).toFile();
+
+			try (PrintStream out = new PrintStream(new FileOutputStream(evaluationFile))) {
+				importPerformance.evaluate(out);
+			}
+
+			log.info("Saved evaluation to: {}", evaluationFile.getPath());
+		} catch (IOException e) {
+			log.error("Could not write to evaluation File {} in {} due to:", evaluationFileName, evaluationFolderPath, e);
+		}
 	}
 }

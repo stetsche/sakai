@@ -2,6 +2,7 @@ package org.sakaiproject.tool.assessment.util;
 
 import java.io.PrintStream;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -42,6 +43,12 @@ public class ImportPerformance {
 
     public void stopMeassuring() {
         referenceStopWatch.stop();
+    }
+
+    public Instant getStartTime() {
+        Assert.isTrue(referenceStopWatch.isStarted(), "Meassuring must have started already");
+        
+        return referenceStopWatch.getStartInstant();
     }
 
     public void startMeassuring(String aspect) {
@@ -102,14 +109,15 @@ public class ImportPerformance {
     }
     
     public void evaluate(PrintStream output) {
-        Assert.isTrue(isCompleted(), "All timers should have been stopped at evaluation time");
+        boolean completed = isCompleted();
         
         StopWatch evaluationStopWatch = StopWatch.createStarted();
-        
-        Map<TypeId, List<ItemData>> itemsByType = itemMap.values().stream()
-                .collect(Collectors.groupingBy((item) -> TypeId.getInstance(item.getTypeId()))); 
    
-        output.append("\n");
+        if (completed) {
+            output.append("Import completed; Stats:");
+        } else {
+            output.printf("Import still in progress; %s in:", formatDuration(referenceStopWatch.getDuration()));
+        }
         output.append("==============================================\n");
         output.printf(TABLE_ROW_FORMAT, "Copy all assessments",
                 formatDuration(otherStopWatches.get(COPY_ASSESSMENTS).getDuration()));
@@ -122,6 +130,9 @@ public class ImportPerformance {
         output.append("Item reference updates:\n");
         output.append("\n");
 
+        Map<TypeId, List<ItemData>> itemsByType = itemMap.values().stream()
+                .collect(Collectors.groupingBy((item) -> TypeId.getInstance(item.getTypeId()))); 
+        
         output.append("Count of items by type:\n");
         itemsByType.forEach((type, items) -> {
             output.append(String.format(TABLE_ROW_FORMAT, formatType(type), items.size()));
@@ -156,7 +167,7 @@ public class ImportPerformance {
         });
         output.append("\n");
 
-        Duration updateRefsDuration = otherStopWatches.get(COPY_ASSESSMENTS).getDuration();
+        Duration updateRefsDuration = otherStopWatches.get(UPDATE_REFS).getDuration();
         Duration totalItemUpdateRefsDuration = itemsByType.values().stream()
                     .flatMap(Collection::stream)
                     .map(ItemData::getItemId)
@@ -171,13 +182,13 @@ public class ImportPerformance {
         output.append("\n");
         output.append("==============================================\n");
         
-        output.printf(TABLE_ROW_FORMAT_WIDE, "Total recorded duration:"
-                +  formatDuration(referenceStopWatch.getDuration()));
+        output.printf(TABLE_ROW_FORMAT_WIDE, "Total recorded duration:",
+                formatDuration(referenceStopWatch.getDuration()));
 
         Duration missedDuration = referenceStopWatch.getDuration()
                 .minus(controlStopWatch.getDuration());
-        output.printf(TABLE_ROW_FORMAT_WIDE, "Time that is has not been covered in measurements:"
-                +  formatDuration(missedDuration));
+        output.printf(TABLE_ROW_FORMAT_WIDE, "Time that is has not been covered in measurements:",
+                formatDuration(missedDuration));
         output.append("\n");
         output.append("==============================================\n");
 
@@ -187,14 +198,8 @@ public class ImportPerformance {
                 + evaluationStopWatch.getDuration().toSeconds() + "s\n");
     }
     
-    private boolean isCompleted() {
-        for (StopWatch stopWatch : stopWatchMap.values()) {
-            if (!stopWatch.isStopped()) {
-                return false;
-            }
-        }
-        
-        return true;
+    public boolean isCompleted() {
+        return referenceStopWatch.isStopped() && !controlStopWatch.isRunning();
     }
     
     private String formatDuration(Duration duration) {
@@ -231,6 +236,10 @@ public class ImportPerformance {
                     stopWatches.pop();
                     break;
             }
+        }
+        
+        public boolean isRunning() {
+            return !stopWatches.isEmpty();
         }
 
         public void reset() {
