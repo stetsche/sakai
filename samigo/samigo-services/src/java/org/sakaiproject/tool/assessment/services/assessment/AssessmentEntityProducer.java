@@ -274,7 +274,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 				boolean needToUpdate = false;
 				
 				String assessmentDesc = assessmentFacade.getDescription();
-				if(assessmentDesc != null){
+				if(StringUtils.isNotBlank(assessmentDesc)){
 					assessmentDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, assessmentDesc);
 					if(!assessmentDesc.equals(assessmentFacade.getDescription())){
 						//need to save since a ref has been updated:
@@ -287,7 +287,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 				for(int i = 0; i < sectionList.size(); i++){
 					SectionFacade section = (SectionFacade) sectionList.get(i);
 					String sectionDesc = section.getDescription();
-					if(sectionDesc != null){
+					if(StringUtils.isNotBlank(sectionDesc)){
 						sectionDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, sectionDesc);
 						if(!sectionDesc.equals(section.getDescription())){
 							//need to save since a ref has been updated:
@@ -303,7 +303,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 						
 						
 						String itemIntr = item.getInstruction();
-						if(itemIntr != null){
+						if(StringUtils.isNotBlank(itemIntr)){
 							itemIntr = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, itemIntr);
 							if(!itemIntr.equals(item.getInstruction())){
 								//need to save since a ref has been updated:
@@ -313,7 +313,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 						}
 						
 						String itemDesc = item.getDescription();
-						if(itemDesc != null){
+						if(StringUtils.isNotBlank(itemDesc)){
 							itemDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, itemDesc);
 							if(!itemDesc.equals(item.getDescription())){
 								//need to save since a ref has been updated:
@@ -327,7 +327,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 							for(int k = 0; k < itemTextList.size(); k++){
 								ItemText itemText = (ItemText) itemTextList.get(k);
 								String text = itemText.getText();
-								if(text != null){
+								if(StringUtils.isNotBlank(text)){
 									// Transfer all of the attachments to the new site
 									text = service.copyContentHostingAttachments(text, toContext);
 									
@@ -345,7 +345,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 										Answer answer = (Answer) answerSetList.get(l);
 										String answerText = answer.getText();
 										
-										if (answerText != null) {
+										if(StringUtils.isNotBlank(answerText)){
 											// Transfer all of the attachments embedded in the answer text
 											answerText = service.copyContentHostingAttachments(answerText, toContext);
 											
