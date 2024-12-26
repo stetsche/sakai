@@ -265,7 +265,9 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 
 			AssessmentService service = new AssessmentService();
 		
+			importPerformance.startMeassuring(ImportPerformance.GET_ASSESSMENTS_FOR_UPDATE);
 			List assessmentList = service.getAllActiveAssessmentsbyAgent(toContext);			
+			importPerformance.stopMeassuring(ImportPerformance.GET_ASSESSMENTS_FOR_UPDATE);
 			Iterator assessmentIter =assessmentList.iterator();
 			while (assessmentIter.hasNext()) {
 				AssessmentData assessment = (AssessmentData) assessmentIter.next();		
@@ -275,7 +277,9 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 				
 				String assessmentDesc = assessmentFacade.getDescription();
 				if(StringUtils.isNotBlank(assessmentDesc)){
+					importPerformance.startMeassuring(ImportPerformance.MIGRATE_LINKS);
 					assessmentDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, assessmentDesc);
+					importPerformance.stopMeassuring(ImportPerformance.MIGRATE_LINKS);
 					if(!assessmentDesc.equals(assessmentFacade.getDescription())){
 						//need to save since a ref has been updated:
 						needToUpdate = true;
@@ -288,7 +292,9 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 					SectionFacade section = (SectionFacade) sectionList.get(i);
 					String sectionDesc = section.getDescription();
 					if(StringUtils.isNotBlank(sectionDesc)){
+						importPerformance.startMeassuring(ImportPerformance.MIGRATE_LINKS);
 						sectionDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, sectionDesc);
+						importPerformance.stopMeassuring(ImportPerformance.MIGRATE_LINKS);
 						if(!sectionDesc.equals(section.getDescription())){
 							//need to save since a ref has been updated:
 							needToUpdate = true;
@@ -304,7 +310,9 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 						
 						String itemIntr = item.getInstruction();
 						if(StringUtils.isNotBlank(itemIntr)){
+							importPerformance.startMeassuring(ImportPerformance.MIGRATE_LINKS);
 							itemIntr = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, itemIntr);
+							importPerformance.stopMeassuring(ImportPerformance.MIGRATE_LINKS);
 							if(!itemIntr.equals(item.getInstruction())){
 								//need to save since a ref has been updated:
 								needToUpdate = true;
@@ -314,7 +322,9 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 						
 						String itemDesc = item.getDescription();
 						if(StringUtils.isNotBlank(itemDesc)){
+							importPerformance.startMeassuring(ImportPerformance.MIGRATE_LINKS);
 							itemDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, itemDesc);
+							importPerformance.stopMeassuring(ImportPerformance.MIGRATE_LINKS);
 							if(!itemDesc.equals(item.getDescription())){
 								//need to save since a ref has been updated:
 								needToUpdate = true;
@@ -328,17 +338,20 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 								ItemText itemText = (ItemText) itemTextList.get(k);
 								String text = itemText.getText();
 								if(StringUtils.isNotBlank(text)){
+									importPerformance.startMeassuring(ImportPerformance.COPY_ATTACHMANETS);
 									// Transfer all of the attachments to the new site
 									text = service.copyContentHostingAttachments(text, toContext);
+									importPerformance.stopMeassuring(ImportPerformance.COPY_ATTACHMANETS);
 									
+									importPerformance.startMeassuring(ImportPerformance.MIGRATE_LINKS);
 									text = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, text);
+									importPerformance.stopMeassuring(ImportPerformance.MIGRATE_LINKS);
 									if(!text.equals(itemText.getText())){
 										//need to save since a ref has been updated:
 										needToUpdate = true;
 										itemText.setText(text);
 									}
 								}
-								
 								List answerSetList = itemText.getAnswerArray();
 								if (answerSetList != null) {
 									for (int l = 0; l < answerSetList.size(); l++) {
@@ -346,11 +359,15 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 										String answerText = answer.getText();
 										
 										if(StringUtils.isNotBlank(answerText)){
+											importPerformance.startMeassuring(ImportPerformance.COPY_ATTACHMANETS);
 											// Transfer all of the attachments embedded in the answer text
 											answerText = service.copyContentHostingAttachments(answerText, toContext);
+											importPerformance.stopMeassuring(ImportPerformance.COPY_ATTACHMANETS);
 											
 											// Now rewrite the answerText with links to the new site
+											importPerformance.startMeassuring(ImportPerformance.MIGRATE_LINKS);
 											answerText = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, answerText);
+											importPerformance.stopMeassuring(ImportPerformance.MIGRATE_LINKS);
 											
 											if (!answerText.equals(answer.getText())) {
 												needToUpdate = true;

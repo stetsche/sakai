@@ -20,16 +20,23 @@ public class ImportPerformance {
     
 
     public static final String COPY_ASSESSMENTS = "copyAssessments";
-    public static final String GET_ASSESSMENTS = "copyAssessments";
+    public static final String GET_ASSESSMENTS = "getAssessments";
     public static final String UPDATE_REFS = "updateRefs";
+    public static final String COPY_ATTACHMANETS = "copyAttachments";
+    public static final String MIGRATE_LINKS = "migrateAnswerLinks";
+    public static final String GET_ASSESSMENTS_FOR_UPDATE = "getAssessmentsUpdate";
     
     private final Map<Long, ItemData> itemMap = new HashMap<>();
     private final Map<Long, StopWatch> stopWatchMap = new HashMap<>();
-    private final Map<String, StopWatch> otherStopWatches = new HashMap<>() {{
-            put(COPY_ASSESSMENTS, StopWatch.create());
-            put(GET_ASSESSMENTS, StopWatch.create());
-            put(UPDATE_REFS, StopWatch.create());
+    private final Map<String, ControlStopWatch> otherStopWatches = new HashMap<>() {{
+            put(COPY_ASSESSMENTS, new ControlStopWatch());
+            put(GET_ASSESSMENTS, new ControlStopWatch());
+            put(UPDATE_REFS, new ControlStopWatch());
+            put(COPY_ATTACHMANETS, new ControlStopWatch());
+            put(MIGRATE_LINKS, new ControlStopWatch());
+            put(GET_ASSESSMENTS_FOR_UPDATE, new ControlStopWatch());
     }};
+
     private final StopWatch referenceStopWatch = new StopWatch();
     private final ControlStopWatch controlStopWatch = new ControlStopWatch();
     
@@ -52,7 +59,7 @@ public class ImportPerformance {
     }
 
     public void startMeassuring(String aspect) {
-        StopWatch stopWatch = otherStopWatches.get(aspect);
+        ControlStopWatch stopWatch = otherStopWatches.get(aspect);
 
         Assert.notNull(stopWatch, "Stopwatch [" + aspect + "] not initialized");
 
@@ -61,7 +68,7 @@ public class ImportPerformance {
     }
 
     public void stopMeassuring(String aspect) {
-        StopWatch stopWatch = otherStopWatches.get(aspect);
+        ControlStopWatch stopWatch = otherStopWatches.get(aspect);
 
         Assert.notNull(stopWatch, "Stopwatch [" + aspect + "] not initialized");
 
@@ -101,7 +108,7 @@ public class ImportPerformance {
     public void reset() {
         itemMap.clear();
         stopWatchMap.clear();
-        for (StopWatch stopWatch : otherStopWatches.values()) {
+        for (ControlStopWatch stopWatch : otherStopWatches.values()) {
            stopWatch.reset(); 
         }
         referenceStopWatch.reset();
@@ -114,9 +121,9 @@ public class ImportPerformance {
         StopWatch evaluationStopWatch = StopWatch.createStarted();
    
         if (completed) {
-            output.append("Import completed; Stats:");
+            output.append("Import completed; Stats:\n");
         } else {
-            output.printf("Import still in progress; %s in:", formatDuration(referenceStopWatch.getDuration()));
+            output.printf("Import still in progress; %s in\n:", formatDuration(referenceStopWatch.getDuration()));
         }
         output.append("==============================================\n");
         output.printf(TABLE_ROW_FORMAT, "Copy all assessments",
@@ -179,6 +186,12 @@ public class ImportPerformance {
                 formatDuration(updateRefsDuration.minus(totalItemUpdateRefsDuration)));
         output.printf(TABLE_ROW_FORMAT, "Total update refs duration",
                 formatDuration(updateRefsDuration));
+        output.printf(TABLE_ROW_FORMAT, "...of that copying attachments",
+                formatDuration(otherStopWatches.get(COPY_ATTACHMANETS).getDuration()));
+        output.printf(TABLE_ROW_FORMAT, "...of that migrating answer links",
+                formatDuration(otherStopWatches.get(MIGRATE_LINKS).getDuration()));
+        output.printf(TABLE_ROW_FORMAT, "...of that getting assessments",
+                formatDuration(otherStopWatches.get(GET_ASSESSMENTS_FOR_UPDATE).getDuration()));
         output.append("\n");
         output.append("==============================================\n");
         
