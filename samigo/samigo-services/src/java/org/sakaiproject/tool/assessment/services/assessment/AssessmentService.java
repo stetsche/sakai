@@ -25,6 +25,8 @@ import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -32,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -1407,5 +1410,17 @@ public class AssessmentService {
 		}
 
 		return rename;
+	}
+
+	public Set<String> getDuplicateItemHashesByAssessmentId(@NonNull Long assessmentId) {
+		return getDuplicateItemHashesForAssessmentIds(Collections.singleton(assessmentId));
+	}
+	
+	public Set<String> getDuplicateItemHashesForAssessmentIds(@NonNull Collection<Long> assessmentIds) {
+		// Eliminate duplicates
+		Set<Long> assessmentIdSet = Set.copyOf(assessmentIds);
+
+		return PersistenceService.getInstance().getAssessmentFacadeQueries()
+				.getDuplicateItemHashesForAssessmentIds(assessmentIdSet);
 	}
 }

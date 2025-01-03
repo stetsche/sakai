@@ -25,6 +25,7 @@ public class ImportPerformance {
     public static final String COPY_ATTACHMANETS = "copyAttachments";
     public static final String MIGRATE_LINKS = "migrateAnswerLinks";
     public static final String GET_ASSESSMENTS_FOR_UPDATE = "getAssessmentsUpdate";
+    public static final String PREPARE_FOR_CACHING = "prepareForCaching";
     
     private final Map<Long, ItemData> itemMap = new HashMap<>();
     private final Map<Long, StopWatch> stopWatchMap = new HashMap<>();
@@ -35,6 +36,7 @@ public class ImportPerformance {
             put(COPY_ATTACHMANETS, new ControlStopWatch());
             put(MIGRATE_LINKS, new ControlStopWatch());
             put(GET_ASSESSMENTS_FOR_UPDATE, new ControlStopWatch());
+            put(PREPARE_FOR_CACHING, new ControlStopWatch());
     }};
 
     private final StopWatch referenceStopWatch = new StopWatch();
@@ -42,6 +44,8 @@ public class ImportPerformance {
     
     private static final String TABLE_ROW_FORMAT = "%-35s %-20s\n";
     private static final String TABLE_ROW_FORMAT_WIDE = "%-55s %-20s\n";
+
+    private int skippedCount = 0;
 
 
     public void startMeassuring() {
@@ -113,6 +117,12 @@ public class ImportPerformance {
         }
         referenceStopWatch.reset();
         controlStopWatch.reset();
+
+        skippedCount = 0;
+    }
+
+    public void migrateSkipped() {
+        skippedCount++;
     }
     
     public void evaluate(PrintStream output) {
@@ -182,8 +192,15 @@ public class ImportPerformance {
                     .map(StopWatch::getDuration)
                     .reduce(Duration.ZERO, Duration::plus);
 
+        output.printf(TABLE_ROW_FORMAT, "Preparing hashes for caching",
+                formatDuration(otherStopWatches.get(PREPARE_FOR_CACHING).getDuration()));
+        output.printf(TABLE_ROW_FORMAT, "Number of migrations skipped", skippedCount);
+        output.append("\n");
+
         output.printf(TABLE_ROW_FORMAT, "Time not updating items/answers",
                 formatDuration(updateRefsDuration.minus(totalItemUpdateRefsDuration)));
+        output.append("\n");
+
         output.printf(TABLE_ROW_FORMAT, "Total update refs duration",
                 formatDuration(updateRefsDuration));
         output.printf(TABLE_ROW_FORMAT, "...of that copying attachments",

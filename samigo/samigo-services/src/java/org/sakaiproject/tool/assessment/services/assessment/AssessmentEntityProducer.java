@@ -32,7 +32,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Map.Entry;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.Set;
 import java.util.Stack;
 
@@ -40,6 +44,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -52,10 +57,13 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.util.ImportPerformance;
+import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -69,6 +77,8 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
     private static final int QTI_VERSION = 1;
     private static final String ARCHIVED_ELEMENT = "assessment";
     private QTIServiceAPI qtiService;
+
+	private final LinkMigrationHelper linkMigrationHelper = ComponentManager.get(LinkMigrationHelper.class);
 
 	private Map<String, ImportPerformance> importPerformances = new HashMap<>();
 
@@ -266,8 +276,22 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 			AssessmentService service = new AssessmentService();
 		
 			importPerformance.startMeassuring(ImportPerformance.GET_ASSESSMENTS_FOR_UPDATE);
-			List assessmentList = service.getAllActiveAssessmentsbyAgent(toContext);			
+			List<AssessmentData> assessmentList = service.getAllActiveAssessmentsbyAgent(toContext);			
 			importPerformance.stopMeassuring(ImportPerformance.GET_ASSESSMENTS_FOR_UPDATE);
+
+			
+			importPerformance.startMeassuring(ImportPerformance.PREPARE_FOR_CACHING);
+			Set<Long> assessmentIds = assessmentList.stream()
+					.map(AssessmentData::getAssessmentBaseId)
+					.filter(Objects::nonNull)
+					.collect(Collectors.toSet());
+
+			Set<String> duplicateHashes = service.getDuplicateItemHashesForAssessmentIds(assessmentIds);
+			importPerformance.stopMeassuring(ImportPerformance.PREPARE_FOR_CACHING);
+
+			Map<String, Boolean> needToUpdateCache = new HashMap<>();
+			Map<String, String> itemContentCache = new HashMap<>();
+
 			Iterator assessmentIter =assessmentList.iterator();
 			while (assessmentIter.hasNext()) {
 				AssessmentData assessment = (AssessmentData) assessmentIter.next();		
@@ -301,85 +325,60 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 							section.setDescription(sectionDesc);
 						}
 					}
-					
-					List itemList = section.getItemArray();
-					for(int j = 0; j < itemList.size(); j++){
-						ItemData item = (ItemData) itemList.get(j);
-						importPerformance.startMeassuringItem(item);
-						
-						
-						String itemIntr = item.getInstruction();
-						if(StringUtils.isNotBlank(itemIntr)){
-							importPerformance.startMeassuring(ImportPerformance.MIGRATE_LINKS);
-							itemIntr = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, itemIntr);
-							importPerformance.stopMeassuring(ImportPerformance.MIGRATE_LINKS);
-							if(!itemIntr.equals(item.getInstruction())){
-								//need to save since a ref has been updated:
-								needToUpdate = true;
-								item.setInstruction(itemIntr);
-							}
+
+					List<ItemData> itemList = section.getItemArray();
+
+
+					for (ItemData item : itemList) {
+						importPerformance.startMeassuringItem(item);						
+
+						String itemHash = item.getHash();
+						boolean hasDuplicates = StringUtils.isNotEmpty(itemHash) && duplicateHashes.contains(itemHash);
+						boolean hasCaches = hasDuplicates && needToUpdateCache.containsKey(itemHash);
+
+						// If no update is required so far and we cached that an item does not need an update, we can skip the item
+						if (hasCaches && !needToUpdateCache.get(itemHash)) {
+							importPerformance.stopMeassuringItem(item);
+							importPerformance.migrateSkipped();
+							continue;
 						}
-						
-						String itemDesc = item.getDescription();
-						if(StringUtils.isNotBlank(itemDesc)){
-							importPerformance.startMeassuring(ImportPerformance.MIGRATE_LINKS);
-							itemDesc = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, itemDesc);
-							importPerformance.stopMeassuring(ImportPerformance.MIGRATE_LINKS);
-							if(!itemDesc.equals(item.getDescription())){
-								//need to save since a ref has been updated:
-								needToUpdate = true;
-								item.setDescription(itemDesc);
-							}
-						}
-						
-						List itemTextList = item.getItemTextArray();
-						if(itemTextList != null){
-							for(int k = 0; k < itemTextList.size(); k++){
-								ItemText itemText = (ItemText) itemTextList.get(k);
-								String text = itemText.getText();
-								if(StringUtils.isNotBlank(text)){
-									importPerformance.startMeassuring(ImportPerformance.COPY_ATTACHMANETS);
-									// Transfer all of the attachments to the new site
-									text = service.copyContentHostingAttachments(text, toContext);
-									importPerformance.stopMeassuring(ImportPerformance.COPY_ATTACHMANETS);
-									
-									importPerformance.startMeassuring(ImportPerformance.MIGRATE_LINKS);
-									text = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, text);
-									importPerformance.stopMeassuring(ImportPerformance.MIGRATE_LINKS);
-									if(!text.equals(itemText.getText())){
-										//need to save since a ref has been updated:
-										needToUpdate = true;
-										itemText.setText(text);
+
+						boolean instructionChanged = migrateText(service, toContext, item, itemHash, hasCaches, hasDuplicates, false,
+								"inst", itemContentCache, entrySet, ItemData::getInstruction, ItemData::setInstruction);
+
+						boolean descriptionChanged = migrateText(service, toContext, item, itemHash, hasCaches, hasDuplicates, false,
+								"desc", itemContentCache, entrySet, ItemData::getDescription, ItemData::setDescription);
+
+						boolean itemTextsChanged = false;
+						List<ItemTextIfc> itemTexts = item.getItemTextArray();
+						if (itemTexts != null) {
+							for (int j = 0; j < itemTexts.size(); j++) {
+								ItemTextIfc itemText = itemTexts.get(j);
+								boolean itemTextChanged = migrateText(service, toContext, itemText, itemHash, hasCaches, hasDuplicates, true,
+										"it-" + j, itemContentCache, entrySet, ItemTextIfc::getText, ItemTextIfc::setText);
+
+								boolean answersChanged = false;
+								List<AnswerIfc> answers =  itemText.getAnswerArray();
+								if (answers != null) {
+									for (int k = 0; k < answers.size(); k++) {
+										AnswerIfc answer = answers.get(k);
+										boolean answerChanged = migrateText(service, toContext, answer, itemHash, hasCaches, hasDuplicates, true,
+												"at-" + j + "-"+ k , itemContentCache, entrySet, AnswerIfc::getText, AnswerIfc::setText);
+
+										answersChanged = answersChanged || answerChanged;
 									}
 								}
-								List answerSetList = itemText.getAnswerArray();
-								if (answerSetList != null) {
-									for (int l = 0; l < answerSetList.size(); l++) {
-										Answer answer = (Answer) answerSetList.get(l);
-										String answerText = answer.getText();
-										
-										if(StringUtils.isNotBlank(answerText)){
-											importPerformance.startMeassuring(ImportPerformance.COPY_ATTACHMANETS);
-											// Transfer all of the attachments embedded in the answer text
-											answerText = service.copyContentHostingAttachments(answerText, toContext);
-											importPerformance.stopMeassuring(ImportPerformance.COPY_ATTACHMANETS);
-											
-											// Now rewrite the answerText with links to the new site
-											importPerformance.startMeassuring(ImportPerformance.MIGRATE_LINKS);
-											answerText = org.sakaiproject.util.cover.LinkMigrationHelper.migrateAllLinks(entrySet, answerText);
-											importPerformance.stopMeassuring(ImportPerformance.MIGRATE_LINKS);
-											
-											if (!answerText.equals(answer.getText())) {
-												needToUpdate = true;
-												answer.setText(answerText);
-											}
-										}
-									}
-								}
-								
-								
+
+								itemTextsChanged = itemTextsChanged || itemTextChanged || answersChanged;							
 							}
-						}	
+						}
+
+						needToUpdate = needToUpdate
+								|| instructionChanged
+								|| descriptionChanged
+								|| itemTextsChanged;
+
+						needToUpdateCache.put(itemHash, needToUpdate);
 						
 						importPerformance.stopMeassuringItem(item);
 					}					
@@ -398,6 +397,48 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		importPerformance.stopMeassuring();
 		log.info("Stop messuring import performance to site {}, {} site(s) registeded.", toContext, importPerformances.size());
 		savePerformanceEvaluation(toContext);
+	}
+	
+	private <T> boolean migrateText(AssessmentService assessmentService, String toContext, T item, String itemHash,
+			boolean hasCaches,boolean hasDuplicates, boolean copyAttachments, String cacheCode, Map<String, String> textCache,
+			Set<Entry<String, String>> entrySet, Function<T, String> getter, BiConsumer<T, String> setter) {
+
+		ImportPerformance importPerformance = importPerformances.get(toContext);
+		String cacheKey = itemHash + "-" + cacheCode;
+
+		if (hasCaches && textCache.containsKey(cacheKey)) {
+			// Item instruction has been cashed, lets get it form the cache
+			setter.accept(item, textCache.get(cacheKey));
+			return true;
+		} else {
+			// Item instruction has not been cached, lets try migrating
+			String itemText = StringUtils.trimToEmpty(getter.apply(item));
+			String migratedText;
+			if (copyAttachments) {
+				importPerformance.startMeassuring(ImportPerformance.COPY_ATTACHMANETS);
+				migratedText = assessmentService.copyContentHostingAttachments(itemText, toContext);
+				importPerformance.stopMeassuring(ImportPerformance.COPY_ATTACHMANETS);
+			} else {
+				migratedText = itemText;
+			}
+
+			importPerformance.startMeassuring(ImportPerformance.MIGRATE_LINKS);
+			migratedText = linkMigrationHelper.migrateAllLinks(entrySet, migratedText);
+			importPerformance.stopMeassuring(ImportPerformance.MIGRATE_LINKS);
+
+			// Check if there has been a change
+			if (!StringUtils.equals(itemText, migratedText)) {
+				setter.accept(item, migratedText);
+
+				if (hasDuplicates) {
+					textCache.put(cacheKey, migratedText);
+				}
+
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 	private void savePerformanceEvaluation(String toContext) {
