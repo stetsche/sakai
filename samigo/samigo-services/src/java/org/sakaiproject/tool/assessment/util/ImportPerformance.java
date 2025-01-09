@@ -218,7 +218,7 @@ public class ImportPerformance {
         Duration missedDuration = referenceStopWatch.getDuration()
                 .minus(controlStopWatch.getDuration());
         output.printf(TABLE_ROW_FORMAT_WIDE, "Time that is has not been covered in measurements:",
-                formatDuration(missedDuration));
+                missedDuration.toSeconds() + "s");
         output.append("\n");
         output.append("==============================================\n");
 
