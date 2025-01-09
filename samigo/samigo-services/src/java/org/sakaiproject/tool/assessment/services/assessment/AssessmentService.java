@@ -1082,7 +1082,10 @@ public class AssessmentService {
 				Set<String> attachments = new HashSet<String>();
 				for (String source : sources) {
 					String theHref = StringUtils.substringBefore(source, "\"");
-					if (StringUtils.contains(theHref, "/access/content/")) {
+
+					if (StringUtils.contains(theHref, "/access/content/")
+							// Skip attachments associated with user
+							&& !StringUtils.contains(theHref, "/access/content/user/")) {
 						attachments.add(theHref);
 					}
 				}
