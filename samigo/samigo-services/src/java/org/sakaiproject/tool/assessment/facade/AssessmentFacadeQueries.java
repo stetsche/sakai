@@ -24,6 +24,7 @@ package org.sakaiproject.tool.assessment.facade;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -2447,6 +2448,10 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
     }
 	
 	public Set<String> getDuplicateItemHashesForAssessmentIds(Collection<Long> assessmentIds) {
+		if (assessmentIds.isEmpty()) {
+			return Collections.emptySet();
+		}
+
 		Session session = currentSession();
 		CriteriaBuilder cb = session.getCriteriaBuilder();
 		CriteriaQuery<String> cq = cb.createQuery(String.class);
