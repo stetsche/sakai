@@ -1083,7 +1083,8 @@ public class AssessmentService {
 				for (String source : sources) {
 					String theHref = StringUtils.substringBefore(source, "\"");
 
-					if (StringUtils.contains(theHref, "/access/content/")
+					if (!StringUtils.startsWith(theHref, "data:")
+							&& StringUtils.contains(theHref, "/access/content/")
 							// Skip attachments associated with user
 							&& !StringUtils.contains(theHref, "/access/content/user/")) {
 						attachments.add(theHref);
