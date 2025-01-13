@@ -409,6 +409,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 		if (hasCaches && textCache.containsKey(cacheKey)) {
 			// Item instruction has been cashed, lets get it form the cache
 			setter.accept(item, textCache.get(cacheKey));
+			importPerformance.migrateSkipped();
 			return true;
 		} else {
 			// Item instruction has not been cached, lets try migrating
