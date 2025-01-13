@@ -352,18 +352,16 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 						boolean itemTextsChanged = false;
 						List<ItemTextIfc> itemTexts = item.getItemTextArray();
 						if (itemTexts != null) {
-							for (int j = 0; j < itemTexts.size(); j++) {
-								ItemTextIfc itemText = itemTexts.get(j);
+							for (ItemTextIfc itemText : itemTexts) {
 								boolean itemTextChanged = migrateText(service, toContext, itemText, itemHash, hasCaches, hasDuplicates, true,
-										"it-" + j, itemContentCache, entrySet, ItemTextIfc::getText, ItemTextIfc::setText);
+										"it-" + itemText.getSequence(), itemContentCache, entrySet, ItemTextIfc::getText, ItemTextIfc::setText);
 
 								boolean answersChanged = false;
 								List<AnswerIfc> answers =  itemText.getAnswerArray();
 								if (answers != null) {
-									for (int k = 0; k < answers.size(); k++) {
-										AnswerIfc answer = answers.get(k);
+									for (AnswerIfc answer : answers) {
 										boolean answerChanged = migrateText(service, toContext, answer, itemHash, hasCaches, hasDuplicates, true,
-												"at-" + j + "-"+ k , itemContentCache, entrySet, AnswerIfc::getText, AnswerIfc::setText);
+												"at-" + itemText.getSequence() + "-"+ answer.getSequence() , itemContentCache, entrySet, AnswerIfc::getText, AnswerIfc::setText);
 
 										answersChanged = answersChanged || answerChanged;
 									}
